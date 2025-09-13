@@ -32,8 +32,12 @@ export default function BannersPage() {
   }, []);
 
   const fetchBanners = async () => {
-    const res = await api.get("/api/admin/banners");
-    setBanners(res.data);
+    try {
+      const res = await api.get("/api/admin/banners");
+      setBanners(res.data);
+    } catch (err) {
+      message.error("Failed to load banners!");
+    }
   };
 
   const handleSave = async () => {
@@ -41,17 +45,18 @@ export default function BannersPage() {
       const values = await form.validateFields();
       const formData = new FormData();
 
-      Object.keys(values).forEach((key) => {
-        if (key === "schedule") {
-          if (values.schedule) {
-            formData.append("schedule[startDate]", values.schedule[0]?.toISOString());
-            formData.append("schedule[endDate]", values.schedule[1]?.toISOString());
-          }
-        } else {
-          formData.append(key, values[key]);
-        }
+      // handle schedule
+      if (values.schedule) {
+        formData.append("schedule[startDate]", values.schedule[0]?.toISOString());
+        formData.append("schedule[endDate]", values.schedule[1]?.toISOString());
+      }
+
+      // handle other fields
+      ["title", "subtitle", "btnText", "btnLink", "isActive"].forEach((field) => {
+        if (values[field] !== undefined) formData.append(field, values[field]);
       });
 
+      // handle image
       if (values.image && values.image[0]?.originFileObj) {
         formData.append("image", values.image[0].originFileObj);
       }
@@ -74,9 +79,13 @@ export default function BannersPage() {
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/api/admin/banners/${id}`);
-    fetchBanners();
-    message.success("Banner deleted!");
+    try {
+      await api.delete(`/api/admin/banners/${id}`);
+      fetchBanners();
+      message.success("Banner deleted!");
+    } catch {
+      message.error("Failed to delete banner!");
+    }
   };
 
   return (
@@ -95,15 +104,33 @@ export default function BannersPage() {
         </Button>
       </div>
 
+      {/* Table */}
       <Table
         dataSource={banners}
         rowKey="_id"
         pagination={{ pageSize: 5 }}
         columns={[
-              { title: "S.No.", render: (_, __, index) => index + 1, width: 70, align: "center" },
-
+          {
+            title: "S.No.",
+            render: (_, __, index) => index + 1,
+            width: 70,
+            align: "center",
+          },
           { title: "Title", dataIndex: "title" },
           { title: "Subtitle", dataIndex: "subtitle" },
+          { title: "Button Text", dataIndex: "btnText" },
+          {
+            title: "Button Link",
+            dataIndex: "btnLink",
+            render: (link) =>
+              link ? (
+                <a href={link} target="_blank" rel="noreferrer" className="text-blue-500 underline">
+                  {link}
+                </a>
+              ) : (
+                "-"
+              ),
+          },
           {
             title: "Image",
             dataIndex: "imageUrl",
@@ -115,7 +142,11 @@ export default function BannersPage() {
               />
             ),
           },
-          { title: "Active", dataIndex: "isActive", render: (a) => (a ? "Yes" : "No") },
+          {
+            title: "Active",
+            dataIndex: "isActive",
+            render: (a) => (a ? "Yes" : "No"),
+          },
           {
             title: "Actions",
             render: (_, record) => (
@@ -165,6 +196,7 @@ export default function BannersPage() {
         ]}
       />
 
+      {/* Drawer Form */}
       <Drawer
         title={`${editingItem ? "Edit" : "Add"} Banner`}
         open={isDrawerOpen}
@@ -173,17 +205,17 @@ export default function BannersPage() {
         extra={<Button type="primary" onClick={handleSave}>Save</Button>}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="title" label="Title" rules={[{ required: true }]}>
-            <Input />
+          <Form.Item name="title" label="Title" >
+            <Input placeholder="Enter banner title" />
           </Form.Item>
           <Form.Item name="subtitle" label="Subtitle">
-            <Input />
+            <Input placeholder="Enter subtitle" />
           </Form.Item>
           <Form.Item name="btnText" label="Button Text">
-            <Input />
+            <Input placeholder="Enter button text (e.g. Book Now)" />
           </Form.Item>
           <Form.Item name="btnLink" label="Button Link">
-            <Input />
+            <Input placeholder="https://example.com" />
           </Form.Item>
           <Form.Item name="isActive" label="Active" valuePropName="checked">
             <Switch />

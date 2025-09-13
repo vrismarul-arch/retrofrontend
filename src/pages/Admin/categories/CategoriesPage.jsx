@@ -22,7 +22,7 @@ import {
 import api from "../../../../api";
 import "./categories.css";
 import SubCategoriesPage from "./SubCategoriesPage";
-import VarietiesPage from "./VarietiesPage";
+import BrandsPage from "./BrandsPage";
 
 const { TabPane } = Tabs;
 
@@ -275,7 +275,7 @@ export default function CategoriesPage() {
           }
           key="varieties"
         >
-          <VarietiesPage />
+          <BrandsPage />
         </TabPane>
       </Tabs>
     </div>

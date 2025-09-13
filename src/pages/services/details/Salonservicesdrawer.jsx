@@ -25,7 +25,7 @@ export default function Salonservicesdrawer({
       if (service?._id && open) {
         try {
           setLoading(true);
-          const res = await api.get(`/api/admin/services/${service._id}`);
+          const res = await api.get(`/api/admin/products/${service._id}`);
           setDetails(res.data);
         } catch (err) {
           console.error("❌ Failed to fetch service details", err);

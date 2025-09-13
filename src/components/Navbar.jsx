@@ -97,14 +97,14 @@ const ResponsiveNavbar = () => {
     return (
       <>
         <div className="mobile-top-bar">
-          <Link to="/"><img src="/tintD.png" alt="Logo" className="uc-logo-mobile" /></Link>
+          <Link to="/"><img src="/retrologo.png" alt="Logo" className="uc-logo-mobile" /></Link>
           {!isLoggedIn ? (
             <Link to="/login">
-              <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
+              <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
             </Link>
           ) : (
             <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
-              <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1", cursor: "pointer" }} />
+              <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#078d89", cursor: "pointer" }} />
             </Dropdown>
           )}
         </div>
@@ -139,7 +139,7 @@ const ResponsiveNavbar = () => {
   // ------------------- DESKTOP NAVBAR -------------------
   return (
     <div className="desktop-navbar">
-      <div className="nav-left"><Link to="/"><img src="/tintD.png" alt="Logo" className="uc-logo" /></Link></div>
+      <div className="nav-left"><Link to="/"><img src="/retrologo.png" alt="Logo" className="uc-logo" /></Link></div>
       <div className="nav-middle">
         <LocationSearch isMobile={isMobile} />
         <SearchBar />
@@ -153,13 +153,13 @@ const ResponsiveNavbar = () => {
 
         {!isLoggedIn ? (
           <Link to="/login" className="nav-link">
-            <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
+            <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
             <span style={{ marginLeft: 6 }}>Sign In</span>
           </Link>
         ) : (
           <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
             <div className="nav-link" style={{ cursor: "pointer" }}>
-              <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#a066e1" }} />
+              <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
               <span style={{ marginLeft: 6 }}>{user?.name || "Profile"}</span>
             </div>
           </Dropdown>

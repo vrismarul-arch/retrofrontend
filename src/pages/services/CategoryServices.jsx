@@ -1,50 +1,53 @@
+// src/pages/category/CategoryServices.jsx
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Skeleton, Button, Table, Tag } from "antd";
-import api from "../../../api";
-import "../../css/CategoryServices.css";
-import Salonservicesdrawer from "./details/Salonservicesdrawer";
+import { Skeleton, Button } from "antd";
 import toast from "react-hot-toast";
-import { useCart } from "../../context/CartContext"; // ✅ use global cart context
+import api from "../../../api";
+import { useCart } from "../../context/CartContext";
+import Salonservicesdrawer from "./details/Salonservicesdrawer";
+import "../../css/CategoryServices.css";
 
 export default function CategoryServices() {
   const { id } = useParams();
-  const navigate = useNavigate();   
+  const navigate = useNavigate();
 
   const [services, setServices] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [varieties, setVarieties] = useState([]);
+  const [brands, setBrands] = useState([]);
   const [selectedSubCat, setSelectedSubCat] = useState(null);
-  const [selectedVariety, setSelectedVariety] = useState(null);
+  const [selectedBrand, setSelectedBrand] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [selectedService, setSelectedService] = useState(null);
 
-  const { cart, addToCart, removeFromCart } = useCart(); // ✅ global cart
+  const { cart, addToCart, removeFromCart } = useCart();
   const isLoggedIn = !!localStorage.getItem("token");
+
   const roundPrice = (p) => Number(Number(p).toFixed(2));
 
-  // fetch services
+  // Fetch services and categories
   useEffect(() => {
     const fetchData = async () => {
+      setLoading(true);
       try {
-        const res = await api.get(`/api/admin/services?category=${id}`);
+        const res = await api.get(`/api/admin/products?category=${id}`);
         setServices(res.data);
 
+        // Extract unique subcategories
         const subs = [];
-        const vars = [];
         res.data.forEach((s) => {
-          if (s.subCategory && !subs.find((x) => x._id === s.subCategory._id))
+          if (s.subCategory && !subs.find((x) => x._id === s.subCategory._id)) {
             subs.push(s.subCategory);
-          if (s.variety && !vars.find((x) => x._id === s.variety._id))
-            vars.push(s.variety);
+          }
         });
         setSubCategories(subs);
-        setVarieties(vars);
+
+        const brandsRes = await api.get("/api/admin/brands");
+        setBrands(brandsRes.data);
       } catch (err) {
-        console.error("❌ Fetch services error:", err);
-        toast.error("Failed to load services");
+        console.error("❌ Fetch error:", err);
+        toast.error("Failed to load data");
       } finally {
         setLoading(false);
       }
@@ -52,12 +55,7 @@ export default function CategoryServices() {
     fetchData();
   }, [id]);
 
-  useEffect(() => {
-    const handleResize = () => setIsMobile(window.innerWidth < 768);
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
+  // Add to cart
   const handleAddToCartClick = async (service) => {
     if (!isLoggedIn) {
       toast("Please login first", { icon: "🔑" });
@@ -65,7 +63,7 @@ export default function CategoryServices() {
       return;
     }
     try {
-      await addToCart(service._id); // ✅ use global context
+      await addToCart(service._id, 1, service);
       toast.success(`${service.name} added to cart`);
     } catch (err) {
       console.error("❌ Add to cart failed:", err);
@@ -73,90 +71,27 @@ export default function CategoryServices() {
     }
   };
 
+  // Remove from cart
   const handleRemoveFromCartClick = async (serviceId) => {
     try {
-      await removeFromCart(serviceId); // ✅ use global context
-      toast.error("Removed from cart");
+      await removeFromCart(serviceId);
+      toast.success("Removed from cart");
     } catch (err) {
-      console.error("❌ Remove failed:", err);
+      console.error("❌ Remove from cart failed:", err);
       toast.error("Could not remove from cart");
     }
   };
 
+  // Check if a service is in cart
   const isInCart = (serviceId) =>
-    cart.some((item) => item.service._id === serviceId);
+    cart.some((item) => item.product._id === serviceId);
 
+  // Filter services by selected subcategory & brand
   const filteredServices = services.filter(
     (s) =>
       (!selectedSubCat || s.subCategory?._id === selectedSubCat) &&
-      (!selectedVariety || s.variety?._id === selectedVariety)
+      (!selectedBrand || s.brand?._id === selectedBrand)
   );
-
-  const columns = [
-    { title: "S.No.", render: (_, __, index) => index + 1, width: 70, align: "center" },
-    {
-      title: "Service",
-      dataIndex: "name",
-      width: 270,
-      render: (_, record) => (
-        <div className="service-cell">
-          <img src={record.imageUrl || "/placeholder.png"} alt={record.name} className="service-thumb" />
-          <div className="service-info">
-            <h3 className="service-name">{record.name}</h3>
-            <p className="service-duration">
-              {record.duration
-                ? `${Math.floor(record.duration / 60)} hr ${record.duration % 60} mins`
-                : "N/A"}
-            </p>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Price",
-      dataIndex: "price",
-      width: 170,
-      render: (_, record) => (
-        <div className="price-cell">
-          <span className="price">₹{roundPrice(record.price)}</span>
-          {record.originalPrice > record.price && (
-            <span className="old-price">₹{roundPrice(record.originalPrice)}</span>
-          )}
-        </div>
-      ),
-    },
-    {
-      title: "Discount",
-      dataIndex: "discount",
-      render: (discount) => discount ? <Tag color="green">{discount}% OFF</Tag> : <Tag>—</Tag>,
-    },
-    {
-      title: "Action",
-      render: (_, record) => (
-        <div className="action-buttons">
-          {isInCart(record._id) ? (
-            <Button danger shape="round" size="small" onClick={() => handleRemoveFromCartClick(record._id)}>
-              REMOVE
-            </Button>
-          ) : (
-            <Button type="primary" shape="round" size="small" onClick={() => handleAddToCartClick(record)}>
-              ADD
-            </Button>
-          )}
-          <Button
-            size="small"
-            className="view-btn"
-            onClick={() => {
-              setSelectedService(record);
-              setDrawerOpen(true);
-            }}
-          >
-            View Details
-          </Button>
-        </div>
-      ),
-    },
-  ];
 
   return (
     <div className="category-services">
@@ -164,16 +99,16 @@ export default function CategoryServices() {
         <Skeleton active />
       ) : (
         <>
-          {/* Subcategory Scroll */}
+          {/* Subcategory Filter */}
           <div className="subcat-scroll">
             <div
               className={`subcat-card ${!selectedSubCat ? "active" : ""}`}
               onClick={() => {
                 setSelectedSubCat(null);
-                setSelectedVariety(null);
+                setSelectedBrand(null);
               }}
             >
-              <img src="/tintdfav.svg" alt="All" />
+              <img src="/retro.png" alt="All" className="subcat-img" />
               <p>All</p>
             </div>
             {subCategories.map((sub) => (
@@ -182,74 +117,103 @@ export default function CategoryServices() {
                 className={`subcat-card ${selectedSubCat === sub._id ? "active" : ""}`}
                 onClick={() => {
                   setSelectedSubCat(sub._id);
-                  setSelectedVariety(null);
+                  setSelectedBrand(null);
                 }}
               >
-                <img src={sub.imageUrl || "/placeholder.png"} alt={sub.name} />
+                <img src={sub.imageUrl || "/placeholder.png"} alt={sub.name} className="subcat-img" />
                 <p>{sub.name}</p>
               </div>
             ))}
           </div>
 
-          {/* Variety Chips */}
-          {selectedSubCat && varieties.length > 0 && (
+          {/* Brand Filter */}
+          {selectedSubCat && brands.length > 0 && (
             <div className="variety-chips">
-              {varieties.map((v) => (
+              {brands.map((brand) => (
                 <button
-                  key={v._id}
-                  className={`chip ${selectedVariety === v._id ? "active" : ""}`}
-                  onClick={() => setSelectedVariety(v._id)}
+                  key={brand._id}
+                  className={`chip ${selectedBrand === brand._id ? "active" : ""}`}
+                  onClick={() => setSelectedBrand(brand._id)}
                 >
-                  {v.name}
+                  {brand.name}
                 </button>
               ))}
             </div>
           )}
 
-          {isMobile ? (
-            <div className="mobile-services">
-              {filteredServices.map((service) => (
-                <div key={service._id} className="mobile-service-card">
-                  <img src={service.imageUrl || "/placeholder.png"} alt={service.name} className="mobile-service-img" />
-                  <div className="mobile-service-info">
-                    <h3>{service.name}</h3>
-                    <div className="price-section">
-                      <span className="price">₹{roundPrice(service.price)}</span>
-                    </div>
-                    <div className="mobile-buttons">
-                      {isInCart(service._id) ? (
-                        <Button danger shape="round" size="small" onClick={() => handleRemoveFromCartClick(service._id)}>
-                          REMOVE
-                        </Button>
-                      ) : (
-                        <Button type="primary" shape="round" size="small" onClick={() => handleAddToCartClick(service)}>
-                          ADD
-                        </Button>
-                      )}<Button
+          {/* Services Grid */}
+          <div className="service-grid">
+            {filteredServices.map((service) => (
+              <div key={service._id} className="service-card modern-card">
+                <div className="card-image-wrapper">
+                  <img
+                    src={service.image || "/placeholder.png"}
+                    alt={service.name}
+                    className="service-card-img default-img"
+                  />
+                  {service.discount && (
+                    <span className="discount-tag">{service.discount}% OFF</span>
+                  )}
+                </div>
+
+                <div className="service-card-info">
+                  <h3 className="service-title">{service.name}</h3>
+                  <p className="service-duration">
+                    {service.duration
+                      ? `${Math.floor(service.duration / 60)} hr ${service.duration % 60} mins`
+                      : "N/A"}
+                  </p>
+
+                  <div className="price-section">
+                    <span className="price">₹{roundPrice(service.price)}</span>
+                    {service.originalPrice > service.price && (
+                      <span className="old-price">₹{roundPrice(service.originalPrice)}</span>
+                    )}
+                  </div>
+
+                  <div className="action-buttons">
+                    {isInCart(service._id) ? (
+                      <Button
+                        danger
+                        shape="round"
                         size="small"
-                        className="view-btn"
-                        onClick={() => {
-                          setSelectedService(service);
-                          setDrawerOpen(true);
-                        }}
+                        onClick={() => handleRemoveFromCartClick(service._id)}
                       >
-                        View Details
+                        REMOVE
                       </Button>
-                    </div>
+                    ) : (
+                      <Button
+                        type="primary"
+                        shape="round"
+                        size="small"
+                        onClick={() => handleAddToCartClick(service)}
+                      >
+                        ADD
+                      </Button>
+                    )}
+                    <Button
+                      size="small"
+                      className="view-btn"
+                      onClick={() => {
+                        setSelectedService(service);
+                        setDrawerOpen(true);
+                      }}
+                    >
+                      View Details
+                    </Button>
                   </div>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <Table dataSource={filteredServices} columns={columns} rowKey="_id" pagination={false} scroll={{ x: true }} />
-          )}
+              </div>
+            ))}
+          </div>
 
+          {/* Service Details Drawer */}
           {drawerOpen && selectedService && (
             <Salonservicesdrawer
               open={drawerOpen}
               onClose={() => setDrawerOpen(false)}
               service={selectedService}
-              isMobile={isMobile}
+              isMobile={window.innerWidth < 768}
             />
           )}
         </>

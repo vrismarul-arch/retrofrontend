@@ -22,7 +22,7 @@
 }
 
 .uc-icon:hover {
-  color: #a066e1;
+  color: #078d89;
 }
 
 .logout-btn {
@@ -79,7 +79,7 @@
 }
 
 .nav-link:hover {
-  color: #a066e1;
+  color: #078d89;
 }
 
 .nav-icon {
@@ -147,7 +147,7 @@
 }
 
 .tab-item.active {
-  color: #a066e1;
+  color: #078d89;
   font-weight: bold;
 }
 
@@ -155,7 +155,7 @@
   border: none;
   background: none;
   font-size: 12px;
-  color: #a066e1;
+  color: #078d89;
 }
 
 /* ===================== ANIMATIONS ===================== */

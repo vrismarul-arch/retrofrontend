@@ -1,4 +1,3 @@
-// src/components/categories/Categories.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../api";
@@ -28,7 +27,6 @@ export default function Categories() {
 
   const handleCategoryClick = (catId) => {
     navigate(`/category/${catId}`);
-    toast.success("Category selected");
   };
 
   return (
@@ -39,15 +37,16 @@ export default function Categories() {
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="category-card">
-                <Skeleton.Image
+                <Skeleton.Avatar
                   active
-                  style={{ width: "100%", height: 150, borderRadius: 8 }}
+                  shape="circle"
+                  size={150}
+                  style={{ marginBottom: 10 }}
                 />
                 <Skeleton
                   active
                   paragraph={false}
-                  title={{ width: "80%" }}
-                  style={{ marginTop: 10 }}
+                  title={{ width: "60%" }}
                 />
               </div>
             ))
@@ -62,10 +61,7 @@ export default function Categories() {
                   alt={cat.name}
                   onError={(e) => (e.target.src = "/placeholder.png")}
                 />
-                <div className="category-info">
-                  {/* <h3>{cat.name}</h3> */}
-                  <span className="category-badge">New</span>
-                </div>
+                <p className="category-name">{cat.name}</p>
               </div>
             ))}
       </div>

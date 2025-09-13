@@ -34,7 +34,7 @@ export default function Topbar({ onToggleSidebar }) {
         style={{ cursor: "pointer" }}
         onClick={onToggleSidebar}
       >
-        <img src="/tintD.png" alt="Logo"  className="uc-logo-mobile"/>
+        <img src="/retrologo.png" alt="Logo"  className="uc-logo-mobile"/>
       </div>
 
       <h2 className="topbar-title"></h2>

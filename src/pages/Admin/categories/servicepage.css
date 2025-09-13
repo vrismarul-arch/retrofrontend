@@ -1,0 +1,78 @@
+/* ---------- Product Table Styles ---------- */
+.product-image-container {
+  display: flex;
+  gap: 0.25rem; /* space between thumbnails */
+}
+
+.product-image {
+  width: 48px;               /* thumbnail width */
+  height: 48px;              /* thumbnail height */
+  object-fit: cover;         /* maintain aspect ratio */
+  border-radius: 0.375rem;   /* rounded corners */
+  border: 1px solid #e5e7eb; /* light gray border */
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.product-image:hover {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Table Styles ---------- */
+.ant-table-thead > tr > th {
+  background-color: #f9fafb; /* light header background */
+  font-weight: 600;
+}
+
+.ant-table-tbody > tr:hover {
+  background-color: #f3f4f6; /* subtle hover effect */
+}
+
+/* ---------- Drawer & Form Styles ---------- */
+.ant-drawer-body {
+  padding: 2rem;
+}
+
+.ant-upload-list-picture-card {
+  border-radius: 0.375rem;
+  overflow: hidden;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.ant-upload-list-picture-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* ---------- Collapse Panel Styles ---------- */
+.ant-collapse-header {
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.ant-collapse-content-box {
+  padding: 1rem 0.5rem;
+}
+
+/* ---------- Buttons ---------- */
+.ant-btn-primary {
+  background-color: #2563eb; /* blue */
+  border-color: #2563eb;
+}
+
+.ant-btn-primary:hover {
+  background-color: #1d4ed8;
+  border-color: #1d4ed8;
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .product-image {
+    width: 36px;
+    height: 36px;
+  }
+  .ant-drawer-body {
+    padding: 1rem;
+  }
+}

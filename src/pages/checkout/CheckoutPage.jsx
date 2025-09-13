@@ -1,88 +1,80 @@
 // src/components/pages/CheckoutPage.jsx
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, DatePicker, Radio } from "antd";
+import { Form, Input, Button, Card, Spin } from "antd";
 import { useNavigate } from "react-router-dom";
-import dayjs from "dayjs";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
 import api from "../../../api";
 import "./CheckoutPage.css";
 
-const generateTimeSlots = () => {
-  const slots = [];
-  for (let h = 8; h <= 20; h += 2) {
-    const startTime = dayjs().hour(h).minute(0).second(0);
-    const endTime = startTime.add(2, "hour");
-    slots.push({
-      value: startTime.toISOString(),
-      label: `${startTime.format("h A")} - ${endTime.format("h A")}`,
-    });
-  }
-  return slots;
-};
-
 export default function CheckoutPage() {
   const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [location, setLocation] = useState(null);
-  const [services, setServices] = useState([]);
+  const [products, setProducts] = useState([]);
   const { cart } = useCart();
   const navigate = useNavigate();
-  const timeSlots = generateTimeSlots();
 
-  // Fetch service details from backend
+  // Fetch products from backend safely
   useEffect(() => {
-    if (cart.length > 0) {
-      const ids = cart.map((i) => i.service._id);
-      api
-        .post("/api/admin/services/byIds", { ids })
-        .then((res) => setServices(res.data))
-        .catch(() => toast.error("Failed to fetch service details"));
-    }
+    if (!cart || cart.length === 0) return;
+
+    const ids = cart
+      .filter((item) => item?.product?._id)
+      .map((item) => item.product._id);
+    if (ids.length === 0) return;
+
+    setLoading(true);
+    api
+      .post("/api/products/byIds", { ids })
+      .then((res) => setProducts(res.data || []))
+      .catch(() => toast.error("Failed to fetch product details"))
+      .finally(() => setLoading(false));
   }, [cart]);
 
   // Load profile if logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (token) {
-      api
-        .get("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
-        .then((res) => form.setFieldsValue(res.data))
-        .catch(() => toast("Could not fetch profile", { icon: "⚠️" }));
-    }
+    if (!token) return;
+
+    api
+      .get("/api/profile", { headers: { Authorization: `Bearer ${token}` } })
+      .then((res) => form.setFieldsValue(res.data))
+      .catch(() => toast("Could not fetch profile", { icon: "⚠️" }));
   }, [form]);
 
   // Get user location
   useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (pos) =>
-          setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-        () => toast("Could not fetch location", { icon: "⚠️" })
-      );
-    }
+    if (!navigator.geolocation) return;
+    navigator.geolocation.getCurrentPosition(
+      (pos) =>
+        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+      () => toast("Could not fetch location", { icon: "⚠️" })
+    );
   }, []);
 
+  // Handle checkout submission
   const handleSubmit = (values) => {
     if (!location) return toast.error("Location not available");
     setLoading(true);
 
     const totalAmount = cart.reduce((sum, item) => {
-      const srv = services.find((s) => s._id === item.service._id);
-      return sum + (srv?.price || item.service.price || 0) * item.quantity;
+      const prod = products.find((p) => p._id === item.product?._id);
+      return sum + (prod?.price || item.product?.price || 0) * item.quantity;
     }, 0);
 
     const payload = {
       ...values,
       location,
-      services: cart.map((item) => {
-        const srv = services.find((s) => s._id === item.service._id);
+      products: cart.map((item) => {
+        const prod = products.find((p) => p._id === item.product?._id);
         return {
-          serviceId: item.service._id,
-          name: srv?.name || item.service.name,
-          price: srv?.price || item.service.price,
+          productId: item.product?._id,
+          name: prod?.name || item.product?.name || "Product",
+          price: prod?.price || item.product?.price || 0,
           quantity: item.quantity,
-          imageUrl: srv?.imageUrl || "/placeholder.png",
+          imageUrl:
+            item.product?.image || prod?.imageUrl || "/placeholder.png",
         };
       }),
       totalAmount,
@@ -97,7 +89,7 @@ export default function CheckoutPage() {
     }, 1000);
   };
 
-  if (cart.length === 0) {
+  if (!cart || cart.length === 0)
     return (
       <div className="empty-cart">
         <p>
@@ -108,7 +100,13 @@ export default function CheckoutPage() {
         </p>
       </div>
     );
-  }
+
+  if (loading)
+    return (
+      <div className="loading-spinner">
+        <Spin size="large" />
+      </div>
+    );
 
   return (
     <div className="checkout-wrapper">
@@ -118,7 +116,9 @@ export default function CheckoutPage() {
           layout="vertical"
           form={form}
           onFinish={handleSubmit}
-          onFinishFailed={() => toast.error("Please fill all required fields")}
+          onFinishFailed={() =>
+            toast.error("Please fill all required fields")
+          }
         >
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input placeholder="Enter your name" />
@@ -140,29 +140,7 @@ export default function CheckoutPage() {
           >
             <Input.TextArea rows={2} placeholder="Enter your address" />
           </Form.Item>
-          <Form.Item
-            name="selectedDate"
-            label="Select Date"
-            rules={[{ required: true, message: "Please select a date" }]}
-          >
-            <DatePicker
-              style={{ width: "100%" }}
-              disabledDate={(d) => d && d < dayjs().startOf("day")}
-            />
-          </Form.Item>
-          <Form.Item
-            name="selectedTime"
-            label="Select Time Slot"
-            rules={[{ required: true, message: "Please select a time slot" }]}
-          >
-            <Radio.Group className="time-slots">
-              {timeSlots.map((slot) => (
-                <Radio.Button key={slot.value} value={slot.value}>
-                  {slot.label}
-                </Radio.Button>
-              ))}
-            </Radio.Group>
-          </Form.Item>
+
           {location && (
             <p className="location-info">
               📍 {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
@@ -174,16 +152,17 @@ export default function CheckoutPage() {
       <Card className="order-summary">
         <h3>Order Summary</h3>
         {cart.map((item) => {
-          const srv = services.find((s) => s._id === item.service._id);
-          const price = srv?.price || item.service.price;
+          const prod = products.find((p) => p._id === item.product?._id);
+          const name = prod?.name || item.product?.name || "Product";
+          const price = prod?.price || item.product?.price || 0;
+          const imageSrc =
+            item.product?.image || prod?.imageUrl || "/placeholder.png";
+
           return (
-            <div key={item.service._id} className="order-item">
-              <img
-                src={srv?.imageUrl || "/placeholder.png"}
-                alt={srv?.name || item.service.name}
-              />
+            <div key={item.product?._id || Math.random()} className="order-item">
+              <img src={imageSrc} alt={name} />
               <div>
-                <p className="item-name">{srv?.name || item.service.name}</p>
+                <p className="item-name">{name}</p>
                 <p className="item-price">
                   {item.quantity} × ₹{price} = ₹{item.quantity * price}
                 </p>
@@ -194,8 +173,12 @@ export default function CheckoutPage() {
         <p className="total">
           Total: ₹
           {cart.reduce(
-            (s, i) =>
-              s + (services.find((srv) => srv._id === i.service._id)?.price || i.service.price) * i.quantity,
+            (sum, i) =>
+              sum +
+              (products.find((p) => p._id === i.product?._id)?.price ||
+                i.product?.price ||
+                0) *
+                i.quantity,
             0
           )}
         </p>
@@ -207,7 +190,6 @@ export default function CheckoutPage() {
           block
           shape="round"
           size="large"
-          loading={loading}
           onClick={() => form.submit()}
         >
           Proceed to Payment

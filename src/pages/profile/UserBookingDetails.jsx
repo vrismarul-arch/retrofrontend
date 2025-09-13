@@ -1,3 +1,4 @@
+// src/pages/profile/UserBookingDetails.jsx
 import React, { useEffect, useState } from "react";
 import {
   Card,
@@ -17,11 +18,10 @@ import {
   ArrowLeftOutlined,
   CalendarOutlined,
   ClockCircleOutlined,
-  ShoppingCartOutlined,
-  UserOutlined,
   FilePdfOutlined,
   ReloadOutlined,
   StopOutlined,
+  UserOutlined,
 } from "@ant-design/icons";
 import api from "../../../api";
 import "./UserBookingDetails.css";
@@ -95,7 +95,7 @@ export default function UserBookingDetails() {
       </Button>
 
       {/* Hero Section */}
-      <Card className="hero-card" bordered={false}>
+      <Card className="hero-card" variant="default">
         <div className="hero-left">
           <Title level={4}>Booking #{booking.bookingId || booking._id}</Title>
           <Tag
@@ -137,12 +137,8 @@ export default function UserBookingDetails() {
       </Card>
 
       {/* Order Progress */}
-      <Card className="progress-card" bordered={false}>
-        <Steps
-          size="small"
-          current={currentStep >= 0 ? currentStep : 0}
-          responsive
-        >
+      <Card className="progress-card" variant="default">
+        <Steps size="small" current={currentStep >= 0 ? currentStep : 0} responsive>
           <Step title="Pending" />
           <Step title="Confirmed" />
           <Step title="In Progress" />
@@ -151,26 +147,31 @@ export default function UserBookingDetails() {
       </Card>
 
       <Row gutter={[16, 16]} className="content-row">
-        {/* Left: Services */}
+        {/* Left: Products */}
         <Col xs={24} md={16}>
-          <Card className="section-card" bordered={false}>
-            <Divider orientation="left">Services</Divider>
+          <Card className="section-card" variant="default">
+            <Divider orientation="left">Products</Divider>
             <div className="services-list">
-              {booking.services?.map((s) => {
-                const img = s.serviceId?.imageUrl || s.imageUrl;
-                const name = s.serviceId?.name || s.name;
+              {booking.products?.map((p) => {
+                const product = p.productId || {};
+                const img = product.imageUrl || "";
+                const name = product.name || "Product";
+                const price = product.price || 0;
+                const qty = p.quantity || 1;
+
                 return (
-                  <Card key={s._id} className="service-card" bordered>
+                  <Card key={p._id} className="service-card" variant="outlined">
                     <Avatar
                       shape="square"
                       size={80}
                       src={img}
-                      icon={<UserOutlined />}
+                      icon={!img && <UserOutlined />}
                     />
                     <div className="service-info">
                       <Text strong>{name}</Text>
-                      <Tag color="blue">Service</Tag>
-                      <Text type="secondary">Qty: 1</Text>
+                      <Tag color="blue">Product</Tag>
+                      <Text type="secondary">Qty: {qty}</Text>
+                      <Text>₹{price}</Text>
                     </div>
                   </Card>
                 );
@@ -179,9 +180,9 @@ export default function UserBookingDetails() {
           </Card>
         </Col>
 
-        {/* Right: Summary */}
+        {/* Right: Customer Info & Assigned Partner */}
         <Col xs={24} md={8}>
-          <Card className="section-card" bordered={false}>
+          <Card className="section-card" variant="default">
             <Divider orientation="left">Customer Info</Divider>
             <Text strong>{booking.user?.name || booking.name}</Text>
             <br />
@@ -193,7 +194,7 @@ export default function UserBookingDetails() {
           </Card>
 
           {booking.assignedTo && (
-            <Card className="section-card" bordered={false}>
+            <Card className="section-card" variant="default">
               <Divider orientation="left">Assigned Partner</Divider>
               <Text strong>{booking.assignedTo.name}</Text>
               <br />
@@ -207,3 +208,4 @@ export default function UserBookingDetails() {
     </div>
   );
 }
+  

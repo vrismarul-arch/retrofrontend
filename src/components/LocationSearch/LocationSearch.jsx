@@ -136,7 +136,7 @@ const LocationSearch = ({ isMobile }) => {
         {/* Address Row */}
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
           <EnvironmentOutlined
-            style={{ color: "#a066e1", fontSize: 22, marginLeft: 6 }}
+            style={{ color: "#078d89", fontSize: 22, marginLeft: 6 }}
           />
           <b style={{ fontSize: 18 }}>Address:</b>
           <span style={{ fontSize: 16 }}>
@@ -200,7 +200,7 @@ const LocationSearch = ({ isMobile }) => {
             {address ? address.split(",")[0] : "Select Location"}
           </span>
           <EnvironmentOutlined
-            style={{ color: "#a066e1", fontSize: 22, marginLeft: 6 }}
+            style={{ color: "#078d89", fontSize: 22, marginLeft: 6 }}
           />
         </div>
       )}
@@ -253,8 +253,8 @@ const LocationSearch = ({ isMobile }) => {
               size="small"
               onClick={() => setIsOpen(false)}
               style={{
-                backgroundColor: "#a066e1",
-                borderColor: "#a066e1",
+                backgroundColor: "#078d89",
+                borderColor: "#078d89",
                 color: "#fff",
               }}
             >

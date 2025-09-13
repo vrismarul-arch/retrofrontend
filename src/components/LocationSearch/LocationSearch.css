@@ -69,7 +69,7 @@
 
 /* 💻 Drawer Header */
 .drawer-header {
-  background: linear-gradient(135deg, #7b2ff7, #a066e1);
+  background: linear-gradient(135deg, #7b2ff7, #078d89);
   color: #fff;
   padding: 18px;
   font-size: 18px;
@@ -122,7 +122,7 @@
   font-size: 15px;
 }
 .address-icon {
-  color: #a066e1;
+  color: #078d89;
   font-size: 20px;
 }
 .coords-row {
@@ -153,7 +153,7 @@
   font-weight: bold;
 }
 .trigger-icon {
-  color: #a066e1;
+  color: #078d89;
   font-size: 22px;
   margin-left: 6px;
 }

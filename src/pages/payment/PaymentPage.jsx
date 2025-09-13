@@ -1,3 +1,4 @@
+// src/components/pages/PaymentPage.jsx
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../api";
@@ -28,19 +29,18 @@ export default function PaymentPage() {
     setPendingBooking(stored);
   }, [navigate]);
 
-  // ✅ Clear backend cart
+  // Clear backend cart
   const clearCartBackend = async () => {
     try {
       await api.delete("/api/cart", {
         headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
       });
-      console.log("Backend cart cleared");
     } catch (err) {
       console.error("Failed to clear backend cart:", err);
     }
   };
 
-  // ✅ Handle online payment
+  // Handle online payment
   const handleOnlinePayment = async () => {
     if (!pendingBooking) return;
     setLoading(true);
@@ -70,13 +70,11 @@ export default function PaymentPage() {
             if (verifyRes.data.success) {
               message.success("Payment successful!");
 
-              // Save booking success
               localStorage.setItem(
                 "successBooking",
                 JSON.stringify({ ...pendingBooking, paymentMethod: "online" })
               );
 
-              // Clear local and backend cart
               localStorage.removeItem("cart");
               localStorage.removeItem("pendingBooking");
               await clearCartBackend();
@@ -111,7 +109,7 @@ export default function PaymentPage() {
     }
   };
 
-  // ✅ Handle COD booking
+  // Handle COD booking
   const handleCOD = async () => {
     if (!pendingBooking) return;
     setLoading(true);
@@ -125,13 +123,11 @@ export default function PaymentPage() {
 
       message.success("Booking placed with Cash on Delivery!");
 
-      // Save booking success
       localStorage.setItem(
         "successBooking",
         JSON.stringify({ ...pendingBooking, paymentMethod: "cod" })
       );
 
-      // Clear local and backend cart
       localStorage.removeItem("cart");
       localStorage.removeItem("pendingBooking");
       await clearCartBackend();
@@ -187,10 +183,15 @@ export default function PaymentPage() {
 
           <div className="payment-summary">
             <h3>Order Summary</h3>
-            {pendingBooking.services?.map((s, idx) => (
-              <div key={idx}>
-                <span>{s.name} x {s.quantity}</span>
-                <span>₹{s.price * s.quantity}</span>
+            {pendingBooking.products?.map((item, idx) => (
+              <div key={idx} className="payment-item">
+                <img
+                  src={item.imageUrl || "/placeholder.png"}
+                  alt={item.name}
+                  style={{ width: 50, height: 50, objectFit: "cover", marginRight: 8 }}
+                />
+                <span>{item.name} x {item.quantity}</span>
+                <span>₹{item.price * item.quantity}</span>
               </div>
             ))}
             <p className="total">Total: ₹{pendingBooking.totalAmount}</p>

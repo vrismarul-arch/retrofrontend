@@ -200,7 +200,7 @@
 }
 
 .subcat-card.active img {
-  border-color: #9e61e4;
+  border-color: #0b9492;
 }
 
 .subcat-card p {
@@ -228,9 +228,9 @@
 }
 
 .chip.active {
-  background: #9e61e4;
+  background: #0b9492;
   color: white;
-  border-color: #9e61e4;
+  border-color: #0b9492;
 }
 .mobile-buttons,
 .action-buttons {
@@ -241,14 +241,14 @@
 
 .view-btn {
   background-color: #fff;
-  color: #a066e1;padding: 20px;
-  border: 1px solid #a066e1;
+  color: #078d89;padding: 20px;
+  border: 1px solid #078d89;
 }
 
 .view-btn:hover {
-  background-color: #a066e1;
+  background-color: #078d89;
   color: #fff;
-  border-color: #a066e1;
+  border-color: #078d89;
 }
 
 .drawer-overlay {
@@ -298,3 +298,4 @@
   transform: translateY(0);
   margin-bottom: 20px;
 }
+  

@@ -368,7 +368,7 @@ export default function PartnerProfile() {
                   />
                 )}
 
-                <img src="/tintD.png" alt="Logo" className="uc-logo-mobile" />
+                <img src="/retrologo.png" alt="Logo" className="uc-logo-mobile" />
 
               </div><p className="status">
             <strong>Status:</strong>{" "}

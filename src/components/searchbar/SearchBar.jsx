@@ -65,7 +65,7 @@ const SearchBar = () => {
     <div className="searchbar-container" ref={searchRef}>
       <Input
         placeholder="Search services, categories, salons..."
-        prefix={<SearchOutlined style={{ color: "#a066e1" }} />}
+        prefix={<SearchOutlined style={{ color: "#078d89" }} />}
         value={query}
         onChange={(e) => setQuery(e.target.value)}
         onFocus={() => query.length > 0 && setShowOverlay(true)}

@@ -115,7 +115,7 @@ export default function Sidebar({ collapsed }) {
           <Spin size="small" />
         ) : (
           <>
-            <Avatar size={64} src={user?.avatar || "/tintD.png"} />
+            <Avatar size={64} src={user?.avatar || "/retrologo.png"} />
             <div className="profile-name">{user?.name || "Guest User"}</div>
             {user && (
               <div className="profile-status">

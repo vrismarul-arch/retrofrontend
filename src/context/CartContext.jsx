@@ -1,4 +1,4 @@
-// src/components/context/CartContext.jsx
+// src/context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../../api";
 import toast from "react-hot-toast";
@@ -7,150 +7,84 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
-  const [lastUpdated, setLastUpdated] = useState(Date.now());
 
   const getToken = () => localStorage.getItem("token");
 
-  // Helper to update cart state + lastUpdated
-  const setCartState = (items) => {
-    setCart(items);
-    setLastUpdated(Date.now());
-    if (!getToken()) localStorage.setItem("cart", JSON.stringify(items));
-  };
-
-  // Fetch cart from backend or localStorage
   const fetchCart = async () => {
     try {
-      const token = getToken();
-      if (token) {
-        const res = await api.get("/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCartState(res.data.items || []);
-      } else {
-        const localCart = JSON.parse(localStorage.getItem("cart")) || [];
-        setCartState(localCart);
-      }
+      const res = await api.get("/api/cart", {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setCart(res.data.items);
     } catch (err) {
-      console.error("❌ Fetch cart failed:", err);
-      toast.error("Unable to fetch cart");
+      console.error("Fetch cart failed", err);
     }
   };
 
-  // Add to cart
-  const addToCart = async (serviceId, quantity = 1) => {
+  const addToCart = async (productId, quantity = 1) => {
     try {
-      const token = getToken();
-      if (token) {
-        const res = await api.post(
-          "/api/cart/add",
-          { serviceId, quantity },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setCartState(res.data.items || []);
-        toast.success("Added to cart!");
-      } else {
-        const existing = cart.find((i) => i.service._id === serviceId);
-        let updatedCart;
-        if (existing) {
-          updatedCart = cart.map((i) =>
-            i.service._id === serviceId
-              ? { ...i, quantity: i.quantity + quantity }
-              : i
-          );
-        } else {
-          updatedCart = [...cart, { service: { _id: serviceId }, quantity }];
-        }
-        setCartState(updatedCart);
-        toast.success("Added to cart!");
-      }
+      const res = await api.post(
+        "/api/cart/add",
+        { productId, quantity },
+        { headers: { Authorization: `Bearer ${getToken()}` } }
+      );
+
+      // Update local state instead of fetching again
+      setCart(res.data.items);
+      toast.success("Added to cart");
     } catch (err) {
-      console.error("❌ Add to cart failed:", err);
-      toast.error("Could not add to cart");
+      console.error("Add to cart error", err);
+      toast.error("Failed to add to cart");
     }
   };
 
-  // Remove from cart
-  const removeFromCart = async (serviceId) => {
+  const removeFromCart = async (productId) => {
     try {
-      const token = getToken();
-      if (token) {
-        const res = await api.delete(`/api/cart/${serviceId}`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCartState(res.data.items || []);
-      } else {
-        setCartState(cart.filter((i) => i.service._id !== serviceId));
-      }
+      const res = await api.delete(`/api/cart/${productId}`, {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setCart(res.data.items);
       toast.success("Removed from cart");
     } catch (err) {
-      console.error("❌ Remove from cart failed:", err);
-      toast.error("Could not remove item");
+      console.error("Remove from cart error", err);
+      toast.error("Failed to remove item");
     }
   };
 
-  // Update quantity
-  const updateQuantity = async (serviceId, qty) => {
-    if (qty < 1) return;
+  const updateQuantity = async (productId, quantity) => {
     try {
-      const token = getToken();
-      if (token) {
-        const res = await api.put(
-          `/api/cart/${serviceId}`,
-          { quantity: qty },
-          { headers: { Authorization: `Bearer ${token}` } }
-        );
-        setCartState(res.data.items || []);
-      } else {
-        setCartState(
-          cart.map((i) =>
-            i.service._id === serviceId ? { ...i, quantity: qty } : i
-          )
-        );
-      }
+      const res = await api.put(
+        `/api/cart/${productId}`,
+        { quantity },
+        { headers: { Authorization: `Bearer ${getToken()}` } }
+      );
+      setCart(res.data.items);
     } catch (err) {
-      console.error("❌ Update quantity failed:", err);
-      toast.error("Could not update quantity");
+      console.error("Update quantity error", err);
+      toast.error("Failed to update quantity");
     }
   };
 
-  // ✅ Clear the entire cart
   const clearCart = async () => {
     try {
-      const token = getToken();
-      if (token) {
-        const res = await api.delete("/api/cart", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
-        setCartState([]);
-        toast.success(res.data?.message || "Cart cleared successfully");
-      } else {
-        setCartState([]);
-        localStorage.removeItem("cart");
-        toast.success("Cart cleared successfully");
-      }
+      await api.delete("/api/cart", {
+        headers: { Authorization: `Bearer ${getToken()}` },
+      });
+      setCart([]);
+      toast.success("Cart cleared");
     } catch (err) {
-      console.error("❌ Clear cart failed:", err);
-      toast.error("Could not clear cart");
+      console.error("Clear cart error", err);
+      toast.error("Failed to clear cart");
     }
   };
 
   useEffect(() => {
     fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
     <CartContext.Provider
-      value={{
-        cart,
-        fetchCart,
-        addToCart,
-        removeFromCart,
-        updateQuantity,
-        clearCart, // ✅ expose clearCart
-        lastUpdated,
-      }}
+      value={{ cart, fetchCart, addToCart, removeFromCart, updateQuantity, clearCart }}
     >
       {children}
     </CartContext.Provider>

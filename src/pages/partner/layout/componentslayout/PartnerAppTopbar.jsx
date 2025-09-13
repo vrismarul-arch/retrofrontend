@@ -102,7 +102,7 @@ export default function PartnerAppTopbar({ extra }) {
         <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           {extra}
           <Link to="/partnerapp/dashboard">
-            <img src="/tintD.png" alt="Logo" style={{ height: 40, marginTop: 12 }} />
+            <img src="/retrologo.png" alt="Logo" style={{ height: 40, marginTop: 12 }} />
           </Link>
         </div>
 

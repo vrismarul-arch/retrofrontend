@@ -92,7 +92,7 @@
   .step-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 6px 20px rgba(146, 84, 222, 0.25);
-    border-color: #9254de !important;
+    border-color: #078d89!important;
   }
 
   .step-header {
@@ -153,15 +153,15 @@
 
   .ant-input:focus,
   .ant-select-selector:focus-within {
-    border-color: #9254de !important;
+    border-color: #078d89!important;
     box-shadow: 0 0 0 2px rgba(146, 84, 222, 0.2);
   }
 
   /* Checkbox & Radio */
   .ant-checkbox-checked .ant-checkbox-inner,
   .ant-radio-checked .ant-radio-inner {
-    background-color: #9254de !important;
-    border-color: #9254de !important;
+    background-color: #078d89!important;
+    border-color: #078d89!important;
   }
 
   /* -------------------------
@@ -169,13 +169,13 @@
   -------------------------- */
   .upload-btn {
     border-radius: 10px !important;
-    border: 1px solid #9254de !important;
-    color: #9254de !important;
+    border: 1px solid #078d89!important;
+    color: #078d89!important;
     transition: all 0.3s ease;
   }
 
   .upload-btn:hover {
-    background: #9254de !important;
+    background: #078d89!important;
     color: #fff !important;
   }
 
@@ -201,7 +201,7 @@
     PRIMARY BUTTON
   -------------------------- */
   .ant-btn-primary {
-    background: #9254de !important;
+    background: #078d89!important;
     border-radius: 12px !important;
     font-weight: 600;
     height: 42px;
@@ -210,7 +210,7 @@
   }
 
   .ant-btn-primary:hover {
-    background: #7b35d2 !important;
+    background: ##0b9492 !important;
   }
 :where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-body{
   padding: 0px;
