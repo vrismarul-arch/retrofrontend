@@ -4,13 +4,16 @@ import TrendingServices from "../services/trendind/trendingservices";
 import Adsbanner from "../home/addbanner/AdsBanner";
 import Categories from "./categories/Categories";
 import Hero from "./hero/Hero";
+import { Braces } from "lucide-react";
+import BrandProducts from "./product carosel/BrandProducts";
+import ValueProps from "./valu/ValueProps";
+import LegacySection from "./LegacySection";
 
 export default function Home() {
   return (
     <div
       className="home-container"
-     
-    > <Adsbanner />
+    > <Adsbanner    />
       <Categories toast={toast} />
       {/* Trending */}
       {/* Banner */}
@@ -26,6 +29,11 @@ export default function Home() {
       >
        
       </div>
+
+      <BrandProducts/>
+
+      <ValueProps />
+      <LegacySection />
     </div>
   );
 }

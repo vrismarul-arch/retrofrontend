@@ -98,7 +98,7 @@ export default function CategoriesPage() {
           <div className="header flex justify-between items-center mb-4">
 
             <h2 className="text-2xl font-bold text-gray-800">
-              <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
+              <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories ('living')
             </h2>            <Button
               type="primary"
               size="large"

@@ -1,11 +1,5 @@
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Pagination, Grid, Navigation, Autoplay } from "swiper/modules";
-import "swiper/css";
-import "swiper/css/pagination";
-import "swiper/css/grid";
-import "swiper/css/navigation";
 import api from "../../../../api";
 import { Skeleton } from "antd";
 import "./TrendingServices.css";
@@ -18,9 +12,9 @@ export default function TrendingServices() {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        // ✅ Directly get all subcategories (or categories if you prefer)
         const subRes = await api.get("/api/admin/subcategories");
-        setTrending(subRes.data || []);
+        // Limit to a specific number of items to fit the layout
+        setTrending(subRes.data.slice(0, 5) || []); 
       } catch (err) {
         console.error("❌ Error fetching trending services:", err);
       } finally {
@@ -31,61 +25,52 @@ export default function TrendingServices() {
     fetchTrending();
   }, []);
 
+  // Split the data into a large item and a grid of small items
+  const largeItem = trending[0];
+  const smallItems = trending.slice(1);
+
   return (
     <div className="trending-container">
-      <h2 className="home-title" style={{ marginTop: "3rem", textAlign: "left" }}>Saloon At Home For Women</h2>
+   <h2 className="home-title">Transform Your Home with Premium Furniture</h2>
 
+      
       {loading ? (
         <div className="skeleton-grid">
-          {Array.from({ length: 6 }).map((_, i) => (
+          {/* Skeleton loading state */}
+          {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="skeleton-card">
-              <Skeleton.Image
-                active
-                style={{ width: "100%", height: 100, borderRadius: 8 }}
-              />
-              <Skeleton
-                active
-                paragraph={false}
-                title={{ width: "80%" }}
-                style={{ marginTop: 10 }}
-              />
+              <Skeleton.Image active style={{ width: "100%", height: 100, borderRadius: 8 }} />
+              <Skeleton active paragraph={{ rows: 1 }} title={false} style={{ marginTop: 10 }} />
             </div>
           ))}
         </div>
       ) : trending.length > 0 ? (
-        <Swiper
-          modules={[Pagination, Grid, Navigation, Autoplay]}
-          autoplay={{ delay: 2000, disableOnInteraction: false }}
-          pagination={{ clickable: true }}
-          spaceBetween={15}
-          loop={true}
-          breakpoints={{
-            0: {
-              slidesPerView: 3,
-              grid: { rows: 2, fill: "row" },
-            },
-            768: {
-              slidesPerView: 4,
-              grid: { rows: 1 },
-            },
-          }}
-        >
-          {trending.map((item) => (
-            <SwiperSlide key={item._id}>
-              <div
-                className="trending-card"
+        <div className="category-grid-container">
+          {/* Large Card */}
+          {largeItem && (
+            <div 
+              className="large-card"
+              onClick={() => navigate(`/category/${largeItem.category?._id}`)}
+            >
+              <img src={largeItem.imageUrl || "/placeholder.png"} alt={largeItem.name} />
+              <div className="card-overlay">{largeItem.name}</div>
+            </div>
+          )}
+
+          {/* Small Cards Grid */}
+          <div className="small-cards-grid">
+            {smallItems.map((item) => (
+              <div 
+                key={item._id}
+                className="small-card"
                 onClick={() => navigate(`/category/${item.category?._id}`)}
               >
-                <img
-                  src={item.imageUrl || "/placeholder.png"}
-                  alt={item.name}
-                  className="trending-card-img"
-                />
-                <div className="trending-card-overlay">{item.name}</div>
+                <img src={item.imageUrl || "/placeholder.png"} alt={item.name} />
+                <div className="card-overlay">{item.name}</div>
               </div>
-            </SwiperSlide>
-          ))}
-        </Swiper>
+            ))}
+          </div>
+        </div>
       ) : (
         <p>No trending services found</p>
       )}

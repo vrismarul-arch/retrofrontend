@@ -1,0 +1,79 @@
+/* LegacySection.css */
+
+/* Section wrapper */
+.legacy-section {
+
+  min-height: 60vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1.5rem;
+  background: linear-gradient(135deg, #fdfcfb, #e8e4d9);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+  text-align: center;
+}
+
+/* Content container */
+.legacy-content {
+  max-width: 900px;
+  background: #fffdf9;
+  padding: 2.5rem 3rem;
+  border-radius: 1.25rem;
+  border: 1px solid #e2d9cc;
+  box-shadow: 0 6px 20px rgba(92, 64, 51, 0.08);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.legacy-content:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(92, 64, 51, 0.15);
+}
+
+/* Text styles */
+.legacy-content p {
+  font-size: 1.2rem;
+  line-height: 1.8;
+  color: #3f2e23; /* deep wood tone */
+  margin: 0;
+  font-weight: 400;
+}
+
+/* Accent word (like Retrowoods) */
+.legacy-content strong {
+  color: #8b5e34; /* warm brown */
+  font-weight: 600;
+}
+
+/* Responsive */
+@media (max-width: 1024px) {
+  .legacy-content {
+    padding: 2rem 2.2rem;
+  }
+  .legacy-content p {
+    font-size: 1.1rem;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 768px) {
+  .legacy-section {
+    padding: 2rem 1rem;
+  }
+  .legacy-content {
+    padding: 1.5rem 1.8rem;
+  }
+  .legacy-content p {
+    font-size: 1rem;
+    line-height: 1.6;
+  }
+}
+
+@media (max-width: 480px) {
+  .legacy-content {
+    padding: 1.25rem 1.5rem;
+  }
+  .legacy-content p {
+    font-size: 0.95rem;
+    line-height: 1.55;
+  }
+}

@@ -24,7 +24,7 @@ const SearchBar = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // Fetch services with debounce
+  // Fetch services/products with debounce
   useEffect(() => {
     if (!query.trim()) {
       setServices([]);
@@ -35,7 +35,7 @@ const SearchBar = () => {
     const fetchServices = async () => {
       setLoading(true);
       try {
-        const res = await api.get("/api/services", { params: { search: query } });
+        const res = await api.get("/api/products", { params: { search: query } });
         setServices(res.data);
         setShowOverlay(true);
       } catch (err) {
@@ -51,12 +51,12 @@ const SearchBar = () => {
     return () => clearTimeout(timer);
   }, [query]);
 
-  // Correct navigation function
+  // Handle click on service/product
   const handleServiceClick = (service) => {
-    if (service.category?._id) {
-      navigate(`/category/${service.category._id}`); // go to category page
+    if (service.brand?._id) {
+      navigate(`/brands/${service.brand._id}`); // ✅ Navigate to brand page
     } else {
-      navigate(`/service/${service._id}`); // fallback: direct service page
+      navigate(`/product/${service._id}`); // ✅ Fallback navigation
     }
     setShowOverlay(false);
   };
@@ -84,8 +84,8 @@ const SearchBar = () => {
                   onClick={() => handleServiceClick(service)}
                 >
                   <img
-                    src={service.imageUrl || "/placeholder.png"}
-                    alt={service.name}
+                    src={service.brand?.logoUrl || "/placeholder.png"} // ✅ Use brand image
+                    alt={service.brand?.name || "Brand"}
                     className="search-item-image"
                   />
                   <div className="search-item-details">

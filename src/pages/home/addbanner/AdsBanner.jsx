@@ -12,6 +12,7 @@ const PrevArrow = ({ className, style, onClick }) => (
     className={`custom-arrow prev ${className}`}
     style={{ ...style }}
     onClick={onClick}
+    aria-label="Previous Slide"
   >
     <ChevronLeft size={28} />
   </button>
@@ -22,6 +23,7 @@ const NextArrow = ({ className, style, onClick }) => (
     className={`custom-arrow next ${className}`}
     style={{ ...style }}
     onClick={onClick}
+    aria-label="Next Slide"
   >
     <ChevronRight size={28} />
   </button>
@@ -29,9 +31,20 @@ const NextArrow = ({ className, style, onClick }) => (
 
 export default function AdsBanner() {
   const [banners, setBanners] = useState([]);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
     fetchBanners();
+    
+    // Set initial screen size and add a listener for changes
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+
+    // Clean up the event listener on component unmount
+    return () => window.removeEventListener("resize", checkMobile);
   }, []);
 
   const fetchBanners = async () => {
@@ -83,29 +96,25 @@ export default function AdsBanner() {
   return (
     <div className="ads-banner-container">
       <Slider {...settings} className="ads-slick-slider">
-        {banners.map((banner, i) => (
-          <div key={i} className="ads-slide">
-            <div
-              className="ads-slide-bg"
-              style={{
-                backgroundImage: `url(${banner.imageUrl || "/placeholder.png"})`,
-              }}
-            >
-              <div className="ads-overlay" />
-              {/* <div className="ads-slide-content">
-                {banner.subtitle && (
-                  <p className="ads-subtitle">{banner.subtitle}</p>
-                )}
-                <h2 className="ads-title">{banner.title}</h2>
-                {banner.btnText && (
-                  <a href={banner.btnLink || "#"} className="ads-btn">
-                    {banner.btnText}
-                  </a>
-                )}
-              </div> */}
+        {banners.map((banner, i) => {
+          // Choose the image based on screen size
+          const imageUrl = isMobile && banner.mobileImageUrl 
+            ? banner.mobileImageUrl 
+            : banner.imageUrl || "/placeholder.png";
+
+          return (
+            <div key={i} className="ads-slide">
+              <div
+                className="ads-slide-bg"
+                style={{
+                  backgroundImage: `url(${imageUrl})`,
+                }}
+              >
+                
+              </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </Slider>
     </div>
   );

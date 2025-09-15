@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from "react";
 import { useLocation, Link, useNavigate } from "react-router-dom";
-import { ShoppingCartOutlined, HomeOutlined, ProfileOutlined, UserOutlined } from "@ant-design/icons";
-import { Avatar, Dropdown, Menu, Badge, message } from "antd";
-import LocationSearch from "./LocationSearch/LocationSearch";
+import {
+  ShoppingCartOutlined,
+  HomeOutlined,
+  ProfileOutlined,
+  UserOutlined,
+  MenuOutlined,
+} from "@ant-design/icons";
+import { Avatar, Dropdown, Menu, Badge, message, Drawer, Button } from "antd";
 import SearchBar from "./searchbar/SearchBar";
+import MegaMenu from "./MegaMenu";
 import api from "../../api";
 import { useCart } from "../context/CartContext";
 import "./Navbar.css";
@@ -22,6 +28,7 @@ const ResponsiveNavbar = () => {
   const [userAvatar, setUserAvatar] = useState(localStorage.getItem("avatar") || null);
   const [user, setUser] = useState(null);
   const [animateBadge, setAnimateBadge] = useState(false);
+  const [drawerVisible, setDrawerVisible] = useState(false);
 
   const location = useLocation();
   const navigate = useNavigate();
@@ -29,14 +36,14 @@ const ResponsiveNavbar = () => {
 
   const totalCartQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
-  // ----------------- Handle window resize -----------------
+  // ------------------ HANDLE RESIZE ------------------
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ----------------- Animate badge on cart update -----------------
+  // ------------------ CART BADGE ANIMATION ------------------
   useEffect(() => {
     if (cart.length >= 0) {
       setAnimateBadge(true);
@@ -45,12 +52,12 @@ const ResponsiveNavbar = () => {
     }
   }, [lastUpdated]);
 
-  // ----------------- Fetch latest cart on mount (refresh safe) -----------------
+  // ------------------ FETCH CART ------------------
   useEffect(() => {
-    fetchCart(); // ensures badge is correct even after page refresh or payment success
+    fetchCart();
   }, []);
 
-  // ----------------- Fetch user profile -----------------
+  // ------------------ FETCH USER PROFILE ------------------
   useEffect(() => {
     const fetchUserProfile = async () => {
       try {
@@ -92,11 +99,15 @@ const ResponsiveNavbar = () => {
     </Menu>
   );
 
+  const showDrawer = () => setDrawerVisible(true);
+  const closeDrawer = () => setDrawerVisible(false);
+
   // ------------------- MOBILE NAVBAR -------------------
   if (isMobile) {
     return (
       <>
         <div className="mobile-top-bar">
+          <Button type="text" icon={<MenuOutlined />} onClick={showDrawer} />
           <Link to="/"><img src="/retrologo.png" alt="Logo" className="uc-logo-mobile" /></Link>
           {!isLoggedIn ? (
             <Link to="/login">
@@ -110,7 +121,7 @@ const ResponsiveNavbar = () => {
         </div>
 
         <div className="mobile-middle-bar">
-          <LocationSearch />
+    
           <SearchBar />
         </div>
 
@@ -129,43 +140,64 @@ const ResponsiveNavbar = () => {
             <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false} className={animateBadge ? "badge-pulse" : ""}>
               <ShoppingCartOutlined className="tab-icon" />
             </Badge>
-            <span className="cart-label">Cart</span>
+            <span>Cart</span>
           </Link>
         </div>
+
+        <Drawer
+          title="Categories"
+          placement="left"
+          onClose={closeDrawer}
+          visible={drawerVisible}
+          bodyStyle={{ padding: 0 }}
+        >
+          <MegaMenu mobile />
+        </Drawer>
       </>
     );
   }
 
   // ------------------- DESKTOP NAVBAR -------------------
   return (
-    <div className="desktop-navbar">
-      <div className="nav-left"><Link to="/"><img src="/retrologo.png" alt="Logo" className="uc-logo" /></Link></div>
-      <div className="nav-middle">
-        <LocationSearch isMobile={isMobile} />
-        <SearchBar />
-      </div>
-      <div className="nav-right">
-        <Link to="/cart" className="nav-link">
-          <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false} className={animateBadge ? "badge-pulse" : ""}>
-            <ShoppingCartOutlined className="nav-icon" />
-          </Badge>
-        </Link>
+    <>
+      <div className="desktop-navbar">
+        <div className="nav-left">
+          <Link to="/"><img src="/retrologo.png" alt="Logo" className="uc-logo" /></Link>
+        </div>
 
-        {!isLoggedIn ? (
-          <Link to="/login" className="nav-link">
-            <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
-            <span style={{ marginLeft: 6 }}>Sign In</span>
+        <div className="nav-middle">
+     
+          <SearchBar />
+        </div>
+
+        <div className="nav-right">
+          <Link to="/cart" className="nav-link">
+            <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false} className={animateBadge ? "badge-pulse" : ""}>
+              <ShoppingCartOutlined className="nav-icon" />
+            </Badge>
           </Link>
-        ) : (
-          <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
-            <div className="nav-link" style={{ cursor: "pointer" }}>
-              <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
-              <span style={{ marginLeft: 6 }}>{user?.name || "Profile"}</span>
-            </div>
-          </Dropdown>
-        )}
+
+          {!isLoggedIn ? (
+            <Link to="/login" className="nav-link">
+              <Avatar size={36} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
+              <span style={{ marginLeft: 6 }}>Sign In</span>
+            </Link>
+          ) : (
+            <Dropdown overlay={profileMenu} trigger={["click"]} placement="bottomRight">
+              <div className="nav-link" style={{ cursor: "pointer" }}>
+                <Avatar size={36} src={userAvatar || undefined} icon={<UserOutlined />} style={{ backgroundColor: "#078d89" }} />
+                <span style={{ marginLeft: 6 }}>{user?.name || "Profile"}</span>
+              </div>
+            </Dropdown>
+          )}
+        </div>
       </div>
-    </div>
+
+      {/* MegaMenu BELOW navbar */}
+      <div className="desktop-megamenu">
+        <MegaMenu />
+      </div>
+    </>
   );
 };
 

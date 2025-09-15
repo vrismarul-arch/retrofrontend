@@ -1,0 +1,170 @@
+/* Container for the entire page */
+.category-services {
+  max-width: 1200px;
+  margin: 40px auto;
+  padding: 0 20px;
+}
+
+/* Header section with brand logo and name */
+.category-header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.brand-header-img {
+  width: 150px;
+  height: 150px;
+  object-fit: cover;
+  border-radius: 50%;
+    
+  padding: 8px;
+  margin-bottom: 20px;
+ 
+}
+
+.category-title {
+  font-size: 2.8rem;
+  font-weight: 700;
+  color: #222;
+  letter-spacing: -1px;
+}
+
+/* Grid layout for cards */
+.service-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 28px;
+  justify-content: center;
+}
+
+/* Modern Card Design */
+.service-card.modern-card {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  display: flex;
+  flex-direction: column;
+  transition: all 0.3s ease;
+  overflow: hidden;
+  border: 1px solid #f0f0f0;
+}
+
+.service-card.modern-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+}
+
+/* Image section */
+.card-image-wrapper {
+  position: relative;
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.service-card-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.service-card.modern-card:hover .service-card-img {
+  transform: scale(1.08);
+}
+
+/* Discount Badge */
+.discount-tag {
+  position: absolute;
+  top: 12px;
+  left: 12px;
+  background: #ff4d4f;
+  color: #fff;
+  padding: 4px 10px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: bold;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+}
+
+/* Card content and info */
+.service-card-info {
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+}
+
+.service-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  line-height: 1.3;
+}
+
+.product-description {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 12px;
+  line-height: 1.5;
+}
+
+.price-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: auto; /* Pushes the price and buttons to the bottom */
+}
+
+.price {
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: #1890ff;
+}
+
+.old-price {
+  text-decoration: line-through;
+  color: #999;
+  font-size: 0.95rem;
+}
+
+/* Action buttons */
+.action-buttons {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+}
+
+/* Empty state message */
+.no-products-message {
+  font-size: 1.2rem;
+  color: #888;
+  text-align: center;
+  grid-column: 1 / -1; /* Center the message in the grid */
+  margin-top: 30px;
+}
+
+/* Skeleton styles */
+.service-card.skeleton-card {
+  padding: 0;
+  border: none;
+  box-shadow: none;
+  background: none;
+}
+
+.ant-skeleton-image.skeleton-image {
+  width: 100% !important;
+  height: 200px !important;
+  border-radius: 12px 12px 0 0;
+  margin-bottom: 0;
+}
+
+.skeleton-content {
+  padding: 18px;
+  width: 100%;
+}
