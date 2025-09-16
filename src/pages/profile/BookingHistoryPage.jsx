@@ -1,4 +1,3 @@
-// src/pages/profile/BookingHistoryPage.jsx
 import { useEffect, useState } from "react";
 import {
   List,
@@ -104,19 +103,19 @@ export default function BookingHistoryPage() {
           const firstProduct = item?.products?.[0] || {};
           const firstProductName =
             firstProduct?.productId?.name || firstProduct?.name || "Product";
+
+          // ✅ Fixed image field
           const firstProductImage =
-            firstProduct?.productId?.imageUrl || firstProduct?.imageUrl;
+            firstProduct?.productId?.image ||
+            firstProduct?.productId?.images?.[0] ||
+            firstProduct?.imageUrl;
 
           return (
             <Card className="order-card" variant="default">
               <div className="order-item">
                 {/* Left side - Image */}
                 <div className="order-image">
-                  <Avatar
-                    shape="square"
-                    size={80}
-                    src={firstProductImage}
-                  />
+                  <Avatar shape="square" size={80} src={firstProductImage} />
                 </div>
 
                 {/* Right side - Details */}

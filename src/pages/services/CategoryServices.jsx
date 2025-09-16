@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Skeleton, Button } from "antd";
+import { Skeleton, Tabs } from "antd";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
-import "../../css/CategoryServices.css";
+import "./CategoryServices.css";
 
 export default function CategoryServices() {
   const { id } = useParams(); // category id
@@ -12,11 +12,10 @@ export default function CategoryServices() {
 
   const [services, setServices] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
-  const [brands, setBrands] = useState([]);
-  const [selectedSubCat, setSelectedSubCat] = useState(null);
+  const [selectedSubCat, setSelectedSubCat] = useState("all");
   const [loading, setLoading] = useState(true);
 
-  const { cart, addToCart, removeFromCart } = useCart();
+  const { cart } = useCart();
   const isLoggedIn = !!localStorage.getItem("token");
 
   useEffect(() => {
@@ -35,17 +34,6 @@ export default function CategoryServices() {
           }
         });
         setSubCategories(subs);
-
-        // Extract unique brands
-        const uniqueBrands = new Set();
-        res.data.forEach((service) => {
-          if (service.brand) {
-            uniqueBrands.add(JSON.stringify(service.brand));
-          }
-        });
-        const brandArray = Array.from(uniqueBrands).map((b) => JSON.parse(b));
-        setBrands(brandArray);
-
       } catch (err) {
         console.error("❌ Fetch error:", err);
         toast.error("Failed to load data");
@@ -57,60 +45,83 @@ export default function CategoryServices() {
     fetchData();
   }, [id]);
 
-
-  const isInCart = (serviceId) =>
-    cart.some((item) => item.product._id === serviceId);
-
-  
-
-
+  // ✅ Filter services by selected subcategory
   const filteredServices = services.filter(
-    (s) =>
-      (!selectedSubCat || s.subCategory?._id === selectedSubCat)
+    (s) => selectedSubCat === "all" || s.subCategory?._id === selectedSubCat
   );
 
+  // ✅ Get unique brands using Map
+  const brandMap = new Map();
+  filteredServices.forEach((service) => {
+    if (service.brand && service.brand._id) {
+      brandMap.set(service.brand._id, service.brand);
+    }
+  });
+
+  const filteredBrands = Array.from(brandMap.values());
+
+  // ✅ Sort alphabetically by name
+  filteredBrands.sort((a, b) => a.name.localeCompare(b.name));
+
+  // ✅ Tabs data for subcategories (with image + text)
+  const tabItems = [
+    {
+      key: "all",
+      label: (
+        <div className="tab-label">
+          <img src="/retro.png" alt="All" className="tab-img" />
+          <span>All</span>
+        </div>
+      ),
+    },
+    ...subCategories.map((sub) => ({
+      key: sub._id,
+      label: (
+        <div className="tab-label">
+          <img
+            src={sub.imageUrl || "/placeholder.png"}
+            alt={sub.name}
+            className="tab-img"
+          />
+          <span>{sub.name}</span>
+        </div>
+      ),
+    })),
+  ];
+
   return (
-    <div className="category-services">
+    <div className="category-services-page">
       {loading ? (
         <Skeleton active />
       ) : (
         <>
-          {/* Subcategory Filter */}
-          {subCategories.length > 0 && (
-            <div className="subcat-scroll">
-            
-              {subCategories.map((sub) => (
-                <div
-                  key={sub._id}
-                  className={`subcat-card ${selectedSubCat === sub._id ? "active" : ""}`}
-                  onClick={() => setSelectedSubCat(sub._id)}
-                >
-                  <img src={sub.imageUrl || "/placeholder.png"} alt={sub.name} className="subcat-img" />
-                  <p>{sub.name}</p>
-                </div>
-              ))}
-            </div>
-          )}
+          {/* Ant Design Tabs with images */}
+          <Tabs
+            activeKey={selectedSubCat}
+            onChange={(key) => setSelectedSubCat(key)}
+            items={tabItems}
+            tabPosition="top"
+            className="category-tabs"
+          />
 
-          {/* Brands (click to navigate) */}
-          {brands.length > 0 && (
-            <div className="subcat-scroll">
-              {brands.map((brand) => (
+          {/* Unique, Sorted Brands in Grid */}
+          {filteredBrands.length > 0 && (
+            <div className="brands-container">
+              {filteredBrands.map((brand) => (
                 <div
                   key={brand._id}
-                  className="subcat-card"
-                  onClick={() => navigate(`/brands/${brand._id}`)} // ✅ Navigate to brand page
+                  className="brand-card-item"
+                  onClick={() => navigate(`/brands/${brand._id}`)}
                 >
-                  <img src={brand.logoUrl || "/placeholder.png"} alt={brand.name} className="subcat-img" />
-                  <p>{brand.name}</p>
+                  <img
+                    src={brand.logoUrl || "/placeholder.png"}
+                    alt={brand.name}
+                  />
+                  <p className="brand-name">{brand.name}</p>
                 </div>
               ))}
             </div>
           )}
-
-         
-
-         
         </>
       )}
     </div>

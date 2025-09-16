@@ -112,14 +112,7 @@ export default function UserBookingDetails() {
           >
             {booking.status?.toUpperCase() || "PENDING"}
           </Tag>
-          <div className="hero-meta">
-            <Text>
-              <CalendarOutlined /> {selectedDate}
-            </Text>
-            <Text>
-              <ClockCircleOutlined /> {selectedTime}
-            </Text>
-          </div>
+         
         </div>
         <div className="hero-right">
           <Text className="total-price">₹{booking.totalAmount}</Text>
@@ -129,9 +122,7 @@ export default function UserBookingDetails() {
             <Button danger icon={<StopOutlined />}>
               Cancel Booking
             </Button>
-            <Button type="primary" icon={<ReloadOutlined />}>
-              Re-Book
-            </Button>
+            
           </div>
         </div>
       </Card>
@@ -154,7 +145,8 @@ export default function UserBookingDetails() {
             <div className="services-list">
               {booking.products?.map((p) => {
                 const product = p.productId || {};
-                const img = product.imageUrl || "";
+                // ✅ Corrected image handling
+                const img = product.image || product.images?.[0] || "";
                 const name = product.name || "Product";
                 const price = product.price || 0;
                 const qty = p.quantity || 1;
@@ -208,4 +200,3 @@ export default function UserBookingDetails() {
     </div>
   );
 }
-  

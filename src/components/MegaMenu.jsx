@@ -22,15 +22,14 @@ const MegaMenu = ({ mobile = false }) => {
         const subcategories = subRes.data;
         const brands = brandRes.data;
 
+        // Build menu structure by matching subcategories and brands without duplicates
         const menu = categories.map((cat) => {
           const subs = subcategories
             .filter((sub) => sub.category && sub.category._id === cat._id)
             .map((sub) => ({
               ...sub,
-              brands: brands.filter(
-                (brand) =>
-                  brand.categories.some((c) => c._id === cat._id) ||
-                  brand.subCategories.some((s) => s._id === sub._id)
+              brands: brands.filter((brand) =>
+                brand.subCategories.some((s) => s._id === sub._id)
               ),
             }));
           return { ...cat, subcategories: subs };
@@ -41,6 +40,7 @@ const MegaMenu = ({ mobile = false }) => {
         console.error("Failed to fetch menu data:", err);
       }
     };
+
     fetchMenuData();
   }, []);
 
