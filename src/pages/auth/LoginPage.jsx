@@ -24,7 +24,7 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (res.data.role === "admin") {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else {
         navigate("/");
       }
@@ -49,7 +49,7 @@ export default function LoginPage() {
 
       // Redirect based on role
       if (res.data.role === "admin") {
-        navigate("/admin");
+        navigate("/admin/dashboard");
       } else {
         navigate("/");
       }

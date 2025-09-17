@@ -11,7 +11,7 @@ export default function BreadcrumbComponent() {
   const breadcrumbItems = [
     {
       title: (
-        <Link to="/">
+        <Link to="/admin/dashboard">
           <HomeOutlined />
         </Link>
       ),

@@ -1,0 +1,89 @@
+/* ---------- Fonts & Base ---------- */
+body {
+  font-family: 'Inter', sans-serif;
+  background: #f5f6fa;
+  color: #2e3a59;
+}
+
+/* ---------- Tabs ---------- */
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
+  background: #ffffff;
+  border-radius: 12px 12px 0 0;
+  margin-right: 8px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
+  color: #ffffff;
+}
+
+/* ---------- Cards ---------- */
+.ant-card {
+  border-radius: 20px !important;
+  background: rgba(255,255,255,0.85);
+  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+  transition: transform 0.3s, box-shadow 0.3s;
+}
+.ant-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+}
+
+/* ---------- Statistic ---------- */
+.ant-statistic-content-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  color: #3b82f6;
+}
+
+/* ---------- Tables ---------- */
+.ant-table-thead > tr > th {
+  background: #ffffff;
+  font-weight: 600;
+  border-bottom: 2px solid #e6e6e6;
+}
+.ant-table-tbody > tr:hover {
+  background: rgba(59,130,246,0.05);
+  cursor: pointer;
+}
+.hover-row {
+  transition: all 0.2s;
+}
+
+/* ---------- Tags ---------- */
+.ant-tag {
+  border-radius: 12px;
+  font-weight: 500;
+  font-size: 0.85rem;
+  padding: 0 8px;
+}
+
+/* ---------- Drawer ---------- */
+.ant-drawer-body {
+  background: #fdfdfd;
+  padding: 24px;
+  border-radius: 16px;
+}
+.ant-drawer-title {
+  font-weight: 700;
+  font-size: 1.2rem;
+}
+
+/* ---------- Images ---------- */
+.ant-image img {
+  border-radius: 16px;
+  transition: transform 0.3s;
+}
+.ant-image img:hover {
+  transform: scale(1.05);
+}
+
+/* ---------- Responsive ---------- */
+@media (max-width: 768px) {
+  .ant-col {
+    margin-bottom: 16px;
+  }
+  .ant-card-body {
+    padding: 1.5rem !important;
+  }
+}

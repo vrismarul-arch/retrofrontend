@@ -151,18 +151,10 @@ export default function ProfilePage() {
         width={420}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        extra={
-          <Button
-            onClick={() => form.submit()}
-            type="primary"
-            shape="round"
-            loading={saving}
-          >
-            Save
-          </Button>
-        }
+       
       >
-        <Form form={form} layout="vertical" onFinish={onFinish}>
+        <h1 style={{ fontSize: "1.5rem", fontWeight: 600 ,marginTop: 50 }}>Edit Profile</h1>
+        <Form form={form} layout="vertical" onFinish={onFinish} style={{ marginTop: 40 }}>
           <Form.Item name="name" label="Full Name">
             <Input placeholder="Enter name" />
           </Form.Item>
@@ -186,7 +178,14 @@ export default function ProfilePage() {
               <Button icon={<UploadOutlined />}>Upload</Button>
             </Upload>
           </Form.Item>
-        </Form>
+        </Form><Button
+            onClick={() => form.submit()}
+            type="primary"
+            shape="round"
+            loading={saving}
+          >
+            Save
+          </Button>
       </Drawer>
     </div>
   );

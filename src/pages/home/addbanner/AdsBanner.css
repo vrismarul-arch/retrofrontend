@@ -295,6 +295,7 @@
   .ads-slide-bg {
     background-size: contain;
     background-position: center;
+    background-repeat: no-repeat;
   }
 
   .ads-slide-content {

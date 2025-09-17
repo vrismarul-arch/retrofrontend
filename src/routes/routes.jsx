@@ -47,6 +47,9 @@ import BookingHistoryPage from "../pages/profile/BookingHistoryPage";
 import SubcategoryServices from "../pages/services/SubcategoryServices";
 import BrandProducts from "../pages/services/BrandProducts";
 import SingleProductPage from "../pages/services/details/SingleProductPage";
+import VendorProduct from "../pages/vendor/VendorProduct";
+import AdminProductsPage from "../pages/Admin/product/AdminProductsPage";
+import AdminDashboard from "../pages/Admin/dashboard/AdminDashboard";
 
 // Wrapper for pages with Navbar
 function WithNavbar({ children }) {
@@ -74,6 +77,7 @@ export default function AppRoutes() {
       <Route path="/login" element={<LoginPage />} />
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/success" element={<SuccessPage />} />
+      <Route path="/seller" element={<VendorProduct />} />
 
       {/* Protected User Routes */}
       <Route element={<ProtectedRoute />}>
@@ -86,10 +90,12 @@ export default function AppRoutes() {
 
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
+        <Route path="dashboard" element={<AdminDashboard />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="categories" element={<CategoriesPage />} />
-        <Route path="services" element={<ServicesPage />} />
+        <Route path="retroproduct" element={<ServicesPage />} />
         <Route path="banners" element={<BannersPage />} />
+        <Route path="products" element={<AdminProductsPage />} />
         <Route path="partners" element={<AdminPartnersPage />} />
         <Route path="bookings" element={<AdminBookingOrders />} />
         <Route path="bookings/:id" element={<BookingDetails />} />

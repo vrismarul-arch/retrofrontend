@@ -33,7 +33,7 @@
   icon: <AppstoreOutlined />,
   children: [
     { key: "/admin/categories", label: "Categories", icon: <FileTextOutlined /> },
-    { key: "/admin/services", label: "Services", icon: <TeamOutlined /> },
+    { key: "/admin/retroproduct", label: "Retroproduct", icon: <TeamOutlined /> },
     { key: "/admin/banners", label: "Banners", icon: <PictureOutlined /> },
     { key: "/admin/bookings", label: "Bookings", icon: <FileTextOutlined /> }, // ✅ NEW
   ],
@@ -44,6 +44,7 @@
         icon: <UserOutlined />,
         children: [
           { key: "/admin/partners", label: "TintdPartner", icon: <UserOutlined /> },
+          { key: "/admin/products", label: "vendorProduct", icon: <UserOutlined /> },
           { key: "/admin/profile", label: "Profile", icon: <UserOutlined /> },
         ],
       },

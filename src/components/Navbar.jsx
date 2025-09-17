@@ -30,6 +30,9 @@ const ResponsiveNavbar = () => {
   const [animateBadge, setAnimateBadge] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
 
+  const [hideMobileNav, setHideMobileNav] = useState(false);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
   const location = useLocation();
   const navigate = useNavigate();
   const { cart, fetchCart, lastUpdated } = useCart();
@@ -81,6 +84,7 @@ const ResponsiveNavbar = () => {
     fetchUserProfile();
   }, [location.pathname, isLoggedIn]);
 
+  // ------------------ LOGOUT ------------------
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -102,6 +106,23 @@ const ResponsiveNavbar = () => {
   const showDrawer = () => setDrawerVisible(true);
   const closeDrawer = () => setDrawerVisible(false);
 
+  // ------------------ HIDE MOBILE NAV ON SCROLL ------------------
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > lastScrollY && window.scrollY > 50) {
+        // scrolling down → hide
+        setHideMobileNav(true);
+      } else {
+        // scrolling up → show
+        setHideMobileNav(false);
+      }
+      setLastScrollY(window.scrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
+
   // ------------------- MOBILE NAVBAR -------------------
   if (isMobile) {
     return (
@@ -121,11 +142,11 @@ const ResponsiveNavbar = () => {
         </div>
 
         <div className="mobile-middle-bar">
-    
           <SearchBar />
         </div>
 
-        <div className="mobile-bottom-navbar">
+        {/* ✅ Bottom Navbar with hide-on-scroll */}
+        <div className={`mobile-bottom-navbar ${hideMobileNav ? "hide-navbar" : ""}`}>
           {menuData.mobileNav.map((item, index) => {
             const Icon = item.icon;
             const isActive = location.pathname === item.link;
@@ -166,7 +187,6 @@ const ResponsiveNavbar = () => {
         </div>
 
         <div className="nav-middle">
-     
           <SearchBar />
         </div>
 

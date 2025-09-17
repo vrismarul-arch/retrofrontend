@@ -211,3 +211,99 @@
 .mega-menu-item {
   transition: all 0.25s ease;
 }
+/* ===================== MOBILE NAVBAR ENHANCEMENTS ===================== */
+
+/* Bottom nav container */
+.mobile-bottom-navbar {
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #ffffff;
+  border-top: 1px solid #e6e6e6;
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  padding: 6px 0 8px;
+  z-index: 1000;
+
+  box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.08);
+}
+
+/* Each tab item */
+.mobile-bottom-navbar .tab-item {
+  flex: 1;
+  text-align: center;
+  font-size: 12px;
+  font-weight: 500;
+  color: #444;
+  text-decoration: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  padding: 6px 0;
+  transition: all 0.25s ease;
+}
+
+/* Icons */
+.mobile-bottom-navbar .tab-icon {
+  font-size: 20px;
+  line-height: 1;
+  color: inherit;
+  transition: color 0.25s ease, transform 0.25s ease;
+}
+
+/* Active state */
+.mobile-bottom-navbar .tab-item.active {
+  color: #078d89;
+  font-weight: 600;
+}
+
+.mobile-bottom-navbar .tab-item.active .tab-icon {
+  color: #078d89;
+  transform: scale(1.15);
+}
+
+/* Hover (optional for PWA feel) */
+.mobile-bottom-navbar .tab-item:hover {
+  background: rgba(7, 141, 137, 0.06);
+  color: #078d89;
+  border-radius: 10px;
+}
+
+/* Badge tweak for mobile */
+.mobile-bottom-navbar .ant-badge {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Animate badge pulse */
+.badge-pulse {
+  animation: pulse 0.6s ease-in-out;
+}
+
+@keyframes pulse {
+  0%   { transform: scale(1); }
+  50%  { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+/* ===================== MOBILE NAVBAR BOTTOM HIDE ===================== */
+.mobile-bottom-navbar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 56px;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  background: #fff;
+  border-top: 1px solid #eee;
+  transition: transform 0.3s ease-in-out;
+  z-index: 1000;
+}
+
+.mobile-bottom-navbar.hide-navbar {
+  transform: translateY(100%); /* ✅ slide out of view */
+}
