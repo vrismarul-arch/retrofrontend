@@ -16,10 +16,7 @@ import {
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeftOutlined,
-  CalendarOutlined,
-  ClockCircleOutlined,
   FilePdfOutlined,
-  ReloadOutlined,
   StopOutlined,
   UserOutlined,
 } from "@ant-design/icons";
@@ -67,20 +64,25 @@ export default function UserBookingDetails() {
 
   if (!booking) return <p>Booking not found</p>;
 
-  const selectedDate = booking.selectedDate
-    ? new Date(booking.selectedDate).toLocaleDateString("en-GB")
-    : "-";
-  const selectedTime = booking.selectedTime
-    ? new Date(booking.selectedTime).toLocaleTimeString([], {
-        hour: "2-digit",
-        minute: "2-digit",
-        hour12: true,
-      })
-    : "-";
-
-  // Progress tracker mapping
+  // Progress tracker mapping (status + deliveryStatus combined)
   const statusSteps = ["pending", "confirmed", "in-progress", "completed"];
-  const currentStep = statusSteps.indexOf(booking.status?.toLowerCase());
+
+  let stepKey = "pending";
+  if (booking.status === "confirmed") {
+    stepKey = "confirmed";
+  } else if (
+    booking.deliveryStatus === "out-for-delivery" ||
+    booking.status === "picked"
+  ) {
+    stepKey = "in-progress";
+  } else if (
+    booking.status === "completed" ||
+    booking.deliveryStatus === "delivered"
+  ) {
+    stepKey = "completed";
+  }
+
+  const currentStep = statusSteps.indexOf(stepKey);
 
   return (
     <div className="booking-details-wrapper">
@@ -101,7 +103,7 @@ export default function UserBookingDetails() {
           <Tag
             className="status-tag"
             color={
-              booking.status === "completed"
+              booking.status === "completed" || booking.deliveryStatus === "delivered"
                 ? "green"
                 : booking.status === "cancelled"
                 ? "red"
@@ -110,9 +112,8 @@ export default function UserBookingDetails() {
                 : "gold"
             }
           >
-            {booking.status?.toUpperCase() || "PENDING"}
+            {(booking.deliveryStatus || booking.status || "pending").toUpperCase()}
           </Tag>
-         
         </div>
         <div className="hero-right">
           <Text className="total-price">₹{booking.totalAmount}</Text>
@@ -122,7 +123,6 @@ export default function UserBookingDetails() {
             <Button danger icon={<StopOutlined />}>
               Cancel Booking
             </Button>
-            
           </div>
         </div>
       </Card>
@@ -145,7 +145,6 @@ export default function UserBookingDetails() {
             <div className="services-list">
               {booking.products?.map((p) => {
                 const product = p.productId || {};
-                // ✅ Corrected image handling
                 const img = product.image || product.images?.[0] || "";
                 const name = product.name || "Product";
                 const price = product.price || 0;

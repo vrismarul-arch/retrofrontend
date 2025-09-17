@@ -97,18 +97,7 @@ const BookingDetails = ({ bookingId, onDeliveryChange }) => {
       </Descriptions.Item>
       <Descriptions.Item label="Delivery Status">
         <Row gutter={8} align="middle">
-          <Col>
-            <Select
-              value={booking.deliveryStatus || "pending"}
-              onChange={handleDeliveryUpdate}
-              style={{ width: 160 }}
-              loading={updatingDelivery}
-            >
-              <Option value="pending">Pending</Option>
-              <Option value="shipping">Shipping</Option>
-              <Option value="delivered">Delivered</Option>
-            </Select>
-          </Col>
+        
           <Col>
             <Tag color={booking.deliveryStatus === "delivered" ? "green" : booking.deliveryStatus === "shipping" ? "blue" : "gold"}>
               {booking.deliveryStatus?.toUpperCase() || "PENDING"}

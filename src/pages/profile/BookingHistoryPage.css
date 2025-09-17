@@ -104,3 +104,27 @@
     gap: 6px;
   }
 }
+/* Default card */
+.order-card {
+  margin-bottom: 16px;
+}
+
+/* Delivered orders -> green */
+.delivered-card {
+  border: 2px solid #52c41a !important;
+  background-color: #f6ffed !important;
+}
+
+/* Out for delivery orders -> yellow */
+.out-for-delivery-card {
+  border: 2px solid #faad14 !important;
+  background-color: #fffbe6 !important;
+}
+
+/* Flex center */
+.flex-center {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 200px;
+}

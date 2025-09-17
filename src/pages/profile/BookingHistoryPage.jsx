@@ -104,14 +104,26 @@ export default function BookingHistoryPage() {
           const firstProductName =
             firstProduct?.productId?.name || firstProduct?.name || "Product";
 
-          // ✅ Fixed image field
           const firstProductImage =
             firstProduct?.productId?.image ||
             firstProduct?.productId?.images?.[0] ||
             firstProduct?.imageUrl;
 
+          // ✅ Delivery status highlight
+          const isDelivered = item.deliveryStatus === "delivered";
+          const isOutForDelivery = item.deliveryStatus === "out-for-delivery";
+
           return (
-            <Card className="order-card" variant="default">
+            <Card
+              className={`order-card ${
+                isDelivered
+                  ? "delivered-card"
+                  : isOutForDelivery
+                  ? "out-for-delivery-card"
+                  : ""
+              }`}
+              variant="default"
+            >
               <div className="order-item">
                 {/* Left side - Image */}
                 <div className="order-image">
@@ -127,14 +139,20 @@ export default function BookingHistoryPage() {
                     <Tag
                       className="status-tag"
                       color={
-                        item.status === "completed"
+                        isDelivered
                           ? "green"
+                          : isOutForDelivery
+                          ? "gold"
                           : item.status === "cancelled"
                           ? "red"
                           : "blue"
                       }
                     >
-                      {item.status || "pending"}
+                      {isDelivered
+                        ? "DELIVERED"
+                        : isOutForDelivery
+                        ? "OUT FOR DELIVERY"
+                        : item.status || "PENDING"}
                     </Tag>
                   </div>
 
@@ -147,12 +165,7 @@ export default function BookingHistoryPage() {
                       <ShoppingCartOutlined />{" "}
                       <b className="price">₹{item.totalAmount}</b>
                     </Text>
-                    <Text>
-                      <CalendarOutlined /> {dateStr}
-                    </Text>
-                    <Text>
-                      <ClockCircleOutlined /> {timeStr}
-                    </Text>
+                   
                   </div>
 
                   <div className="order-actions">
@@ -162,13 +175,15 @@ export default function BookingHistoryPage() {
                     >
                       View Details
                     </Button>
-                    <Button
-                      type="link"
-                      danger
-                      onClick={() => handleDeleteBooking(item._id)}
-                    >
-                      Cancel Order
-                    </Button>
+                    {!isDelivered && (
+                      <Button
+                        type="link"
+                        danger
+                        onClick={() => handleDeleteBooking(item._id)}
+                      >
+                        Cancel Order
+                      </Button>
+                    )}
                   </div>
                 </div>
               </div>
