@@ -164,4 +164,124 @@
   }
 .serviceimage{
   width:120px;
+}/* ----------------------------- General Page ----------------------------- */
+.categories-page {
+  padding: 0.5rem 1rem;
+  background-color: #f9f9f9;
+}
+
+/* Header */
+.categories-page h2 {
+  display: flex;
+  align-items: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+
+.categories-page .ant-btn {
+  font-size: 0.9rem;
+}
+
+/* ----------------------------- Table (Desktop) ----------------------------- */
+.category-table .ant-table-thead > tr > th {
+  font-weight: 600;
+  background-color: #f5f5f5;
+}
+
+.category-table .ant-table-tbody > tr > td {
+  vertical-align: middle;
+}
+
+.category-table img.serviceimage {
+  width: 64px;
+  height: 64px;
+  border-radius: 0.5rem;
+  object-fit: cover;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* ----------------------------- Mobile Cards ----------------------------- */
+.categories-page .ant-card {
+  border-radius: 0.5rem;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.08);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+  background-color: #fff;
+}
+
+.categories-page .ant-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+}
+
+.categories-page .ant-card img {
+  width: 100%;
+  height: 160px;
+  object-fit: contain;
+  background-color: #f3f4f6;
+}
+
+.categories-page .ant-card-meta-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.categories-page .ant-card-meta-description p {
+  margin: 0.2rem 0;
+  font-size: 0.85rem;
+  color: #4b5563; /* gray-700 */
+  line-height: 1.3rem;
+}
+
+.categories-page .ant-card-actions {
+  border-top: 1px solid #f0f0f0;
+  padding: 0.25rem 0;
+  justify-content: flex-end;
+}
+
+.categories-page .ant-card-actions .anticon {
+  font-size: 1.1rem;
+  color: #374151; /* gray-800 */
+  margin: 0 0.25rem;
+  cursor: pointer;
+}
+
+.categories-page .ant-card-actions .anticon:hover {
+  color: #1d4ed8; /* blue-600 */
+}
+
+/* ----------------------------- Drawer Form ----------------------------- */
+.ant-drawer-body {
+  padding: 1rem;
+}
+
+.ant-form-item-label > label {
+  font-weight: 600;
+  color: #111827;
+}
+
+.ant-upload-list-picture-card-container {
+  width: 100% !important;
+}
+
+.ant-upload-list-picture-card .ant-upload-list-item-info {
+  font-size: 0.85rem;
+}
+
+/* ----------------------------- Responsive Grid ----------------------------- */
+@media (max-width: 768px) {
+  .categories-page .grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .category-table {
+    display: none; /* hide table on mobile */
+  }
+}
+:where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-body{
+  padding:5px ;
 }

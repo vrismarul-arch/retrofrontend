@@ -1,89 +1,42 @@
-/* ---------- Fonts & Base ---------- */
-body {
-  font-family: 'Inter', sans-serif;
-  background: #f5f6fa;
-  color: #2e3a59;
+/* Remove unwanted horizontal scroll */
+body, html {
+  overflow-x: hidden;
 }
 
-/* ---------- Tabs ---------- */
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab {
-  background: #ffffff;
-  border-radius: 12px 12px 0 0;
-  margin-right: 8px;
-  font-weight: 600;
-  transition: all 0.3s;
-}
-.ant-tabs-card > .ant-tabs-nav .ant-tabs-tab-active {
-  color: #ffffff;
-}
-
-/* ---------- Cards ---------- */
+/* Card styling */
 .ant-card {
   border-radius: 20px !important;
-  background: rgba(255,255,255,0.85);
-  box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-  transition: transform 0.3s, box-shadow 0.3s;
-}
-.ant-card:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 12px 40px rgba(0,0,0,0.15);
+  overflow: hidden;
 }
 
-/* ---------- Statistic ---------- */
-.ant-statistic-content-value {
-  font-size: 1.8rem;
-  font-weight: 700;
-  color: #3b82f6;
+/* Table row hover */
+.hover-row:hover {
+  background-color: #f9fafb !important;
+  transition: background-color 0.2s ease-in-out;
 }
 
-/* ---------- Tables ---------- */
-.ant-table-thead > tr > th {
-  background: #ffffff;
+/* Fix chart container scroll */
+.recharts-responsive-container {
+  overflow: visible !important;
+}
+
+/* Ensure table scrolls only when needed */
+.ant-table-content {
+  overflow-x: auto !important;
+}
+
+/* Card title styles */
+.ant-card-head-title {
   font-weight: 600;
-  border-bottom: 2px solid #e6e6e6;
-}
-.ant-table-tbody > tr:hover {
-  background: rgba(59,130,246,0.05);
-  cursor: pointer;
-}
-.hover-row {
-  transition: all 0.2s;
+  font-size: 1rem;
 }
 
-/* ---------- Tags ---------- */
-.ant-tag {
-  border-radius: 12px;
-  font-weight: 500;
-  font-size: 0.85rem;
-  padding: 0 8px;
-}
-
-/* ---------- Drawer ---------- */
-.ant-drawer-body {
-  background: #fdfdfd;
-  padding: 24px;
-  border-radius: 16px;
-}
-.ant-drawer-title {
-  font-weight: 700;
-  font-size: 1.2rem;
-}
-
-/* ---------- Images ---------- */
-.ant-image img {
-  border-radius: 16px;
-  transition: transform 0.3s;
-}
-.ant-image img:hover {
-  transform: scale(1.05);
-}
-
-/* ---------- Responsive ---------- */
+/* Responsive fix for small screens */
 @media (max-width: 768px) {
-  .ant-col {
+  .ant-card {
     margin-bottom: 16px;
   }
-  .ant-card-body {
-    padding: 1.5rem !important;
+  .ant-table {
+    font-size: 0.85rem;
   }
 }

@@ -10,6 +10,8 @@ import {
   Dropdown,
   Menu,
   Select,
+  Card,
+  Grid,
 } from "antd";
 import {
   UploadOutlined,
@@ -21,6 +23,8 @@ import {
 import api from "../../../../api";
 import "./categories.css";
 
+const { useBreakpoint } = Grid;
+
 export default function BrandsPage() {
   const [brands, setBrands] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -28,6 +32,7 @@ export default function BrandsPage() {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [form] = Form.useForm();
+  const screens = useBreakpoint();
 
   useEffect(() => {
     fetchBrands();
@@ -111,7 +116,7 @@ export default function BrandsPage() {
   };
 
   const columns = [
-    { title: "S.No", render: (_, __, index) => index + 1, responsive: ["sm"] },
+    { title: "S.No", render: (_, __, index) => index + 1 },
     {
       title: "Logo",
       dataIndex: "logoUrl",
@@ -123,21 +128,18 @@ export default function BrandsPage() {
           onError={(e) => (e.target.src = "/placeholder.png")}
         />
       ),
-      responsive: ["xs", "sm", "md", "lg"],
     },
-    { title: "Name", dataIndex: "name", responsive: ["xs", "sm", "md"] },
-    { title: "Description", dataIndex: "description", responsive: ["md"] },
+    { title: "Name", dataIndex: "name" },
+    { title: "Description", dataIndex: "description" },
     {
       title: "Categories",
       render: (_, record) =>
         record.categories?.map((c) => c.name).join(", ") || "-",
-      responsive: ["md"],
     },
     {
       title: "SubCategories",
       render: (_, record) =>
         record.subCategories?.map((sc) => sc.name).join(", ") || "-",
-      responsive: ["lg"],
     },
     {
       title: "Actions",
@@ -183,12 +185,12 @@ export default function BrandsPage() {
           <Button icon={<MoreOutlined />} />
         </Dropdown>
       ),
-      responsive: ["xs", "sm", "md", "lg"],
     },
   ];
 
   return (
     <div className="categories-page p-2 sm:p-4">
+      {/* Header */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
         <h2 className="text-xl sm:text-2xl font-bold flex items-center">
           <TagsOutlined className="mr-2 text-blue-500" /> Brands
@@ -205,19 +207,87 @@ export default function BrandsPage() {
         </Button>
       </div>
 
-      <Table
-        rowKey="_id"
-        columns={columns}
-        dataSource={brands}
-        pagination={{ pageSize: 5 }}
-        scroll={{ x: 800 }} // horizontal scroll on small screens
-      />
+      {/* ✅ Desktop: Table | Mobile: Card list */}
+      {screens.md ? (
+        <Table
+          rowKey="_id"
+          columns={columns}
+          dataSource={brands}
+          pagination={{ pageSize: 5 }}
+        />
+      ) : (
+        <div className="grid grid-cols-1 gap-4">
+          {brands.map((brand) => (
+            <Card
+              key={brand._id}
+              className="shadow-sm rounded-lg border"
+              cover={
+                <img
+                  src={brand.logoUrl || "/placeholder.png"}
+                  alt={brand.name}
+                  className="h-40 w-full object-contain p-2"
+                />
+              }
+              actions={[
+                <EditOutlined
+                  key="edit"
+                  onClick={() => {
+                    setEditingItem(brand);
+                    form.setFieldsValue({
+                      name: brand.name,
+                      description: brand.description,
+                      categories: brand.categories?.map((c) => c._id) || [],
+                      subCategories: brand.subCategories?.map((sc) => sc._id) || [],
+                      image: brand.logoUrl
+                        ? [
+                            {
+                              uid: "-1",
+                              name: "current.png",
+                              status: "done",
+                              url: brand.logoUrl,
+                            },
+                          ]
+                        : [],
+                    });
+                    setDrawerOpen(true);
+                  }}
+                />,
+                <DeleteOutlined
+                  key="delete"
+                  onClick={() => handleDelete(brand._id)}
+                  className="text-red-500"
+                />,
+              ]}
+            >
+              <Card.Meta
+                title={brand.name}
+                description={
+                  <>
+                    <p className="text-sm text-gray-600">
+                      {brand.description || "No description"}
+                    </p>
+                    <p className="text-xs mt-1">
+                      <strong>Categories:</strong>{" "}
+                      {brand.categories?.map((c) => c.name).join(", ") || "-"}
+                    </p>
+                    <p className="text-xs">
+                      <strong>SubCategories:</strong>{" "}
+                      {brand.subCategories?.map((sc) => sc.name).join(", ") || "-"}
+                    </p>
+                  </>
+                }
+              />
+            </Card>
+          ))}
+        </div>
+      )}
 
+      {/* Drawer for Add/Edit */}
       <Drawer
         title={`${editingItem ? "Edit" : "Add"} Brand`}
         open={drawerOpen}
         onClose={() => setDrawerOpen(false)}
-        width={window.innerWidth < 600 ? "90%" : 500}
+        width={screens.xs ? "90%" : 500}
         extra={
           <div className="flex gap-2">
             <Button onClick={() => setDrawerOpen(false)}>Cancel</Button>

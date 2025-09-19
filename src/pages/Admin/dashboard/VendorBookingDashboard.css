@@ -1,0 +1,95 @@
+/* Container */
+.vendor-dashboard {
+  padding: 20px;
+}
+
+/* Dashboard title */
+.dashboard-title {
+  font-size: 1.6rem;
+  font-weight: 700;
+  margin-bottom: 20px;
+  color: #111827;
+}
+
+/* Cards grid */
+.dashboard-cards {
+  margin-bottom: 24px;
+}
+
+/* Common card style */
+.stat-card,
+.chart-card,
+.table-card {
+  border-radius: 16px !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+  padding: 16px;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Stat card text */
+.stat-title {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #6b7280;
+  margin-bottom: 6px;
+}
+
+.stat-value {
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #111827;
+  margin: 0 0 6px;
+}
+
+.stat-sub {
+  font-size: 0.8rem;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+/* Chart + table titles */
+.chart-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: #374151;
+  text-align: center;
+}
+
+/* Chart responsive */
+.chart-card canvas {
+  max-height: 300px !important;
+}
+
+/* Table card */
+.table-card {
+  margin-top: 16px;
+}
+
+.table-card .ant-table-thead > tr > th {
+  background-color: #f9fafb !important;
+  font-weight: 600;
+}
+
+/* Row hover */
+.ant-table-tbody > tr:hover > td {
+  background-color: #f3f4f6 !important;
+}
+
+/* Loading spinner center */
+.loading-spinner {
+  display: block;
+  margin: 3rem auto;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .stat-card,
+  .chart-card,
+  .table-card {
+    margin-bottom: 16px;
+  }
+}

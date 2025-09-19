@@ -10,6 +10,8 @@ import {
   Dropdown,
   Menu,
   Tabs,
+  Card,
+  Grid,
 } from "antd";
 import {
   UploadOutlined,
@@ -17,7 +19,8 @@ import {
   FolderOpenOutlined,
   EditOutlined,
   DeleteOutlined,
-  AppstoreOutlined, TagsOutlined,
+  AppstoreOutlined,
+  TagsOutlined,
 } from "@ant-design/icons";
 import api from "../../../../api";
 import "./categories.css";
@@ -25,12 +28,14 @@ import SubCategoriesPage from "./SubCategoriesPage";
 import BrandsPage from "./BrandsPage";
 
 const { TabPane } = Tabs;
+const { useBreakpoint } = Grid;
 
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
+  const screens = useBreakpoint(); // detect screen size
 
   useEffect(() => {
     fetchCategories();
@@ -95,129 +100,179 @@ export default function CategoriesPage() {
           }
           key="categories"
         >
-          <div className="header flex justify-between items-center mb-4">
+     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
+  <h2 className="text-2xl font-bold text-gray-800">
+    <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
+  </h2>
+  <Button
+    type="primary"
+    size="large"
+    onClick={() => {
+      setIsDrawerOpen(true);
+      setEditingItem(null);
+      form.resetFields();
+    }}
+  >
+    + Add Category
+  </Button>
+</div>
 
-            <h2 className="text-2xl font-bold text-gray-800">
-              <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories ('living')
-            </h2>            <Button
-              type="primary"
-              size="large"
-              onClick={() => {
-                setIsDrawerOpen(true);
-                setEditingItem(null);
-                form.resetFields();
-              }}
-            >
-              + Add Category
-            </Button>
-          </div>
+          
 
-          <Table
-            dataSource={categories}
-            rowKey="_id"
-            pagination={{ pageSize: 5 }}
-            className="category-table"
-            columns={[
-              {
-                title: "S.No",
-                render: (_, __, index) => index + 1,
-                width: 80,
-              },
-              {
-                title: "Image",
-                dataIndex: "imageUrl",
-                render: (image, record) => (
-                  <img
-                    src={image}
-                    alt={record.name}
-                    className="w-16 h-16 rounded-lg object-cover shadow-sm border serviceimage"
-                    onError={(e) => (e.target.src = "/placeholder.png")}
-                  />
-                ),
-              },
-              {
-                title: "Name",
-                dataIndex: "name",
-                render: (text) => (
-                  <span className="font-medium text-gray-800">{text}</span>
-                ),
-              },
-              {
-                title: "Description",
-                dataIndex: "description",
-                render: (text) => (
-                  <span className="text-gray-500 text-sm">
-                    {text || "No description"}
-                  </span>
-                ),
-              },
-              {
-                title: "Actions",
-                width: 80,
-                align: "center",
-                render: (_, record) => {
-                  const menu = (
-                    <Menu>
-                      <Menu.Item
-                        key="edit"
-                        icon={<EditOutlined />}
-                        onClick={() => {
-                          setEditingItem(record);
-                          form.setFieldsValue({
-                            name: record.name,
-                            description: record.description,
-                            image: record.imageUrl
-                              ? [
+          {/* ✅ Desktop Table | Mobile Cards */}
+          {screens.md ? (
+            <Table
+              dataSource={categories}
+              rowKey="_id"
+              pagination={{ pageSize: 5 }}
+              className="category-table"
+              columns={[
+                { title: "S.No", render: (_, __, index) => index + 1, width: 80 },
+                {
+                  title: "Image",
+                  dataIndex: "imageUrl",
+                  render: (image, record) => (
+                    <img
+                      src={image}
+                      alt={record.name}
+                      className="w-16 h-16 rounded-lg object-cover shadow-sm border serviceimage"
+                      onError={(e) => (e.target.src = "/placeholder.png")}
+                    />
+                  ),
+                },
+                {
+                  title: "Name",
+                  dataIndex: "name",
+                  render: (text) => (
+                    <span className="font-medium text-gray-800">{text}</span>
+                  ),
+                },
+                {
+                  title: "Description",
+                  dataIndex: "description",
+                  render: (text) => (
+                    <span className="text-gray-500 text-sm">
+                      {text || "No description"}
+                    </span>
+                  ),
+                },
+                {
+                  title: "Actions",
+                  width: 80,
+                  align: "center",
+                  render: (_, record) => {
+                    const menu = (
+                      <Menu>
+                        <Menu.Item
+                          key="edit"
+                          icon={<EditOutlined />}
+                          onClick={() => {
+                            setEditingItem(record);
+                            form.setFieldsValue({
+                              name: record.name,
+                              description: record.description,
+                              image: record.imageUrl
+                                ? [
+                                    {
+                                      uid: "-1",
+                                      name: "current.png",
+                                      status: "done",
+                                      url: record.imageUrl,
+                                    },
+                                  ]
+                                : [],
+                            });
+                            setIsDrawerOpen(true);
+                          }}
+                        >
+                          Edit
+                        </Menu.Item>
+                        <Menu.Item
+                          key="delete"
+                          icon={<DeleteOutlined />}
+                          danger
+                          onClick={() => handleDelete(record._id)}
+                        >
+                          Delete
+                        </Menu.Item>
+                      </Menu>
+                    );
+
+                    return (
+                      <Dropdown overlay={menu} trigger={["click"]} placement="bottomRight">
+                        <Button
+                          shape="circle"
+                          icon={<MoreOutlined />}
+                          type="text"
+                          className="action-btn"
+                        />
+                      </Dropdown>
+                    );
+                  },
+                },
+              ]}
+            />
+          ) : (
+            <div className="grid grid-cols-1 gap-4">
+              {categories.map((cat) => (
+                <Card
+                  key={cat._id}
+                  className="shadow-sm rounded-lg border"
+                  cover={
+                    <img
+                      src={cat.imageUrl || "/placeholder.png"}
+                      alt={cat.name}
+                      className="h-40 w-full object-contain p-2"
+                    />
+                  }
+                  actions={[
+                    <EditOutlined
+                      key="edit"
+                      onClick={() => {
+                        setEditingItem(cat);
+                        form.setFieldsValue({
+                          name: cat.name,
+                          description: cat.description,
+                          image: cat.imageUrl
+                            ? [
                                 {
                                   uid: "-1",
                                   name: "current.png",
                                   status: "done",
-                                  url: record.imageUrl,
+                                  url: cat.imageUrl,
                                 },
                               ]
-                              : [],
-                          });
-                          setIsDrawerOpen(true);
-                        }}
-                      >
-                        Edit
-                      </Menu.Item>
-                      <Menu.Item
-                        key="delete"
-                        icon={<DeleteOutlined />}
-                        danger
-                        onClick={() => handleDelete(record._id)}
-                      >
-                        Delete
-                      </Menu.Item>
-                    </Menu>
-                  );
-
-                  return (
-                    <Dropdown
-                      overlay={menu}
-                      trigger={["click"]}
-                      placement="bottomRight"
-                    >
-                      <Button
-                        shape="circle"
-                        icon={<MoreOutlined />}
-                        type="text"
-                        className="action-btn"
-                      />
-                    </Dropdown>
-                  );
-                },
-              },
-            ]}
-          />
+                            : [],
+                        });
+                        setIsDrawerOpen(true);
+                      }}
+                    />,
+                    <DeleteOutlined
+                      key="delete"
+                      onClick={() => handleDelete(cat._id)}
+                      className="text-red-500"
+                    />,
+                  ]}
+                >
+                  <Card.Meta
+                    title={cat.name}
+                    description={
+                      <p className="text-sm text-gray-600">
+                        {cat.description || "No description"}
+                      </p>
+                    }
+                  />
+                </Card>
+              ))}
+            </div>
+          )}
 
           {/* Drawer for Add/Edit */}
           <Drawer
             title={`${editingItem ? "Edit" : "Add"} Category`}
             open={isDrawerOpen}
             onClose={() => setIsDrawerOpen(false)}
-            width={420}
+            width={screens.xs ? "90%" : 420}
             extra={
               <div className="flex gap-2">
                 <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
@@ -238,15 +293,9 @@ export default function CategoriesPage() {
                 name="image"
                 label="Upload Image"
                 valuePropName="fileList"
-                getValueFromEvent={(e) =>
-                  Array.isArray(e) ? e : e && e.fileList
-                }
+                getValueFromEvent={(e) => (Array.isArray(e) ? e : e?.fileList)}
               >
-                <Upload
-                  listType="picture-card"
-                  beforeUpload={() => false}
-                  maxCount={1}
-                >
+                <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
                   <Button icon={<UploadOutlined />}>Upload</Button>
                 </Upload>
               </Form.Item>

@@ -50,6 +50,7 @@ import SingleProductPage from "../pages/services/details/SingleProductPage";
 import VendorProduct from "../pages/vendor/VendorProduct";
 import AdminProductsPage from "../pages/Admin/product/AdminProductsPage";
 import AdminDashboard from "../pages/Admin/dashboard/AdminDashboard";
+import VendorBookingDashboard from "../pages/Admin/dashboard/VendorBookingDashboard";
 
 // Wrapper for pages with Navbar
 function WithNavbar({ children }) {
@@ -91,6 +92,7 @@ export default function AppRoutes() {
       {/* Admin Routes */}
       <Route path="/admin" element={<AdminRoute><AdminLayout /></AdminRoute>}>
         <Route path="dashboard" element={<AdminDashboard />} />
+        <Route path="bookingdashboard" element={<VendorBookingDashboard />} />
         <Route path="profile" element={<AdminProfile />} />
         <Route path="categories" element={<CategoriesPage />} />
         <Route path="retroproduct" element={<ServicesPage />} />

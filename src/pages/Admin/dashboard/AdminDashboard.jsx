@@ -1,68 +1,42 @@
 import React, { useEffect, useState } from "react";
+import { Card, Row, Col, Table, Tag, Spin, message } from "antd";
 import {
-  Tabs,
-  Card,
-  Row,
-  Col,
-  Statistic,
-  Table,
-  Tag,
-  message,
-  Spin,
-} from "antd";
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
   PieChart,
   Pie,
   Cell,
   Legend,
+  Tooltip,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
 } from "recharts";
+import { motion } from "framer-motion";
 import api from "../../../../api";
-import "./admindashboard.css";
+import "./AdminDashboard.css"; // ✅ Import CSS
 
-const { TabPane } = Tabs;
+const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444"];
+const cardStyle = {
+  borderRadius: 20,
+  boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
+};
+
+const MotionCard = ({ children, delay = 0, ...props }) => (
+  <motion.div
+    initial={{ opacity: 0, scale: 0.9 }}
+    animate={{ opacity: 1, scale: 1 }}
+    transition={{ delay }}
+  >
+    <Card style={cardStyle} {...props}>
+      {children}
+    </Card>
+  </motion.div>
+);
 
 export default function AdminDashboard() {
-  return (
-    <div style={{ padding: 24, fontFamily: "'Inter', sans-serif" }}>
-      <h2
-        style={{
-          fontSize: "2.2rem",
-          fontWeight: 700,
-          background: "linear-gradient(90deg,#4f46e5,#3b82f6)",
-          WebkitBackgroundClip: "text",
-          WebkitTextFillColor: "transparent",
-          marginBottom: "2rem",
-        }}
-      >
-        Admin Dashboard
-      </h2>
-      <Tabs
-        defaultActiveKey="input"
-        destroyInactiveTabPane
-        type="card"
-        tabBarStyle={{ fontWeight: 600 }}
-      >
-        <TabPane tab="Input / Catalog" key="input">
-          <CatalogDashboard />
-        </TabPane>
-        <TabPane tab="Output / Orders" key="output">
-          <VendorBookingDashboard />
-        </TabPane>
-      </Tabs>
-    </div>
-  );
-}
-
-// =========================
-// Catalog / Input Tab
-// =========================
-function CatalogDashboard() {
   const [loading, setLoading] = useState(false);
   const [summary, setSummary] = useState({
     categories: 0,
@@ -79,10 +53,18 @@ function CatalogDashboard() {
       const token = localStorage.getItem("token");
       const [categoriesRes, subcategoriesRes, brandsRes, productsRes] =
         await Promise.all([
-          api.get("/api/admin/categories", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/api/admin/subcategories", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/api/admin/brands", { headers: { Authorization: `Bearer ${token}` } }),
-          api.get("/api/admin/products", { headers: { Authorization: `Bearer ${token}` } }),
+          api.get("/api/admin/categories", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          api.get("/api/admin/subcategories", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          api.get("/api/admin/brands", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
+          api.get("/api/admin/products", {
+            headers: { Authorization: `Bearer ${token}` },
+          }),
         ]);
 
       setSummary({
@@ -91,7 +73,6 @@ function CatalogDashboard() {
         brands: brandsRes.data.length,
         products: productsRes.data.length,
       });
-
       setProducts(productsRes.data || []);
     } catch (err) {
       console.error(err);
@@ -106,255 +87,203 @@ function CatalogDashboard() {
   }, []);
 
   useEffect(() => {
-    if (products.length > 0) {
-      const categoryCounts = products.reduce((acc, product) => {
-        acc[product.category] = (acc[product.category] || 0) + 1;
+    if (products.length) {
+      const counts = products.reduce((acc, p) => {
+        const name =
+          typeof p.category === "object" ? p.category.name : p.category;
+        acc[name] = (acc[name] || 0) + 1;
         return acc;
       }, {});
       setCategoryChartData(
-        Object.entries(categoryCounts).map(([category, count]) => ({ category, count }))
+        Object.entries(counts).map(([category, count]) => ({
+          category,
+          count,
+        }))
       );
     }
   }, [products]);
 
   const productColumns = [
     { title: "Name", dataIndex: "name", key: "name" },
-    { title: "Category", dataIndex: "category", key: "category" },
+    {
+      title: "Category",
+      dataIndex: "category",
+      key: "category",
+      render: (cat) =>
+        typeof cat === "object" ? cat?.name || "N/A" : cat || "N/A",
+    },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status) => {
-        const colors = { approved: "green", rejected: "red", pending: "orange" };
-        return <Tag color={colors[status] || "gray"}>{status?.toUpperCase()}</Tag>;
-      },
+      render: (status) => (
+        <Tag
+          color={
+            {
+              approved: "green",
+              rejected: "red",
+              pending: "orange",
+            }[status] || "gray"
+          }
+        >
+          {status?.toUpperCase()}
+        </Tag>
+      ),
     },
     {
       title: "Created At",
       dataIndex: "createdAt",
       key: "createdAt",
-      render: (date) => new Date(date).toLocaleString(),
+      render: (d) => new Date(d).toLocaleString(),
     },
   ];
 
-  const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042"];
-
-  return (
-    <>
-      {loading ? (
-        <Spin tip="Loading..." style={{ display: "block", margin: "2rem auto" }} size="large" />
-      ) : (
-        <>
-          {/* Summary Cards */}
-          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-            {Object.entries(summary).map(([key, value]) => (
-              <Col xs={24} sm={12} md={6} key={key}>
-                <Card
-                  style={{
-                    borderRadius: 16,
-                    background: "linear-gradient(145deg,#f0f4ff,#ffffff)",
-                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                  }}
-                  hoverable
-                  bodyStyle={{ textAlign: "center", padding: "1.8rem" }}
-                >
-                  <Statistic
-                    title={key.charAt(0).toUpperCase() + key.slice(1)}
-                    value={value}
-                    valueStyle={{ fontSize: "1.7rem", fontWeight: 700, color: "#3b82f6" }}
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
-
-          {/* Charts */}
-          <Row gutter={24} style={{ marginBottom: 24 }}>
-            <Col xs={24} md={12}>
-              <Card
-                title="Catalog Summary (Donut)"
-                style={{ borderRadius: 16, boxShadow: "0 6px 18px rgba(0,0,0,0.08)" }}
+  return loading ? (
+    <Spin
+      tip="Loading..."
+      style={{ display: "block", margin: "2rem auto" }}
+      size="large"
+    />
+  ) : (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.5 }}
+    >
+      {/* Summary Cards */}
+      <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
+        {Object.keys(summary).map((key, i) => (
+          <Col xs={24} sm={12} md={6} key={key}>
+            <MotionCard
+              delay={i * 0.1}
+              bodyStyle={{ textAlign: "center", padding: "1.5rem" }}
+              hoverable
+            >
+              <h3
+                style={{
+                  fontSize: "1rem",
+                  marginBottom: 8,
+                  color: "#6b7280",
+                }}
               >
-                <ResponsiveContainer width="100%" height={280}>
-                  <PieChart>
-                    <Pie
-                      data={[
-                        { name: "Products", value: summary.products },
-                        { name: "Categories", value: summary.categories },
-                        { name: "Brands", value: summary.brands },
-                        { name: "Subcategories", value: summary.subcategories },
-                      ]}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      innerRadius={50}
-                      outerRadius={100}
-                      label
-                    >
-                      {COLORS.map((color, index) => (
-                        <Cell key={index} fill={color} />
-                      ))}
-                    </Pie>
-                    <Legend />
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-              </Card>
-            </Col>
-            <Col xs={24} md={12}>
-              <Card
-                title="Products by Category (Bar)"
-                style={{ borderRadius: 16, boxShadow: "0 6px 18px rgba(0,0,0,0.08)" }}
+                {key[0].toUpperCase() + key.slice(1)}
+              </h3>
+              <h2
+                style={{
+                  fontSize: "1.8rem",
+                  fontWeight: 700,
+                  color: "#111827",
+                }}
               >
-                <ResponsiveContainer width="100%" height={280}>
-                  <BarChart data={categoryChartData}>
-                    <XAxis dataKey="category" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#4f46e5" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Card>
-            </Col>
-          </Row>
+                {summary[key]}
+              </h2>
+              <AreaChart
+                width={150}
+                height={50}
+                data={[
+                  { uv: 20 },
+                  { uv: 40 },
+                  { uv: 25 },
+                  { uv: 50 },
+                  { uv: 35 },
+                ]}
+              >
+                <defs>
+                  <linearGradient
+                    id={`colorUv${i}`}
+                    x1="0"
+                    y1="0"
+                    x2="0"
+                    y2="1"
+                  >
+                    <stop
+                      offset="5%"
+                      stopColor={COLORS[i]}
+                      stopOpacity={0.8}
+                    />
+                    <stop
+                      offset="95%"
+                      stopColor={COLORS[i]}
+                      stopOpacity={0}
+                    />
+                  </linearGradient>
+                </defs>
+                <Area
+                  type="monotone"
+                  dataKey="uv"
+                  stroke={COLORS[i]}
+                  fillOpacity={1}
+                  fill={`url(#colorUv${i})`}
+                />
+              </AreaChart>
+            </MotionCard>
+          </Col>
+        ))}
+      </Row>
 
-          {/* Products Table */}
-          <Card
-            title="Products Table"
-            bodyStyle={{ padding: "1rem" }}
-            style={{ borderRadius: 16, boxShadow: "0 6px 18px rgba(0,0,0,0.08)" }}
+      {/* Charts */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={12}>
+          <MotionCard
+            title={<span style={{ fontWeight: 600 }}>Catalog Overview</span>}
           >
-            <Table
-              rowKey="_id"
-              columns={productColumns}
-              dataSource={products}
-              pagination={{ pageSize: 6 }}
-              rowClassName={() => "hover-row"}
-            />
-          </Card>
-        </>
-      )}
-    </>
-  );
-}
-
-// =========================
-// Vendor & Booking / Output Tab
-// =========================
-function VendorBookingDashboard() {
-  const [loading, setLoading] = useState(false);
-  const [products, setProducts] = useState([]);
-  const [bookings, setBookings] = useState([]);
-
-  const fetchOutputData = async () => {
-    setLoading(true);
-    try {
-      const token = localStorage.getItem("token");
-      const [productsRes, bookingsRes] = await Promise.all([
-        api.get("/api/vendor/products", { headers: { Authorization: `Bearer ${token}` } }),
-        api.get("/api/admin/bookings", { headers: { Authorization: `Bearer ${token}` } }),
-      ]);
-      setProducts(productsRes.data || []);
-      setBookings(bookingsRes.data.bookings || []);
-    } catch (err) {
-      console.error(err);
-      message.error("Failed to fetch output data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchOutputData();
-  }, []);
-
-  const pendingBookings = bookings.filter((b) => b.status === "pending").length;
-  const deliveredBookings = bookings.filter((b) => b.deliveryStatus === "delivered").length;
-
-  const totalAmount = bookings.reduce(
-    (sum, b) => sum + b.products.reduce((pSum, p) => pSum + (p.productId?.price || 0) * (p.quantity || 1), 0),
-    0
-  );
-  const pendingAmount = bookings
-    .filter((b) => b.status === "pending")
-    .reduce(
-      (sum, b) => sum + b.products.reduce((pSum, p) => pSum + (p.productId?.price || 0) * (p.quantity || 1), 0),
-      0
-    );
-  const earnedAmount = bookings
-    .filter((b) => b.status === "confirmed" || b.deliveryStatus === "delivered")
-    .reduce(
-      (sum, b) => sum + b.products.reduce((pSum, p) => pSum + (p.productId?.price || 0) * (p.quantity || 1), 0),
-      0
-    );
-
-  const summaryCards = [
-    { title: "Vendor Products", value: products.length },
-    { title: "Total Bookings", value: bookings.length },
-    { title: "Pending Bookings", value: pendingBookings },
-    { title: "Delivered Bookings", value: deliveredBookings },
-    { title: "Total Amount", value: totalAmount, prefix: "₹" },
-    { title: "Pending Amount", value: pendingAmount, prefix: "₹" },
-    { title: "Earned Amount", value: earnedAmount, prefix: "₹" },
-  ];
-
-  const bookingsChartData = [
-    { status: "Pending", count: pendingBookings },
-    { status: "Delivered", count: deliveredBookings },
-    { status: "Confirmed", count: bookings.filter((b) => b.status === "confirmed").length },
-  ];
-
-  return (
-    <>
-      {loading ? (
-        <Spin tip="Loading..." style={{ display: "block", margin: "2rem auto" }} size="large" />
-      ) : (
-        <>
-          {/* Summary Cards */}
-          <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
-            {summaryCards.map((item) => (
-              <Col xs={24} sm={12} md={6} key={item.title}>
-                <Card
-                  style={{
-                    borderRadius: 16,
-                    background: "linear-gradient(145deg,#fff9f0,#ffffff)",
-                    boxShadow: "0 6px 18px rgba(0,0,0,0.08)",
-                  }}
-                  hoverable
-                  bodyStyle={{ textAlign: "center", padding: "1.5rem" }}
+            <ResponsiveContainer width="100%" height={280}>
+              <PieChart>
+                <Pie
+                  data={[
+                    { name: "Products", value: summary.products },
+                    { name: "Categories", value: summary.categories },
+                    { name: "Brands", value: summary.brands },
+                    { name: "Subcategories", value: summary.subcategories },
+                  ]}
+                  dataKey="value"
+                  nameKey="name"
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={60}
+                  outerRadius={100}
+                  label
                 >
-                  <Statistic
-                    title={item.title}
-                    value={item.value}
-                    prefix={item.prefix || ""}
-                    valueStyle={{ fontSize: "1.6rem", fontWeight: 700, color: "#3b82f6" }}
-                  />
-                </Card>
-              </Col>
-            ))}
-          </Row>
+                  {COLORS.map((c, i) => (
+                    <Cell key={i} fill={c} />
+                  ))}
+                </Pie>
+                <Tooltip />
+                <Legend />
+              </PieChart>
+            </ResponsiveContainer>
+          </MotionCard>
+        </Col>
+        <Col xs={24} md={12}>
+          <MotionCard
+            title={<span style={{ fontWeight: 600 }}>Products by Category</span>}
+          >
+            <ResponsiveContainer width="100%" height={280}>
+              <BarChart data={categoryChartData}>
+                <XAxis dataKey="category" />
+                <YAxis />
+                <Tooltip />
+                <Bar dataKey="count" fill="#4f46e5" radius={[6, 6, 0, 0]} />
+              </BarChart>
+            </ResponsiveContainer>
+          </MotionCard>
+        </Col>
+      </Row>
 
-          {/* Bookings Chart */}
-          <Row gutter={24} style={{ marginBottom: 24 }}>
-            <Col xs={24} md={12}>
-              <Card
-                title="Bookings Overview"
-                style={{ borderRadius: 16, boxShadow: "0 6px 18px rgba(0,0,0,0.08)" }}
-              >
-                <ResponsiveContainer width="100%" height={250}>
-                  <BarChart data={bookingsChartData}>
-                    <XAxis dataKey="status" />
-                    <YAxis />
-                    <Tooltip />
-                    <Bar dataKey="count" fill="#3b82f6" radius={[8, 8, 0, 0]} />
-                  </BarChart>
-                </ResponsiveContainer>
-              </Card>
-            </Col>
-          </Row>
-        </>
-      )}
-    </>
+      {/* Products Table */}
+      <MotionCard
+        title={<span style={{ fontWeight: 600 }}>Products Table</span>}
+        bodyStyle={{ padding: "1rem" }}
+      >
+        <Table
+          rowKey="_id"
+          columns={productColumns}
+          dataSource={products}
+          pagination={{ pageSize: 6 }}
+          rowClassName={() => "hover-row"}
+          scroll={{ x: "max-content" }} // ✅ fixes unnecessary scrollbar
+        />
+      </MotionCard>
+    </motion.div>
   );
 }

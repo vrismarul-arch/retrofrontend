@@ -1,3 +1,4 @@
+// src/pages/auth/LoginPage.jsx
 import { useState } from "react";
 import { Form, Input, Button, Checkbox, message } from "antd";
 import { MailOutlined, LockOutlined } from "@ant-design/icons";
@@ -10,19 +11,17 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  // 🔹 Email/Password login
+  // Email/Password login
   const onFinish = async (values) => {
     try {
       setLoading(true);
       const res = await api.post("/api/auth/login", values);
 
-      // Save token and role
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("role", res.data.role);
 
       message.success("Login successful");
 
-      // Redirect based on role
       if (res.data.role === "admin") {
         navigate("/admin/dashboard");
       } else {
@@ -35,7 +34,7 @@ export default function LoginPage() {
     }
   };
 
-  // 🔹 Google login success handler
+  // Google login
   const handleGoogleSuccess = async (credentialResponse) => {
     try {
       const res = await api.post("/api/auth/google", {
@@ -47,7 +46,6 @@ export default function LoginPage() {
 
       message.success("Google login successful");
 
-      // Redirect based on role
       if (res.data.role === "admin") {
         navigate("/admin/dashboard");
       } else {
@@ -60,21 +58,17 @@ export default function LoginPage() {
 
   return (
     <div className="auth-container">
-      {/* Left side with background image */}
+      {/* Left side */}
       <div className="auth-left">
         <div className="overlay" />
       </div>
 
-      {/* Right side with form */}
+      {/* Right side */}
       <div className="auth-right">
         <div className="auth-box">
-          <h2 className="title">Login to Doorstep</h2>
+          <h2 className="title">Login to Retrowoods</h2>
 
-          {/* Toggle buttons */}
-          <div className="toggle-btns">
-            <button className="active">Login</button>
-            <button onClick={() => navigate("/register")}>Sign Up</button>
-          </div>
+        
 
           {/* Form */}
           <Form onFinish={onFinish} className="auth-form">
@@ -100,10 +94,7 @@ export default function LoginPage() {
               />
             </Form.Item>
 
-            <div className="form-options">
-              <Checkbox>Remember me</Checkbox>
-              <a href="#">Forgot Password?</a>
-            </div>
+      
 
             <Button
               type="primary"

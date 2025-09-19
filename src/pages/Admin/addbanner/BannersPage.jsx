@@ -11,6 +11,8 @@ import {
   message,
   Dropdown,
   Menu,
+  Card,
+  Grid,
 } from "antd";
 import {
   UploadOutlined,
@@ -21,11 +23,14 @@ import {
 import api from "../../../../api";
 import "./banners.css";
 
+const { useBreakpoint } = Grid;
+
 export default function BannersPage() {
   const [banners, setBanners] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
+  const screens = useBreakpoint();
 
   useEffect(() => {
     fetchBanners();
@@ -88,6 +93,84 @@ export default function BannersPage() {
     }
   };
 
+  const handleEdit = (record) => {
+    setEditingItem(record);
+    form.setFieldsValue({
+      title: record.title,
+      subtitle: record.subtitle,
+      btnText: record.btnText,
+      btnLink: record.btnLink,
+      isActive: record.isActive,
+      image: record.imageUrl
+        ? [
+            {
+              uid: "-1",
+              name: "banner.png",
+              status: "done",
+              url: record.imageUrl,
+            },
+          ]
+        : [],
+    });
+    setIsDrawerOpen(true);
+  };
+
+  // =========================
+  // Mobile Card View
+  // =========================
+  const renderCards = () => (
+    <div className="banner-cards">
+      {banners.map((banner, index) => (
+        <Card
+          key={banner._id}
+          className="banner-card"
+          title={`${index + 1}. ${banner.title || "Untitled"}`}
+          extra={
+            <Dropdown
+              overlay={
+                <Menu>
+                  <Menu.Item icon={<EditOutlined />} onClick={() => handleEdit(banner)}>
+                    Edit
+                  </Menu.Item>
+                  <Menu.Item
+                    icon={<DeleteOutlined />}
+                    danger
+                    onClick={() => handleDelete(banner._id)}
+                  >
+                    Delete
+                  </Menu.Item>
+                </Menu>
+              }
+              trigger={["click"]}
+            >
+              <Button icon={<MoreOutlined />} />
+            </Dropdown>
+          }
+        >{banner.imageUrl && (
+            <img
+              src={banner.imageUrl}
+              alt="banner"
+              className="w-full h-40 object-cover rounded shadow border"
+            />
+          )}
+          <p><strong>Subtitle:</strong> {banner.subtitle || "-"}</p>
+          <p>
+            <strong>Button:</strong>{" "}
+            {banner.btnLink ? (
+              <a href={banner.btnLink} target="_blank" rel="noreferrer" className="text-blue-500 underline">
+                {banner.btnText || banner.btnLink}
+              </a>
+            ) : (
+              "-"
+            )}
+          </p>
+          <p><strong>Active:</strong> {banner.isActive ? "Yes" : "No"}</p>
+          
+        </Card>
+      ))}
+    </div>
+  );
+
   return (
     <div className="banners-page">
       <div className="header flex justify-between items-center mb-4">
@@ -104,97 +187,78 @@ export default function BannersPage() {
         </Button>
       </div>
 
-      {/* Table */}
-      <Table
-        dataSource={banners}
-        rowKey="_id"
-        pagination={{ pageSize: 5 }}
-        columns={[
-          {
-            title: "S.No.",
-            render: (_, __, index) => index + 1,
-            width: 70,
-            align: "center",
-          },
-          { title: "Title", dataIndex: "title" },
-          { title: "Subtitle", dataIndex: "subtitle" },
-          { title: "Button Text", dataIndex: "btnText" },
-          {
-            title: "Button Link",
-            dataIndex: "btnLink",
-            render: (link) =>
-              link ? (
-                <a href={link} target="_blank" rel="noreferrer" className="text-blue-500 underline">
-                  {link}
-                </a>
-              ) : (
-                "-"
+      {/* Table for desktop, Cards for mobile */}
+      {screens.xs ? (
+        renderCards()
+      ) : (
+        <Table
+          dataSource={banners}
+          rowKey="_id"
+          pagination={{ pageSize: 5 }}
+          columns={[
+            {
+              title: "S.No.",
+              render: (_, __, index) => index + 1,
+              width: 70,
+              align: "center",
+            },
+            { title: "Title", dataIndex: "title" },
+            { title: "Subtitle", dataIndex: "subtitle" },
+            { title: "Button Text", dataIndex: "btnText" },
+            {
+              title: "Button Link",
+              dataIndex: "btnLink",
+              render: (link) =>
+                link ? (
+                  <a href={link} target="_blank" rel="noreferrer" className="text-blue-500 underline">
+                    {link}
+                  </a>
+                ) : (
+                  "-"
+                ),
+            },
+            {
+              title: "Image",
+              dataIndex: "imageUrl",
+              render: (url) => (
+                <img
+                  src={url}
+                  alt="banner"
+                  className="w-28 h-16 object-cover rounded shadow border serviceimage"
+                />
               ),
-          },
-          {
-            title: "Image",
-            dataIndex: "imageUrl",
-            render: (url) => (
-              <img
-                src={url}
-                alt="banner"
-                className="w-28 h-16 object-cover rounded shadow border serviceimage"
-              />
-            ),
-          },
-          {
-            title: "Active",
-            dataIndex: "isActive",
-            render: (a) => (a ? "Yes" : "No"),
-          },
-          {
-            title: "Actions",
-            render: (_, record) => (
-              <Dropdown
-                overlay={
-                  <Menu>
-                    <Menu.Item
-                      icon={<EditOutlined />}
-                      onClick={() => {
-                        setEditingItem(record);
-                        form.setFieldsValue({
-                          title: record.title,
-                          subtitle: record.subtitle,
-                          btnText: record.btnText,
-                          btnLink: record.btnLink,
-                          isActive: record.isActive,
-                          image: record.imageUrl
-                            ? [
-                                {
-                                  uid: "-1",
-                                  name: "banner.png",
-                                  status: "done",
-                                  url: record.imageUrl,
-                                },
-                              ]
-                            : [],
-                        });
-                        setIsDrawerOpen(true);
-                      }}
-                    >
-                      Edit
-                    </Menu.Item>
-                    <Menu.Item
-                      icon={<DeleteOutlined />}
-                      danger
-                      onClick={() => handleDelete(record._id)}
-                    >
-                      Delete
-                    </Menu.Item>
-                  </Menu>
-                }
-              >
-                <Button icon={<MoreOutlined />} />
-              </Dropdown>
-            ),
-          },
-        ]}
-      />
+            },
+            {
+              title: "Active",
+              dataIndex: "isActive",
+              render: (a) => (a ? "Yes" : "No"),
+            },
+            {
+              title: "Actions",
+              render: (_, record) => (
+                <Dropdown
+                  overlay={
+                    <Menu>
+                      <Menu.Item icon={<EditOutlined />} onClick={() => handleEdit(record)}>
+                        Edit
+                      </Menu.Item>
+                      <Menu.Item
+                        icon={<DeleteOutlined />}
+                        danger
+                        onClick={() => handleDelete(record._id)}
+                      >
+                        Delete
+                      </Menu.Item>
+                    </Menu>
+                  }
+                >
+                  <Button icon={<MoreOutlined />} />
+                </Dropdown>
+              ),
+            },
+          ]}
+        />
+      )}
 
       {/* Drawer Form */}
       <Drawer
@@ -205,7 +269,7 @@ export default function BannersPage() {
         extra={<Button type="primary" onClick={handleSave}>Save</Button>}
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="title" label="Title" >
+          <Form.Item name="title" label="Title">
             <Input placeholder="Enter banner title" />
           </Form.Item>
           <Form.Item name="subtitle" label="Subtitle">

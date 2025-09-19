@@ -3,7 +3,6 @@ import {
   Table,
   Button,
   Tag,
-  message,
   Popconfirm,
   Space,
   Drawer,
@@ -13,9 +12,13 @@ import {
   Form,
   Input,
   Upload,
+  List,
+  Card,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
+import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
+import "./Products.css";
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
@@ -33,7 +36,7 @@ export default function AdminProductsPage() {
       const { data } = await api.get("/api/vendor/products");
       setProducts(Array.isArray(data) ? data : []);
     } catch (err) {
-      message.error("Failed to fetch products");
+      toast.error("Failed to fetch products");
     } finally {
       setLoading(false);
     }
@@ -43,24 +46,24 @@ export default function AdminProductsPage() {
     fetchProducts();
   }, []);
 
-  // Approve / Reject product
+  // Approve / Reject
   const approveProduct = async (id) => {
     try {
       await api.put(`/api/vendor/products/${id}/approve`);
-      message.success("Product approved");
+      toast.success("Product approved");
       fetchProducts();
     } catch (err) {
-      message.error(err.response?.data?.error || "Failed to approve product");
+      toast.error(err.response?.data?.error || "Failed to approve product");
     }
   };
 
   const rejectProduct = async (id) => {
     try {
       await api.put(`/api/vendor/products/${id}/reject`);
-      message.success("Product rejected");
+      toast.success("Product rejected");
       fetchProducts();
     } catch (err) {
-      message.error(err.response?.data?.error || "Failed to reject product");
+      toast.error(err.response?.data?.error || "Failed to reject product");
     }
   };
 
@@ -88,7 +91,7 @@ export default function AdminProductsPage() {
     setDrawerOpen(true);
   };
 
-  // Update product (with new images)
+  // Update product
   const updateProduct = async (values) => {
     try {
       const formData = new FormData();
@@ -101,11 +104,11 @@ export default function AdminProductsPage() {
         headers: { "Content-Type": "multipart/form-data" },
       });
 
-      message.success("Product updated successfully");
+      toast.success("Product updated successfully");
       fetchProducts();
       setDrawerOpen(false);
     } catch (err) {
-      message.error(err.response?.data?.error || "Failed to update product");
+      toast.error(err.response?.data?.error || "Failed to update product");
     }
   };
 
@@ -114,6 +117,27 @@ export default function AdminProductsPage() {
     { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
     { title: "Product Name", dataIndex: "productName", key: "productName" },
     { title: "City", dataIndex: "city", key: "city" },
+    {
+      title: "Image",
+      dataIndex: "images",
+      key: "image",
+      render: (images, record) =>
+        images?.length > 0 ? (
+          <img
+            src={images[0]}
+            alt={record.productName}
+            style={{
+              width: "60px",
+              height: "60px",
+              objectFit: "cover",
+              borderRadius: "6px",
+              border: "1px solid #eee",
+            }}
+          />
+        ) : (
+          "No Image"
+        ),
+    },
     {
       title: "Status",
       dataIndex: "status",
@@ -149,6 +173,7 @@ export default function AdminProductsPage() {
 
   return (
     <div style={{ padding: 20 }}>
+      <Toaster position="top-right" reverseOrder={false} />
       <h2 className="text-xl font-bold mb-4">Vendor Product Management</h2>
 
       {/* Tabs */}
@@ -163,13 +188,78 @@ export default function AdminProductsPage() {
         ]}
       />
 
-      {/* Table */}
-      <Table
-        rowKey="_id"
-        loading={loading}
-        columns={columns}
-        dataSource={filteredProducts}
-      />
+      {/* Desktop Table */}
+      <div className="desktop-table">
+        <Table
+          rowKey="_id"
+          loading={loading}
+          columns={columns}
+          dataSource={filteredProducts}
+        />
+      </div>
+
+      {/* Mobile Cards */}
+      <div className="mobile-cards">
+        <List
+          loading={loading}
+          dataSource={filteredProducts}
+          grid={{ gutter: 16, column: 1 }}
+          renderItem={(item, index) => (
+            <List.Item>
+              <Card
+                className="product-card"
+                cover={
+                  item.images?.length > 0 ? (
+                    <img
+                      alt={item.productName}
+                      src={item.images[0]}
+                      className="product-card-img"
+                    />
+                  ) : null
+                }
+                title={`${index + 1}. ${item.productName}`}
+                extra={
+                  <Tag
+                    color={
+                      item.status === "approved"
+                        ? "green"
+                        : item.status === "rejected"
+                        ? "red"
+                        : "orange"
+                    }
+                  >
+                    {item.status.toUpperCase()}
+                  </Tag>
+                }
+              >
+                <p>
+                  <b>City:</b> {item.city}
+                </p>
+                <p>
+                  <b>Vendor:</b> {item.name} ({item.phone})
+                </p>
+                <Button size="small" onClick={() => openDrawer(item)}>
+                  View / Edit
+                </Button>
+                {item.status === "pending" && (
+                  <Space style={{ marginLeft: 10 }}>
+                    <Popconfirm title="Approve?" onConfirm={() => approveProduct(item._id)}>
+                      <Button size="small" type="primary">
+                        Approve
+                      </Button>
+                    </Popconfirm>
+                    <Popconfirm title="Reject?" onConfirm={() => rejectProduct(item._id)}>
+                      <Button size="small" danger>
+                        Reject
+                      </Button>
+                    </Popconfirm>
+                  </Space>
+                )}
+              </Card>
+            </List.Item>
+          )}
+        />
+      </div>
 
       {/* Drawer */}
       <Drawer
@@ -222,19 +312,26 @@ export default function AdminProductsPage() {
                 <Input.TextArea rows={3} />
               </Form.Item>
 
+              {/* Upload Images (limit to 3) */}
               <Form.Item label="Images">
                 <Upload
                   listType="picture"
                   fileList={fileList}
                   beforeUpload={(file) => {
+                    if (fileList.length >= 3) {
+                      toast.error("You can only upload up to 3 images");
+                      return Upload.LIST_IGNORE;
+                    }
                     setFileList([...fileList, file]);
                     return false;
                   }}
-                  onRemove={(file) =>
-                    setFileList(fileList.filter((f) => f.uid !== file.uid))
-                  }
+                  onRemove={(file) => {
+                    setFileList(fileList.filter((f) => f.uid !== file.uid));
+                  }}
                 >
-                  <Button icon={<UploadOutlined />}>Select Images</Button>
+                  {fileList.length < 3 && (
+                    <Button icon={<UploadOutlined />}>Select Images</Button>
+                  )}
                 </Upload>
               </Form.Item>
 
@@ -246,17 +343,20 @@ export default function AdminProductsPage() {
             </Form>
 
             {/* Preview Images */}
-            <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
-              {fileList.map(
-                (file) =>
-                  file.url && <Image key={file.uid} src={file.url} width={80} />
-              )}
+            <div
+              style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}
+            >
+              {fileList.map((file) => {
+                const src =
+                  file.url || (file.originFileObj && URL.createObjectURL(file.originFileObj));
+                return src ? <Image key={file.uid} src={src} width={80} /> : null;
+              })}
             </div>
 
             {/* Product Info */}
             <Descriptions bordered column={1} size="small" title="Product Info">
               <Descriptions.Item label="Status">
-                <Tag>{selectedProduct.status}</Tag>
+                <Tag>{selectedProduct.status.toUpperCase()}</Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Created At">
                 {new Date(selectedProduct.createdAt).toLocaleString()}

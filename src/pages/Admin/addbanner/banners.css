@@ -1,25 +1,47 @@
-  /* banners.css */
+/* Page container */
+.banners-page {
+  padding: 20px;
+  background: #fff;
+}
 
-  /* Page container */
-  .banners-page {
-    padding: 20px;
-    background: #fff;
-  }
+/* Header styling */
+.banners-page .header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  /* Header styling */
-  .banners-page .header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+/* Logo or banner image preview (in table) */
+.banners-page img {
+  border-radius: 8px;
+  object-fit: cover;
+}
 
-  /* Logo or banner image preview */
-  .banners-page img {
-    border-radius: 8px;
-    object-fit: cover;
-  }
-    
-  /* Drawer form styling */
-  .ant-drawer .ant-form-item {
-    margin-bottom: 16px;
-  }
+/* Drawer form styling */
+.ant-drawer .ant-form-item {
+  margin-bottom: 16px;
+}
+
+/* Mobile/Responsive Card Styling */
+.banner-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  margin-bottom: 16px;
+}
+
+/* Responsive card image */
+.banner-card img {
+  display: block;
+  width: 100%;       /* fill the card width */
+  height: auto;      /* maintain aspect ratio */
+  max-height: 200px; /* optional: limit height */
+  margin-top: 8px;
+  border-radius: 8px;
+  object-fit: cover; /* crop nicely if aspect ratio differs */
+}
+
+.banner-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}

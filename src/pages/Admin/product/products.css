@@ -1,0 +1,45 @@
+/* Desktop: show table, hide cards */
+.desktop-table {
+  display: block;
+}
+.mobile-cards {
+  display: none;
+}
+:where(.css-dev-only-do-not-override-l9pxc0).ant-card .ant-card-body{
+padding:4px ;
+
+}
+/* Mobile: hide table, show cards */
+@media (max-width: 768px) {
+  .desktop-table {
+    display: none;
+  }
+  .mobile-cards {
+    display: block;
+  }
+}
+
+/* Card styling */
+.product-card {
+  width: 100%;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.product-card .ant-card-head {
+  background: #fafafa;
+  font-weight: bold;
+}
+
+.product-card-img {
+  height: 180px;
+  object-fit: cover;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.product-card p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}

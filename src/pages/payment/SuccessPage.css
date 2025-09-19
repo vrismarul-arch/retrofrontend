@@ -32,7 +32,7 @@
   margin: 15px 0;
 }
 .title {
-  color: #8454ba;
+  color: #078d89;
   font-size: 28px;
   text-align: end;
   margin-bottom: 10px;
@@ -78,7 +78,7 @@
     flex: 1;
     padding-right: 20px;
   }.title {
-  color: #8454ba;
+  color: #078d89;
   font-size: 28px;  align-items: center;
 
   margin-bottom: 10px;

@@ -1,41 +1,42 @@
+/* src/pages/auth/auth.css */
+
 /* ===== Container ===== */
 .auth-container {
   display: flex;
+  background: white;
   min-height: 100vh;
   width: 100%;
 }
 
-/* ===== Left side with background image (desktop) ===== */
+/* ===== Left side ===== */
 .auth-left {
   flex: 1;
-  background: url("./bglogin.jpg") no-repeat center center/cover;
+  background: url("./bglogin.jpg") no-repeat center /contain;
   position: relative;
 }
-
 .overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0, 0, 0, 0.4); /* dark overlay */
+  /* background: rgba(0, 0, 0, 0.4); */
 }
 
-/* ===== Right side (form area on desktop) ===== */
+/* ===== Right side ===== */
 .auth-right {
   flex: 1;
   display: flex;
   justify-content: center;
   align-items: center;
   background: #f9fafb;
-  padding: 20px;
 }
 
-/* ===== White Card (desktop) ===== */
+/* ===== Card ===== */
 .auth-box {
-  background: #fff;
+  /* background: #fff; */
   padding: 30px 25px;
   border-radius: 20px;
   width: 100%;
   max-width: 380px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  /* box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15); */
   text-align: center;
 }
 
@@ -54,7 +55,6 @@
   padding: 5px;
   margin-bottom: 20px;
 }
-
 .toggle-btns button {
   flex: 1;
   padding: 10px 0;
@@ -65,7 +65,6 @@
   cursor: pointer;
   transition: all 0.3s ease;
 }
-
 .toggle-btns .active {
   background: white;
   box-shadow: 0 2px 6px rgba(0,0,0,0.1);
@@ -79,7 +78,7 @@
   font-size: 14px;
 }
 
-/* ===== Options row ===== */
+/* ===== Options ===== */
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -88,7 +87,7 @@
   margin-bottom: 15px;
 }
 
-/* ===== Main button ===== */
+/* ===== Button ===== */
 .main-btn {
   border-radius: 30px !important;
   height: 45px !important;
@@ -113,13 +112,12 @@
   position: absolute;
   top: 50%;
   width: 40%;
-  height: 1px;
   background: #ddd;
 }
 .divider::before { left: 0; }
 .divider::after { right: 0; }
 
-/* ===== Social login buttons ===== */
+/* ===== Social login ===== */
 .social-btns {
   display: flex;
   gap: 10px;
@@ -154,62 +152,75 @@
 }
 .bottom-link a:hover { text-decoration: underline; }
 
-/* ===== 📱 Mobile full background style ===== */
+/* ===== 📱 Mobile Responsive ===== */
 @media (max-width: 768px) {
   .auth-container {
     flex-direction: column;
-    background: url("./mobilebg.png") no-repeat center center/cover;
-    position: relative;
-    height:auto ;
+    min-height: 100vh;
+    background: url("./bglogin.jpg") no-repeat center center/cover;
   }
 
   .auth-left { display: none; }
 
   .auth-right {
-    flex: none;
-    padding: 20px;
-    background: transparent;
-    justify-content: flex-start;
-    align-items: flex-start;
+    width: 100%;
+    /* padding: 20px; */
+    display: flex;
+    justify-content: center;
+    align-items: center;
   }
 
   .auth-box {
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    color: #fff;
+    width: 100%;
+    max-width: 100%;
+    padding: 25px 20px;
+    border-radius: 15px;
+    /* background: rgba(255, 255, 255, 0.95);
+    box-shadow: 0 4px 15px rgba(0,0,0,0.2); */
+    text-align: center;
   }
 
-  .title, .form-options, .divider, .bottom-link {
-    color: #fff;
+  .title {
+    font-size: 20px;
+    margin-bottom: 15px;
+    text-align: center;
+    color: #000;
   }
 
-  /* Inputs become transparent with white borders */
   .auth-input {
-    background: rgba(255,255,255,0.2);
-    border: 1px solid rgba(255,255,255,0.4);
-    color: #fff;
-  }
-  .auth-input::placeholder {
-    color: #ddd;
+    width: 100%;
+    border-radius: 25px !important;
+    height: 42px !important;
+    font-size: 14px;
+    padding: 0 15px;
+    background: #fff;
+    color: #000;
   }
 
-  /* Main button stays bold blue */
+  .form-options,
+  .divider,
+  .bottom-link {
+    color: #000;
+  }
+
   .main-btn {
+    border-radius: 25px !important;
+    height: 42px !important;
     background: #007bff !important;
+    font-weight: 600;
     color: #fff !important;
   }
 
-  /* Social buttons become translucent */
-  .google-btn, .facebook-btn {
-    background: rgba(255,255,255,0.1);
-    border: 1px solid rgba(255,255,255,0.3);
-    color: #fff;
+  .social-btns {
+    flex-direction: column;
+    gap: 12px;
   }
 
-  .icon { filter: invert(1); } /* make icons white */
+  .google-btn, .facebook-btn {
+    width: 100%;
+    border-radius: 25px !important;
+    height: 42px !important;
+    background: #fff;
+    color: #444;
+  }
 }
