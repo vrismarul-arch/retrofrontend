@@ -19,6 +19,7 @@ import { UploadOutlined } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
 import "./Products.css";
+
 /*  */
 
 export default function AdminProductsPage() {
