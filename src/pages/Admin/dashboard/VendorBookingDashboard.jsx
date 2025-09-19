@@ -13,7 +13,7 @@ import {
 import { Row, Col, Card, Spin, Table, Tag } from "antd";
 import { AreaChart, Area, ResponsiveContainer } from "recharts";
 import "./VendorBookingDashboard.css";
-
+/*  */
 ChartJS.register(CategoryScale, LinearScale, BarElement, Title, Tooltip, Legend);
 
 export default function VendorBookingDashboard() {
