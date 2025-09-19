@@ -20,7 +20,7 @@ import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
 import "./Products.css";
 
-/* sddd */
+/* sddddd*/
 
 export default function AdminProductsPage() {
   const [products, setProducts] = useState([]);
