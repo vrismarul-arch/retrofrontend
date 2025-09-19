@@ -16,7 +16,7 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import api from "../../../../api";
-import "./AdminDashboard.css"; // exact match// ✅ Import CSS
+import "./admindashboard.css"; // exact match// ✅ Import CSS
 
 const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444"];
 const cardStyle = {
