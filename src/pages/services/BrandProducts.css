@@ -1,11 +1,11 @@
-/* Container for the entire page */
+/* ====== Container ====== */
 .category-services {
   max-width: 1200px;
   margin: 40px auto;
   padding: 0 20px;
 }
 
-/* Header section with brand logo and name */
+/* ====== Brand Header ====== */
 .category-header {
   display: flex;
   flex-direction: column;
@@ -19,20 +19,20 @@
   height: 150px;
   object-fit: cover;
   border-radius: 50%;
-    
   padding: 8px;
   margin-bottom: 20px;
- 
+  border: 2px solid #f0f0f0;
+  background: #fff;
 }
 
 .category-title {
-  font-size: 2.8rem;
+  font-size: 2.5rem;
   font-weight: 700;
   color: #222;
-  letter-spacing: -1px;
+  letter-spacing: -0.5px;
 }
 
-/* Grid layout for cards */
+/* ====== Product Grid ====== */
 .service-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -40,24 +40,24 @@
   justify-content: center;
 }
 
-/* Modern Card Design */
+/* ====== Card Base ====== */
 .service-card.modern-card {
   background: #fff;
-  border-radius: 16px;
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+  border-radius: 18px;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
   overflow: hidden;
-  border: 1px solid #f0f0f0;
+  border: 1px solid #f5f5f5;
 }
 
 .service-card.modern-card:hover {
-  transform: translateY(-8px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.1);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
 }
 
-/* Image section */
+/* ====== Card Image Section ====== */
 .card-image-wrapper {
   position: relative;
   width: 100%;
@@ -91,16 +91,15 @@
   box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* Card content and info */
+/* ====== Card Content ====== */
 .service-card-info {
-  padding: 18px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .service-title {
-  font-size: 1.25rem;
+  font-size: 1.2rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 6px;
@@ -114,11 +113,12 @@
   line-height: 1.5;
 }
 
+/* ====== Price Section ====== */
 .price-section {
   display: flex;
   align-items: center;
   gap: 12px;
-  margin-top: auto; /* Pushes the price and buttons to the bottom */
+  margin-top: auto;
 }
 
 .price {
@@ -133,23 +133,41 @@
   font-size: 0.95rem;
 }
 
-/* Action buttons */
+/* ====== Action Buttons ====== */
 .action-buttons {
   display: flex;
-  gap: 8px;
+  gap: 10px;
   margin-top: 16px;
+  justify-content: space-between;
 }
 
-/* Empty state message */
+.action-buttons .ant-btn {
+  font-weight: 500;
+}
+
+/* Eye Icon (View Details) */
+.action-buttons .ant-btn-circle {
+  border: 1px solid #d9d9d9;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+
+.action-buttons .ant-btn-circle:hover {
+  background: #e6f7ff;
+  border-color: #1890ff;
+  color: #1890ff;
+}
+
+/* ====== Empty State ====== */
 .no-products-message {
   font-size: 1.2rem;
   color: #888;
   text-align: center;
-  grid-column: 1 / -1; /* Center the message in the grid */
+  grid-column: 1 / -1;
   margin-top: 30px;
 }
 
-/* Skeleton styles */
+/* ====== Skeleton Styles ====== */
 .service-card.skeleton-card {
   padding: 0;
   border: none;

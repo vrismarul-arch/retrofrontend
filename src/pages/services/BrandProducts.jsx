@@ -1,13 +1,14 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Skeleton, Button } from "antd";
+import { Skeleton, Button, Tooltip } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
 import "./BrandProducts.css";
 
 export default function BrandProducts() {
-  const { id } = useParams(); // brand id
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [brand, setBrand] = useState(null);
@@ -75,7 +76,7 @@ export default function BrandProducts() {
             <div key={i} className="service-card skeleton-card">
               <Skeleton.Image active className="skeleton-image" />
               <div className="skeleton-content">
-                <Skeleton active title={{ width: '80%' }} paragraph={{ rows: 1 }} />
+                <Skeleton active title={{ width: "80%" }} paragraph={{ rows: 1 }} />
               </div>
             </div>
           ))}
@@ -105,23 +106,24 @@ export default function BrandProducts() {
                       onError={(e) => (e.target.src = "/placeholder.png")}
                     />
                     {product.discount > 0 && (
-                      <span className="discount-tag">
-                        {product.discount}% OFF
-                      </span>
+                      <span className="discount-tag">{product.discount}% OFF</span>
                     )}
                   </div>
 
                   <div className="service-card-info">
                     <h3 className="service-title">{product.name}</h3>
-                    <p className="product-description">{product.description?.substring(0, 50)}...</p>
+                    <p className="product-description">
+                      {product.description?.substring(0, 50)}...
+                    </p>
 
                     <div className="price-section">
                       <span className="price">₹{roundPrice(product.price)}</span>
-                      {product.originalPrice && product.originalPrice > product.price && (
-                        <span className="old-price">
-                          ₹{roundPrice(product.originalPrice)}
-                        </span>
-                      )}
+                      {product.originalPrice &&
+                        product.originalPrice > product.price && (
+                          <span className="old-price">
+                            ₹{roundPrice(product.originalPrice)}
+                          </span>
+                        )}
                     </div>
 
                     <div className="action-buttons">
@@ -132,7 +134,7 @@ export default function BrandProducts() {
                           size="small"
                           onClick={() => handleRemoveFromCartClick(product._id)}
                         >
-                          Remove from Cart
+                          Remove
                         </Button>
                       ) : (
                         <Button
@@ -141,24 +143,27 @@ export default function BrandProducts() {
                           size="small"
                           onClick={() => handleAddToCartClick(product)}
                         >
-                          Add to Cart
+                          Add
                         </Button>
                       )}
-                      <Button
-                        size="small"
-                        className="view-btn"
-                        onClick={() => {
-                          navigate(`/product/${product._id}`);
-                        }}
-                      >
-                        View Details
-                      </Button>
+                      <Tooltip title="View Details">
+                        <Button
+                          size="small"
+                          shape="circle"
+                          icon={<EyeOutlined />}
+                          onClick={() => {
+                            navigate(`/product/${product._id}`);
+                          }}
+                        />
+                      </Tooltip>
                     </div>
                   </div>
                 </div>
               ))
             ) : (
-              <p className="no-products-message">No products found for this brand.</p>
+              <p className="no-products-message">
+                No products found for this brand.
+              </p>
             )}
           </div>
         </>
