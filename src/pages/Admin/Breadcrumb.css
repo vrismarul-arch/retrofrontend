@@ -2,6 +2,7 @@
 .ant-breadcrumb {
   font-size: 15px;
   display: flex;
+  padding: 20px;
   align-items: center;
   gap: 6px;
 }

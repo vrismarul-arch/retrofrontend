@@ -22,7 +22,7 @@ const MegaMenu = ({ mobile = false }) => {
         const subcategories = subRes.data;
         const brands = brandRes.data;
 
-        // Build menu structure by matching subcategories and brands without duplicates
+        // Build menu structure: subcategories with their brands
         const menu = categories.map((cat) => {
           const subs = subcategories
             .filter((sub) => sub.category && sub.category._id === cat._id)
@@ -58,15 +58,13 @@ const MegaMenu = ({ mobile = false }) => {
                 cat.subcategories.map((sub) => (
                   <Collapse key={sub._id} className="mobile-subcategory-collapse">
                     <Panel header={sub.name}>
-                      {sub.brands.length === 0 ? (
-                        <p className="disabled">No brands</p>
-                      ) : (
+                      <Link to={`/subcategories/${sub._id}`}>View Products</Link>
+                      {sub.brands.length > 0 &&
                         sub.brands.map((brand) => (
                           <p key={brand._id}>
                             <Link to={`/brands/${brand._id}`}>{brand.name}</Link>
                           </p>
-                        ))
-                      )}
+                        ))}
                     </Panel>
                   </Collapse>
                 ))

@@ -23,15 +23,18 @@ export default function SubcategoryServices() {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Get subcategory info
         const subCatRes = await api.get(`/api/admin/subcategories/${id}`);
         setSubCategory(subCatRes.data);
 
+        // Get products filtered by subcategory
         const prodRes = await api.get(`/api/admin/products?subCategory=${id}`);
         setServices(prodRes.data);
 
+        // Get brands filtered by subcategory
         const brandsRes = await api.get("/api/admin/brands");
         const filteredBrands = brandsRes.data.filter((brand) =>
-          prodRes.data.some((p) => p.brand?._id === brand._id)
+          brand.subCategories.some((s) => s._id === id)
         );
         setBrands(filteredBrands);
       } catch (err) {
@@ -63,25 +66,27 @@ export default function SubcategoryServices() {
         <Skeleton active className="subcategory-services__skeleton" />
       ) : (
         <>
+          {/* Brands */}
           {brands.length > 0 && (
             <div className="subcategory-services__grid">
-  {brands.map((brand) => (
-    <div
-      key={brand._id}
-      className="subcategory-services__brand-card"
-      onClick={() => navigate(`/brands/${brand._id}`)}
-    >
-      <img
-        src={brand.logoUrl || "/placeholder.png"}
-        alt={brand.name}
-        className="subcategory-services__brand-image"
-      />
-      <p className="subcategory-services__brand-name">{brand.name}</p>
-    </div>
-  ))}
-</div>
-
+              {brands.map((brand) => (
+                <div
+                  key={brand._id}
+                  className="subcategory-services__brand-card"
+                  onClick={() => navigate(`/brands/${brand._id}`)}
+                >
+                  <img
+                    src={brand.logoUrl || "/placeholder.png"}
+                    alt={brand.name}
+                    className="subcategory-services__brand-image"
+                  />
+                  <p className="subcategory-services__brand-name">{brand.name}</p>
+                </div>
+              ))}
+            </div>
           )}
+
+        
         </>
       )}
     </div>

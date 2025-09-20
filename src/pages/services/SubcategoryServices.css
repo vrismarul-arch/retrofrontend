@@ -2,7 +2,8 @@
   display: flex;
   gap: 1rem;
   flex-wrap: wrap;
-  justify-content: center;
+  padding: 20px;
+  justify-content: left;
 }
 
 .subcategory-services__brand-card {

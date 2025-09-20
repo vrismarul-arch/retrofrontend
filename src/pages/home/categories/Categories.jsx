@@ -13,7 +13,7 @@ export default function Categories() {
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const res = await api.get("/api/admin/categories");
+        const res = await api.get("/api/admin/categories"); // nested data with subCategories & brands
         setCategories(res.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -25,24 +25,19 @@ export default function Categories() {
     fetchCategories();
   }, []);
 
-  const handleCategoryClick = (catId) => {
-    navigate(`/category/${catId}`);
+  const handleCategoryClick = (category) => {
+    // Pass entire category object via state
+    navigate(`/category/${category._id}`, { state: category });
   };
 
   return (
     <div className="categories-section">
       <h2 className="section-title">Explore Our Categories</h2>
-
       <div className="grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
               <div key={i} className="card skeleton-card">
-                <Skeleton.Avatar
-                  active
-                  shape="square"
-                  size={120}
-                  className="ant-skeleton-image"
-                />
+                <Skeleton.Avatar active shape="square" size={120} />
                 <Skeleton active paragraph={false} title={{ width: "60%" }} />
               </div>
             ))
@@ -50,7 +45,7 @@ export default function Categories() {
               <div
                 key={cat._id}
                 className="card"
-                onClick={() => handleCategoryClick(cat._id)}
+                onClick={() => handleCategoryClick(cat)}
               >
                 <div className="card-img-wrapper">
                   <img
