@@ -12,15 +12,15 @@ export default function CategoryServices() {
 
   // Tabs for subcategories
   const tabItems = [
-    {
-      key: "all",
-      label: (
-        <div className="tab-label">
-          <img src="/retro.png" alt="All" className="tab-img" />
-          <span>All</span>
-        </div>
-      ),
-    },
+    // {
+    //   key: "all",
+    //   label: (
+    //     <div className="tab-label">
+    //       <img src="/retro.png" alt="All" className="tab-img" />
+    //       <span>All</span>
+    //     </div>
+    //   ),
+    // },
     ...(category.subCategories || []).map((sub) => ({
       key: sub._id,
       label: (
