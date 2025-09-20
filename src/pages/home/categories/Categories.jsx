@@ -30,38 +30,37 @@ export default function Categories() {
   };
 
   return (
-    <div className="categories-container">
-      <h2 className="categories-title">Explore Our Categories</h2>
+    <div className="categories-section">
+      <h2 className="section-title">Explore Our Categories</h2>
 
-      <div className="category-grid">
+      <div className="grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="category-card">
+              <div key={i} className="card skeleton-card">
                 <Skeleton.Avatar
                   active
-                  shape="circle"
-                  size={150}
-                  style={{ marginBottom: 10 }}
+                  shape="square"
+                  size={120}
+                  className="ant-skeleton-image"
                 />
-                <Skeleton
-                  active
-                  paragraph={false}
-                  title={{ width: "60%" }}
-                />
+                <Skeleton active paragraph={false} title={{ width: "60%" }} />
               </div>
             ))
           : categories.map((cat) => (
               <div
                 key={cat._id}
-                className="category-card"
+                className="card"
                 onClick={() => handleCategoryClick(cat._id)}
               >
-                <img
-                  src={cat.imageUrl || "/placeholder.png"}
-                  alt={cat.name}
-                  onError={(e) => (e.target.src = "/placeholder.png")}
-                />
-                <p className="category-name">{cat.name}</p>
+                <div className="card-img-wrapper">
+                  <img
+                    src={cat.imageUrl || "/placeholder.png"}
+                    alt={cat.name}
+                    className="card-img"
+                    onError={(e) => (e.target.src = "/placeholder.png")}
+                  />
+                </div>
+                <p className="card-title">{cat.name}</p>
               </div>
             ))}
       </div>

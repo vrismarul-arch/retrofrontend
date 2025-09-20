@@ -8,10 +8,19 @@
 /* Section Title */
 .home-title {
   font-size: 2rem;
-  font-weight: 600;
-  color: #333;
-  text-align: left;
-  margin-bottom: 20px;
+  font-weight: 700;
+  color: #111;
+  margin-bottom: 8px; /* space between title and hr */
+  text-align: left;   /* left-align the text */
+}
+
+.home-title-hr {
+  width: 60px;                 /* length of the line */
+  height: 3px;                 /* thickness */
+  background-color: #078d89;   /* line color */
+  border: none;                /* remove default border */
+  margin: 0 0 20px 0;          /* top 0, right 0, bottom 20px, left 0 */
+  border-radius: 2px;          /* optional: rounded ends */
 }
 
 /* Flexbox Layout for the main grid */

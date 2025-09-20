@@ -31,7 +31,9 @@ export default function TrendingServices() {
 
   return (
     <div className="trending-container">
-   <h2 className="home-title">Transform Your Home with Premium Furniture</h2>
+<h2 className="home-title">In the Spotlight</h2>
+<hr className="home-title-hr" />
+
 
       
       {loading ? (
