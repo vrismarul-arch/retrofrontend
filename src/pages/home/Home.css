@@ -1,0 +1,16 @@
+.home-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem 1.5rem;
+}
+
+.home-section {
+  margin-top: 2rem;
+  margin-bottom: 2rem;
+}
+
+/* Optional: add subtle separation between sections */
+.home-section:not(:last-child) {
+  border-bottom: 1px solid #f0f0f0;
+  padding-bottom: 2rem;
+}

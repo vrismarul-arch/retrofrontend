@@ -1,102 +1,191 @@
-.best-sellers-section {
-  padding: 20px;
+/* -----------------------
+  Best Sellers Slider CSS
+-------------------------*/
+
+/* Scroll container hides scrollbar */
+.best-sellers-section .product-carousel {
+  display: flex;
+  overflow-x: auto;
+  scroll-behavior: smooth;
+  gap: 16px;
+  padding: 16px 0;
 }
 
-.best-sellers-header {
-  margin-bottom: 20px;
+.best-sellers-section .product-carousel::-webkit-scrollbar {
+  display: none; /* Hide scrollbar for Chrome/Safari */
 }
 
-.section-title {
-  font-size: 1.8rem;
-  font-weight: bold;
-}
-
-/* ✅ Carousel fixes */
-.product-carousel {
-  overflow: hidden;
-}
-.product-carousel .slick-list {
-  overflow: hidden !important;
-}
-.product-carousel .slick-track {
-  display: flex !important;
-  align-items: stretch;
-}
-.product-carousel .slick-slide {
-  display: flex !important;
-  justify-content: center;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-/* ✅ Card styles */
+/* Product Card */
 .product-card {
-  flex: 1;
-  max-width: 240px; /* keeps consistent size */
-  background: #fff;
-  border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+  position: relative;
+  border-radius: 16px;
+  background-color: #fff;
   overflow: hidden;
-  transition: transform 0.2s;
-}
-.product-card:hover {
-  transform: translateY(-4px);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
+.product-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Card Image Wrapper */
 .card-image-wrapper {
   position: relative;
-}
-.product-card-img {
   width: 100%;
   height: 200px;
+  overflow: hidden;
+}
+
+.product-card-img {
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+  display: block;
+}
+
+/* Gradient overlay at bottom of image */
+.card-image-wrapper::after {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 60px;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.7), transparent);
+}
+
+/* Badges */
+.discount-tag,
+.best-seller-badge {
+  position: absolute;
+  top: 8px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
 }
 
 .discount-tag {
-  position: absolute;
-  top: 10px;
-  left: 10px;
-  background: #ff4d4f;
-  color: white;
-  padding: 3px 6px;
-  font-size: 0.75rem;
-  border-radius: 4px;
+  left: 8px;
+  background-color: #f44336; /* red */
 }
 
 .best-seller-badge {
-  position: absolute;
-  bottom: 10px;
-  left: 10px;
-  background: #52c41a;
-  color: white;
-  padding: 3px 6px;
-  font-size: 0.75rem;
-  border-radius: 4px;
+  right: 8px;
+  background-color: #ff9800; /* orange */
 }
 
+/* Card Info Section */
 .product-card-info {
-  padding: 15px;
+  padding: 12px 16px;
 }
+
 .product-title {
-  font-size: 20px;
-  margin-bottom: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
 }
+
 .price-section {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   gap: 8px;
+  margin-bottom: 8px;
 }
+
 .price {
-  font-weight: bold;
-  color: #1890ff;
+  font-weight: 700;
+  color: #1a1a1a;
 }
+
 .old-price {
-  font-size: 0.875rem;
-  color: #999;
   text-decoration: line-through;
+  color: #888;
+  font-size: 14px;
 }
+
+/* Action Buttons */
 .action-buttons {
-  margin-top: 10px;
   display: flex;
   justify-content: center;
+  margin-top: 8px;
+}
+
+.action-buttons button {
+  width: 100%;
+  font-weight: 600;
+  transition: transform 0.2s ease;
+}
+
+.action-buttons button:hover {
+  transform: scale(1.05);
+}
+
+/* -----------------------
+  Responsive Widths
+-------------------------*/
+
+/* Mobile: 1 card */
+@media (max-width: 599px) {
+  .product-card {
+    width: 100% !important;
+  }
+  .card-image-wrapper {
+    height: 150px;
+  }
+}
+
+/* Tablet: 2 cards */
+@media (min-width: 600px) and (max-width: 899px) {
+  .product-card {
+    width: calc((100% - 16px) / 2) !important;
+  }
+  .card-image-wrapper {
+    height: 180px;
+  }
+}
+
+/* Small Desktop: 3 cards */
+@media (min-width: 900px) and (max-width: 1199px) {
+  .product-card {
+    width: calc((100% - 32px) / 3) !important;
+  }
+  .card-image-wrapper {
+    height: 200px;
+  }
+}
+
+/* Large Desktop: 4 cards */
+@media (min-width: 1200px) {
+  .product-card {
+    width: calc((100% - 48px) / 4) !important;
+  }
+  .card-image-wrapper {
+    height: 220px;
+  }
+}
+/* Hide scrollbar for all browsers */
+.best-sellers-section::-webkit-scrollbar {
+  display: none;
+}
+.best-sellers-section {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* Card hover */
+.product-card:hover {
+  transform: scale(1.05);
+  box-shadow: 0px 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Optional: gradient overlay on images */
+.product-card img {
+  display: block;
+  width: 100%;
+  height: auto;
+  object-fit: cover;
 }
