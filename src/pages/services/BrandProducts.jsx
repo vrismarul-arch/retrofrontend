@@ -6,13 +6,16 @@ import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
 import "./BrandProducts.css";
-
+import FiltersBar from "../../components/filter/FiltersBar";
+import ServiceInfo from "./ServiceInfo";
+// import retrowoods from './../../assets/retrowoods.png'
 export default function BrandProducts() {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [brand, setBrand] = useState(null);
   const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
   const { cart, addToCart, removeFromCart } = useCart();
@@ -20,6 +23,7 @@ export default function BrandProducts() {
 
   const roundPrice = (p) => Number(Number(p).toFixed(2));
 
+  // Fetch brand + products
   useEffect(() => {
     const fetchBrandData = async () => {
       setLoading(true);
@@ -29,6 +33,7 @@ export default function BrandProducts() {
 
         const prodRes = await api.get(`/api/admin/products?brand=${id}`);
         setProducts(prodRes.data);
+        setFilteredProducts(prodRes.data); // initially all
       } catch (err) {
         console.error("❌ Brand fetch error:", err);
         toast.error("Failed to load brand details");
@@ -40,6 +45,19 @@ export default function BrandProducts() {
     fetchBrandData();
   }, [id]);
 
+  // Filter handler
+  const handleFilter = ({ priceRange, status, condition }) => {
+    const [min, max] = priceRange;
+    const filtered = products.filter((p) => {
+      const price = p.finalPrice || p.price;
+      const statusMatch = status === "all" || p.status === status;
+      const conditionMatch = condition === "all" || p.condition === condition;
+      return price >= min && price <= max && statusMatch && conditionMatch;
+    });
+    setFilteredProducts(filtered);
+  };
+
+  // Cart handlers
   const handleAddToCartClick = async (product) => {
     if (!isLoggedIn) {
       toast("Please login first", { icon: "🔑" });
@@ -70,6 +88,13 @@ export default function BrandProducts() {
 
   return (
     <div className="category-services">
+      {/* Filters */}
+      <div style={{marginBottom:"20px"}}>
+      <FiltersBar onApplyFilters={handleFilter} products={products} />
+   <ServiceInfo />
+      </div>
+       
+
       {loading ? (
         <div className="service-grid">
           {Array.from({ length: 6 }).map((_, i) => (
@@ -92,11 +117,10 @@ export default function BrandProducts() {
             />
             <h1 className="category-title">{brand?.name || "Brand"}</h1>
           </div>
-
           {/* Product Grid */}
           <div className="service-grid">
-            {products.length > 0 ? (
-              products.map((product) => (
+            {filteredProducts.length > 0 ? (
+              filteredProducts.map((product) => (
                 <div key={product._id} className="service-card modern-card">
                   <div className="card-image-wrapper">
                     <img
@@ -120,9 +144,7 @@ export default function BrandProducts() {
                       <span className="price">₹{roundPrice(product.price)}</span>
                       {product.originalPrice &&
                         product.originalPrice > product.price && (
-                          <span className="old-price">
-                            ₹{roundPrice(product.originalPrice)}
-                          </span>
+                          <span className="old-price">₹{roundPrice(product.originalPrice)}</span>
                         )}
                     </div>
 
@@ -151,9 +173,7 @@ export default function BrandProducts() {
                           size="small"
                           shape="circle"
                           icon={<EyeOutlined />}
-                          onClick={() => {
-                            navigate(`/product/${product._id}`);
-                          }}
+                          onClick={() => navigate(`/product/${product._id}`)}
                         />
                       </Tooltip>
                     </div>
@@ -161,9 +181,7 @@ export default function BrandProducts() {
                 </div>
               ))
             ) : (
-              <p className="no-products-message">
-                No products found for this brand.
-              </p>
+              <p className="no-products-message">No products found for this filter.</p>
             )}
           </div>
         </>

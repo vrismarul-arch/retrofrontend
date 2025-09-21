@@ -1,0 +1,134 @@
+/* =========================
+   Filters Bar - Desktop View
+   ========================= */
+.filters-bar {
+  display: flex;
+  justify-content: space-between; /* evenly spread items */
+  align-items: center;
+  gap: 20px;
+  padding: 14px 20px;
+  border-radius: 16px;
+  margin-bottom: 20px;
+  transition: all 0.3s ease;
+}
+
+/* Group filter controls into equal flex items */
+.filters-bar-content {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: nowrap;
+  width: 100%;
+} 
+
+/* Antd Select */
+.filters-bar .ant-select {
+  flex: 1; /* take equal space */
+  border-radius: 12px;
+  font-size: 14px;
+  min-width: 150px;
+}
+
+.filters-bar .ant-select-selector {
+  border-radius: 12px !important;
+  height: 40px !important;
+  display: flex;
+  align-items: center;
+  padding: 0 12px;
+}
+
+/* Price section */
+.filters-bar-price {
+  flex: 2; /* slider gets more space */
+  min-width: 260px;
+}
+
+.filters-bar-price p {
+  font-size: 14px;
+  font-weight: 500;
+  margin-bottom: 6px;
+}
+
+/* Slider */
+.filters-bar .ant-slider {
+  margin-top: 4px;
+}
+
+.filters-bar .ant-slider-rail {
+  background-color: #f0f0f0;
+}
+
+.filters-bar .ant-slider-track {
+  background-color: #078d89;
+}
+
+/* Buttons */
+.filters-bar .ant-btn {
+  flex: 0;
+  border-radius: 12px;
+  font-weight: 500;
+  height: 40px;
+  padding: 0 18px;
+  transition: all 0.3s ease;
+}
+
+.filters-bar .ant-btn:hover {
+  background-color: #078d89;
+  color: #fff;
+}
+
+/* =========================
+   Drawer Content - Mobile
+   ========================= */
+.filters-bar-content-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 8px 4px;
+}
+
+.filters-bar-content-mobile p {
+  margin-bottom: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+}
+
+/* Full width inputs in Drawer */
+.filters-bar-content-mobile .ant-select,
+.filters-bar-content-mobile .ant-btn,
+.filters-bar-content-mobile div[style*="width: 250px"] {
+  width: 100% !important;
+}
+
+/* Drawer customization */
+.ant-drawer-title {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.ant-drawer-body {
+  padding: 12px 16px;
+}
+
+/* =========================
+   Responsive (Tablet & Mobile)
+   ========================= */
+@media (max-width: 768px) {
+  /* On mobile, inline bar hides, only button shows */
+  .filters-bar {
+    background: transparent;
+    box-shadow: none;
+    padding: 0;
+    margin: 0 0 12px 0;
+  }
+
+  /* Filter button */
+  .filters-bar > .ant-btn {
+    width: 100%;
+    height: 42px;
+    font-size: 15px;
+    font-weight: 600;
+    border-radius: 12px;
+  }
+}

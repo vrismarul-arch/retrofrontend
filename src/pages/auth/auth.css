@@ -41,7 +41,9 @@
 }
 
 .title {
-  font-size: 22px;
+  color: #078d89;
+  font-size: 22px;  text-align: center;
+
   font-weight: 600;
   margin-bottom: 20px;
 }
@@ -184,7 +186,7 @@
     font-size: 20px;
     margin-bottom: 15px;
     text-align: center;
-    color: #000;
+    color: #078d89;
   }
 
   .auth-input {

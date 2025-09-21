@@ -5,10 +5,8 @@ import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../../api";
 import { useCart } from "../../../context/CartContext";
-
 import { Box, IconButton, Typography } from "@mui/material";
 import { ArrowBackIos, ArrowForwardIos } from "@mui/icons-material";
-
 import "./BrandProducts.css";
 
 export default function BestSellers() {
@@ -74,12 +72,32 @@ export default function BestSellers() {
     }
   };
 
+  // ✅ Auto slider infinite loop
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (scrollRef.current) {
+        const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+        const maxScroll = scrollWidth - clientWidth;
+
+        if (scrollLeft >= maxScroll - 10) {
+          // Instantly jump back to start
+          scrollRef.current.scrollTo({ left: 0, behavior: "auto" });
+        } else {
+          // Keep sliding right
+          scrollRef.current.scrollBy({ left: 350, behavior: "smooth" });
+        }
+      }
+    }, 4000); // slide every 4 sec
+
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <Box sx={{ position: "relative", my: 4 }}>
       <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>
         Best Sellers
       </Typography>
-<hr className="home-title-hr" />
+      <hr className="home-title-hr" />
       {loading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : products.length > 0 ? (
@@ -145,7 +163,7 @@ export default function BestSellers() {
                   bgcolor: "background.paper",
                 }}
               >
-                {/* Image & badges */}
+                {/* Image */}
                 <Box sx={{ position: "relative" }}>
                   <img
                     src={product.image || "/placeholder.png"}
@@ -158,8 +176,6 @@ export default function BestSellers() {
                       display: "block",
                     }}
                   />
-
-                  {/* Gradient overlay */}
                   <Box
                     sx={{
                       position: "absolute",
@@ -170,7 +186,6 @@ export default function BestSellers() {
                         "linear-gradient(to top, rgba(0,0,0,0.7), transparent)",
                     }}
                   />
-
                   {product.discount && (
                     <Box
                       sx={{
@@ -190,7 +205,6 @@ export default function BestSellers() {
                       {product.discount}% OFF
                     </Box>
                   )}
-
                   <Box
                     sx={{
                       position: "absolute",
@@ -241,52 +255,51 @@ export default function BestSellers() {
 
                   {isInCart(product._id) ? (
                     <Button
-  fullWidth
-  startIcon={<MinusOutlined />}
-  onClick={() => handleRemoveFromCartClick(product._id)}
-  style={{
-    backgroundColor: "#d32f2f",   // red background
-    color: "#fff",                // white text
-    fontWeight: 600,
-    fontSize: "14px",
-    textTransform: "uppercase",
-    borderRadius: "25px",         // pill-shaped
-    padding: "10px 20px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",
-    cursor: "pointer",
-    border: "none",
-  }}
->
-  REMOVE
-</Button>
+                      fullWidth
+                      startIcon={<MinusOutlined />}
+                      onClick={() => handleRemoveFromCartClick(product._id)}
+                      style={{
+                        backgroundColor: "#d32f2f",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: "14px",
+                        textTransform: "uppercase",
+                        borderRadius: "25px",
+                        padding: "10px 20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                        border: "none",
+                      }}
+                    >
+                      REMOVE
+                    </Button>
                   ) : (
-                   <Button
-  variant="contained"
-  color="secondary"
-  fullWidth
-  startIcon={<PlusOutlined />}
-  onClick={() => handleAddToCartClick(product)}
-  style={{
-    backgroundColor: "#000000ff",    // teal background
-    color: "#fff",                  // white text
-    fontWeight: 600,
-    fontSize: "14px",
-    textTransform: "uppercase",
-    borderRadius: "25px",           // pill shape
-    padding: "10px 20px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "8px",                      // spacing between icon and text
-    cursor: "pointer",
-  }}
->
-  <PlusOutlined /> ADD
-</Button>
-
+                    <Button
+                      variant="contained"
+                      color="secondary"
+                      fullWidth
+                      startIcon={<PlusOutlined />}
+                      onClick={() => handleAddToCartClick(product)}
+                      style={{
+                        backgroundColor: "#000000ff",
+                        color: "#fff",
+                        fontWeight: 600,
+                        fontSize: "14px",
+                        textTransform: "uppercase",
+                        borderRadius: "25px",
+                        padding: "10px 20px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        gap: "8px",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <PlusOutlined /> ADD
+                    </Button>
                   )}
                 </Box>
               </Box>

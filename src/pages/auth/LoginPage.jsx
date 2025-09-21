@@ -65,7 +65,9 @@ export default function LoginPage() {
 
       {/* Right side */}
       <div className="auth-right">
-        <div className="auth-box">
+        <div className="auth-box">      
+            <img src="/retrologo.png" alt="" style={{width:"220px"}} />
+
           <h2 className="title">Login to Retrowoods</h2>
 
         
@@ -116,10 +118,7 @@ export default function LoginPage() {
             />
           </div>
 
-          <p className="bottom-link">
-            Don’t have an account?{" "}
-            <a onClick={() => navigate("/register")}>Create an account</a>
-          </p>
+          
         </div>
       </div>
     </div>

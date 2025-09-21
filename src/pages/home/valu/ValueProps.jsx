@@ -10,11 +10,6 @@ export default function ValueProps() {
       text: "Trusted by Thousands",
     },
     {
-      id: 2,
-      icon: GlobalOutlined,
-      text: "Wide Range of Quality Furniture",
-    },
-    {
       id: 3,
       icon: DollarOutlined,
       text: "Affordable Second-Hand Deals",

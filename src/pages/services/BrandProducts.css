@@ -1,6 +1,6 @@
 /* ====== Container ====== */
 .category-services {
-  max-width: 1200px;
+  /* max-width: 1200px; */
   margin: 40px auto;
   padding: 0 20px;
 }
@@ -34,6 +34,7 @@
 
 /* ====== Product Grid ====== */
 .service-grid {
+  margin-top: 50px;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 28px;
@@ -185,4 +186,29 @@
 .skeleton-content {
   padding: 18px;
   width: 100%;
+}
+.retrowoods-img {
+  width: 100%;
+  height: auto;
+  max-height: 400px; /* Default for desktop */
+  object-fit: contain;
+  display: block;
+  margin: 0 auto;
+  border-radius: 12px; /* Optional */
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+  .retrowoods-img {
+    max-height: 300px;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 600px) {
+  .retrowoods-img {
+    max-height: 200px;  /* smaller height for mobiles */
+    border-radius: 8px; /* softer corners */
+    padding: 0 10px;    /* a little breathing space */
+  }
 }

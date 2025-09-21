@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import api from "../../../../api";
 import { Skeleton } from "antd";
 import "./TrendingServices.css";
@@ -7,14 +7,12 @@ import "./TrendingServices.css";
 export default function TrendingServices() {
   const [trending, setTrending] = useState([]);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const subRes = await api.get("/api/admin/subcategories");
-        // Limit to a specific number of items to fit the layout
-        setTrending(subRes.data.slice(0, 5) || []); 
+        const res = await api.get("/api/admin/subcategories");
+        setTrending(res.data.slice(0, 5) || []);
       } catch (err) {
         console.error("❌ Error fetching trending services:", err);
       } finally {
@@ -25,24 +23,28 @@ export default function TrendingServices() {
     fetchTrending();
   }, []);
 
-  // Split the data into a large item and a grid of small items
   const largeItem = trending[0];
   const smallItems = trending.slice(1);
 
   return (
     <div className="trending-container">
-<h2 className="home-title">In the Spotlight</h2>
-<hr className="home-title-hr" />
+      <h2 className="home-title">In the Spotlight</h2>
+      <hr className="home-title-hr" />
 
-
-      
       {loading ? (
         <div className="skeleton-grid">
-          {/* Skeleton loading state */}
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="skeleton-card">
-              <Skeleton.Image active style={{ width: "100%", height: 100, borderRadius: 8 }} />
-              <Skeleton active paragraph={{ rows: 1 }} title={false} style={{ marginTop: 10 }} />
+              <Skeleton.Image
+                active
+                style={{ width: "100%", height: 100, borderRadius: 8 }}
+              />
+              <Skeleton
+                active
+                paragraph={{ rows: 1 }}
+                title={false}
+                style={{ marginTop: 10 }}
+              />
             </div>
           ))}
         </div>
@@ -50,26 +52,32 @@ export default function TrendingServices() {
         <div className="category-grid-container">
           {/* Large Card */}
           {largeItem && (
-            <div 
+            <Link
+              to={`/subcategories/${largeItem._id}`}
               className="large-card"
-              onClick={() => navigate(`/category/${largeItem.category?._id}`)}
             >
-              <img src={largeItem.imageUrl || "/placeholder.png"} alt={largeItem.name} />
+              <img
+                src={largeItem.imageUrl || "/placeholder.png"}
+                alt={largeItem.name}
+              />
               <div className="card-overlay">{largeItem.name}</div>
-            </div>
+            </Link>
           )}
 
           {/* Small Cards Grid */}
           <div className="small-cards-grid">
             {smallItems.map((item) => (
-              <div 
+              <Link
                 key={item._id}
+                to={`/subcategories/${item._id}`}
                 className="small-card"
-                onClick={() => navigate(`/category/${item.category?._id}`)}
               >
-                <img src={item.imageUrl || "/placeholder.png"} alt={item.name} />
+                <img
+                  src={item.imageUrl || "/placeholder.png"}
+                  alt={item.name}
+                />
                 <div className="card-overlay">{item.name}</div>
-              </div>
+              </Link>
             ))}
           </div>
         </div>
