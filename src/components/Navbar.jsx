@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation, Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import {
   ShoppingCartOutlined,
   HomeOutlined,
@@ -33,7 +33,6 @@ const ResponsiveNavbar = () => {
   const [hideMobileNav, setHideMobileNav] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
-  const location = useLocation();
   const navigate = useNavigate();
   const { cart, fetchCart, lastUpdated } = useCart();
 
@@ -80,9 +79,8 @@ const ResponsiveNavbar = () => {
         message.error("Could not load profile.");
       }
     };
-    setIsLoggedIn(!!localStorage.getItem("token"));
     fetchUserProfile();
-  }, [location.pathname, isLoggedIn]);
+  }, []);
 
   // ------------------ LOGOUT ------------------
   const handleLogout = () => {
@@ -110,15 +108,12 @@ const ResponsiveNavbar = () => {
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
-        // scrolling down → hide
         setHideMobileNav(true);
       } else {
-        // scrolling up → show
         setHideMobileNav(false);
       }
       setLastScrollY(window.scrollY);
     };
-
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
@@ -145,11 +140,10 @@ const ResponsiveNavbar = () => {
           <SearchBar />
         </div>
 
-        {/* ✅ Bottom Navbar with hide-on-scroll */}
         <div className={`mobile-bottom-navbar ${hideMobileNav ? "hide-navbar" : ""}`}>
           {menuData.mobileNav.map((item, index) => {
             const Icon = item.icon;
-            const isActive = location.pathname === item.link;
+            const isActive = window.location.pathname === item.link;
             return (
               <Link key={index} to={item.link} className={`tab-item ${isActive ? "active" : ""}`}>
                 <Icon className="tab-icon" />
@@ -213,7 +207,6 @@ const ResponsiveNavbar = () => {
         </div>
       </div>
 
-      {/* MegaMenu BELOW navbar */}
       <div className="desktop-megamenu">
         <MegaMenu />
       </div>

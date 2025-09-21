@@ -91,13 +91,7 @@ const SearchBar = () => {
                   <div className="search-item-details">
                     <div className="search-item-name">{service.name}</div>
                     <div className="search-item-info">
-                      <span>
-                        Duration:{" "}
-                        {service.duration
-                          ? `${Math.floor(service.duration / 60)} hr ${service.duration % 60} mins`
-                          : "N/A"}
-                      </span>
-                      <span style={{ margin: "0 6px" }}>•</span>
+                     
                       <span>
                         ₹{service.price.toFixed(2)}
                         {service.originalPrice > service.price && (

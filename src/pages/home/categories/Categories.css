@@ -114,3 +114,21 @@
     font-size: 0.8rem;
   }
 }
+
+.section-title-container {
+  text-align: center; /* center everything inside */
+  margin-bottom: 30px; /* optional spacing */
+}
+
+.section-title {
+  font-size: 28px; /* adjust as needed */
+  font-weight: 600;
+  margin-bottom: 10px; /* space between h2 and hr */
+}
+
+.section-title-hr {
+  width: 80px; /* or any width you like */
+  border: 2px solid #078d89; /* customize color */
+  margin: 0 auto; /* center the hr */
+  border-radius: 2px;
+}

@@ -1,0 +1,30 @@
+/* Container for the whole About page */
+.about-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 40px 20px;
+}
+
+/* Centered header section */
+.about-header {
+  text-align: center;
+  margin-bottom: 50px;
+}
+
+/* Sections with spacing between them */
+.about-section {
+  margin-bottom: 50px;
+}
+
+/* Paragraph styling */
+.about-paragraph {
+  color: #555;
+  line-height: 1.7;
+  margin-bottom: 16px;
+}
+
+/* Divider styling (optional) */
+.about-divider {
+  margin: 40px 0;
+  border-top: 1px solid #e8e8e8;
+}

@@ -7,8 +7,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 3rem 1.5rem;
-  background: linear-gradient(135deg, #fdfcfb, #e8e4d9);
+ 
+  background: linear-gradient(135deg, #f9f6ff, #f9f6ff);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
   text-align: center;
 }

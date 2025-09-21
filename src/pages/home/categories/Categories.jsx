@@ -32,7 +32,10 @@ export default function Categories() {
 
   return (
     <div className="categories-section">
-      <h2 className="section-title">Explore Our Categories</h2>
+        <div className="section-title-container">
+  <h2 className="section-title">Explore Our Categories</h2>
+  <hr className="section-title-hr" />
+</div>
       <div className="grid">
         {loading
           ? Array.from({ length: 6 }).map((_, i) => (

@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { Skeleton, Button } from "antd";
-import { PlusOutlined } from "@ant-design/icons";
+import { MinusOutlined, PlusOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../../api";
 import { useCart } from "../../../context/CartContext";
@@ -79,7 +79,7 @@ export default function BestSellers() {
       <Typography variant="h4" sx={{ mb: 2, fontWeight: 600 }}>
         Best Sellers
       </Typography>
-
+<hr className="home-title-hr" />
       {loading ? (
         <Skeleton active paragraph={{ rows: 6 }} />
       ) : products.length > 0 ? (
@@ -241,22 +241,52 @@ export default function BestSellers() {
 
                   {isInCart(product._id) ? (
                     <Button
-                      danger
-                      fullWidth
-                      onClick={() => handleRemoveFromCartClick(product._id)}
-                    >
-                      REMOVE
-                    </Button>
+  fullWidth
+  startIcon={<MinusOutlined />}
+  onClick={() => handleRemoveFromCartClick(product._id)}
+  style={{
+    backgroundColor: "#d32f2f",   // red background
+    color: "#fff",                // white text
+    fontWeight: 600,
+    fontSize: "14px",
+    textTransform: "uppercase",
+    borderRadius: "25px",         // pill-shaped
+    padding: "10px 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",
+    cursor: "pointer",
+    border: "none",
+  }}
+>
+  REMOVE
+</Button>
                   ) : (
-                    <Button
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      startIcon={<PlusOutlined />}
-                      onClick={() => handleAddToCartClick(product)}
-                    >
-                      ADD
-                    </Button>
+                   <Button
+  variant="contained"
+  color="secondary"
+  fullWidth
+  startIcon={<PlusOutlined />}
+  onClick={() => handleAddToCartClick(product)}
+  style={{
+    backgroundColor: "#000000ff",    // teal background
+    color: "#fff",                  // white text
+    fontWeight: 600,
+    fontSize: "14px",
+    textTransform: "uppercase",
+    borderRadius: "25px",           // pill shape
+    padding: "10px 20px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "8px",                      // spacing between icon and text
+    cursor: "pointer",
+  }}
+>
+  <PlusOutlined /> ADD
+</Button>
+
                   )}
                 </Box>
               </Box>
