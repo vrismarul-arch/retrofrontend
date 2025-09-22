@@ -1,0 +1,75 @@
+/* Full-page overlay */
+.loading-screen-advanced {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: #078d89; /* teal background */
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+  opacity: 1;
+  transition: opacity 0.5s ease-in-out; /* smooth fade */
+}
+
+/* Fade out */
+.loading-screen-advanced.fade-out {
+  opacity: 0;
+}
+
+/* Ripple loader */
+.ripple-container {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  margin-bottom: 24px;
+}
+
+.ripple {
+  position: absolute;
+  border: 4px solid #ffffff;
+  border-radius: 50%;
+  opacity: 0.7;
+  width: 0;
+  height: 0;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  animation: ripple 1.5s infinite;
+}
+
+.ripple:nth-child(2) {
+  animation-delay: 0.75s;
+}
+
+@keyframes ripple {
+  0% {
+    width: 0;
+    height: 0;
+    opacity: 0.7;
+  }
+  100% {
+    width: 100px;
+    height: 100px;
+    opacity: 0;
+  }
+}
+
+/* Loading text */
+.loading-text {
+  font-size: 28px;
+  font-weight: bold;
+  color: #ffffff; /* contrast on teal */
+  letter-spacing: 1px;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  animation: fadeInText 1s ease-in-out;
+}
+
+/* Smooth text appearance */
+@keyframes fadeInText {
+  0% { opacity: 0; transform: translateY(-10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}

@@ -1,4 +1,3 @@
-// src/context/CartContext.jsx
 import { createContext, useContext, useEffect, useState } from "react";
 import api from "../../api";
 import toast from "react-hot-toast";
@@ -7,17 +6,23 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cart, setCart] = useState([]);
+  const [loading, setLoading] = useState(true);
 
-  const getToken = () => localStorage.getItem("token");
+  const getToken = () =>
+    localStorage.getItem("userToken") ||
+    localStorage.getItem("partnerToken") ||
+    localStorage.getItem("token");
 
   const fetchCart = async () => {
     try {
       const res = await api.get("/api/cart", {
         headers: { Authorization: `Bearer ${getToken()}` },
       });
-      setCart(res.data.items);
+      setCart(res.data.items || []);
     } catch (err) {
       console.error("Fetch cart failed", err);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -28,8 +33,6 @@ export const CartProvider = ({ children }) => {
         { productId, quantity },
         { headers: { Authorization: `Bearer ${getToken()}` } }
       );
-
-      // Update local state instead of fetching again
       setCart(res.data.items);
       toast.success("Added to cart");
     } catch (err) {
@@ -84,7 +87,15 @@ export const CartProvider = ({ children }) => {
 
   return (
     <CartContext.Provider
-      value={{ cart, fetchCart, addToCart, removeFromCart, updateQuantity, clearCart }}
+      value={{
+        cart,
+        loading,
+        fetchCart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+      }}
     >
       {children}
     </CartContext.Provider>
@@ -92,3 +103,4 @@ export const CartProvider = ({ children }) => {
 };
 
 export const useCart = () => useContext(CartContext);
+  

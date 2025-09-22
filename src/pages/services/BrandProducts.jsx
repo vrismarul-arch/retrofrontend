@@ -5,10 +5,11 @@ import { EyeOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
+import LoadingScreen from "../../components/loading/LoadingScreen"; // full-page loader
 import "./BrandProducts.css";
 import FiltersBar from "../../components/filter/FiltersBar";
 import ServiceInfo from "./ServiceInfo";
-// import retrowoods from './../../assets/retrowoods.png'
+
 export default function BrandProducts() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -86,106 +87,98 @@ export default function BrandProducts() {
   const isInCart = (productId) =>
     cart.some((item) => item.product._id === productId);
 
+  // ✅ Show full-page loader while data is fetching
+  if (loading) {
+    return <LoadingScreen loading={loading} />;
+  }
+
   return (
     <div className="category-services">
       {/* Filters */}
-      <div style={{marginBottom:"20px"}}>
-      <FiltersBar onApplyFilters={handleFilter} products={products} />
-   <ServiceInfo />
+      <div style={{ marginBottom: "20px" }}>
+        <FiltersBar onApplyFilters={handleFilter} products={products} />
+        <ServiceInfo />
       </div>
-       
 
-      {loading ? (
-        <div className="service-grid">
-          {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="service-card skeleton-card">
-              <Skeleton.Image active className="skeleton-image" />
-              <div className="skeleton-content">
-                <Skeleton active title={{ width: "80%" }} paragraph={{ rows: 1 }} />
+      {/* Brand Header */}
+      <div className="category-header">
+        <img
+          src={brand?.logoUrl || "/placeholder.png"}
+          alt={brand?.name}
+          className="brand-header-img"
+        />
+        <h1 className="category-title">{brand?.name || "Brand"}</h1>
+      </div>
+
+      {/* Product Grid */}
+      <div className="service-grid">
+        {filteredProducts.length > 0 ? (
+          filteredProducts.map((product) => (
+            <div key={product._id} className="service-card modern-card">
+              <div className="card-image-wrapper">
+                <img
+                  src={product.image || "/placeholder.png"}
+                  alt={product.name}
+                  className="service-card-img default-img"
+                  onError={(e) => (e.target.src = "/placeholder.png")}
+                />
+                {product.discount > 0 && (
+                  <span className="discount-tag">{product.discount}% OFF</span>
+                )}
+              </div>
+
+              <div className="service-card-info">
+                <h3 className="service-title">{product.name}</h3>
+                <p className="product-description">
+                  {product.description?.substring(0, 50)}...
+                </p>
+
+                <div className="price-section">
+                  <span className="price">₹{roundPrice(product.price)}</span>
+                  {product.originalPrice &&
+                    product.originalPrice > product.price && (
+                      <span className="old-price">
+                        ₹{roundPrice(product.originalPrice)}
+                      </span>
+                    )}
+                </div>
+
+                <div className="action-buttons">
+                  {isInCart(product._id) ? (
+                    <Button
+                      danger
+                      shape="round"
+                      size="small"
+                      onClick={() => handleRemoveFromCartClick(product._id)}
+                    >
+                      Remove
+                    </Button>
+                  ) : (
+                    <Button
+                      type="primary"
+                      shape="round"
+                      size="small"
+                      onClick={() => handleAddToCartClick(product)}
+                    >
+                      Add
+                    </Button>
+                  )}
+                  <Tooltip title="View Details">
+                    <Button
+                      size="small"
+                      shape="circle"
+                      icon={<EyeOutlined />}
+                      onClick={() => navigate(`/product/${product._id}`)}
+                    />
+                  </Tooltip>
+                </div>
               </div>
             </div>
-          ))}
-        </div>
-      ) : (
-        <>
-          {/* Brand Header */}
-          <div className="category-header">
-            <img
-              src={brand?.logoUrl || "/placeholder.png"}
-              alt={brand?.name}
-              className="brand-header-img"
-            />
-            <h1 className="category-title">{brand?.name || "Brand"}</h1>
-          </div>
-          {/* Product Grid */}
-          <div className="service-grid">
-            {filteredProducts.length > 0 ? (
-              filteredProducts.map((product) => (
-                <div key={product._id} className="service-card modern-card">
-                  <div className="card-image-wrapper">
-                    <img
-                      src={product.image || "/placeholder.png"}
-                      alt={product.name}
-                      className="service-card-img default-img"
-                      onError={(e) => (e.target.src = "/placeholder.png")}
-                    />
-                    {product.discount > 0 && (
-                      <span className="discount-tag">{product.discount}% OFF</span>
-                    )}
-                  </div>
-
-                  <div className="service-card-info">
-                    <h3 className="service-title">{product.name}</h3>
-                    <p className="product-description">
-                      {product.description?.substring(0, 50)}...
-                    </p>
-
-                    <div className="price-section">
-                      <span className="price">₹{roundPrice(product.price)}</span>
-                      {product.originalPrice &&
-                        product.originalPrice > product.price && (
-                          <span className="old-price">₹{roundPrice(product.originalPrice)}</span>
-                        )}
-                    </div>
-
-                    <div className="action-buttons">
-                      {isInCart(product._id) ? (
-                        <Button
-                          danger
-                          shape="round"
-                          size="small"
-                          onClick={() => handleRemoveFromCartClick(product._id)}
-                        >
-                          Remove
-                        </Button>
-                      ) : (
-                        <Button
-                          type="primary"
-                          shape="round"
-                          size="small"
-                          onClick={() => handleAddToCartClick(product)}
-                        >
-                          Add
-                        </Button>
-                      )}
-                      <Tooltip title="View Details">
-                        <Button
-                          size="small"
-                          shape="circle"
-                          icon={<EyeOutlined />}
-                          onClick={() => navigate(`/product/${product._id}`)}
-                        />
-                      </Tooltip>
-                    </div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <p className="no-products-message">No products found for this filter.</p>
-            )}
-          </div>
-        </>
-      )}
+          ))
+        ) : (
+          <p className="no-products-message">No products found for this filter.</p>
+        )}
+      </div>
     </div>
   );
 }

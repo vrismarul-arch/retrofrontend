@@ -4,11 +4,13 @@ import { Table, Button, Popconfirm } from "antd";
 import { DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
+import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
 import "./CartPage.css";
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+  const [loading, setLoading] = useState(false); // ✅ loading state
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -32,7 +34,11 @@ export default function CartPage() {
             <p className="price">₹{item.product.price}</p>
             <Popconfirm
               title="Remove this item?"
-              onConfirm={() => removeFromCart(item.product._id)}
+              onConfirm={async () => {
+                setLoading(true);
+                await removeFromCart(item.product._id);
+                setLoading(false);
+              }}
               okText="Yes"
               cancelText="No"
             >
@@ -49,19 +55,35 @@ export default function CartPage() {
       render: (_, item) => (
         <div className="qty-box">
           <Button
-            onClick={() => item.quantity > 1 && updateQuantity(item.product._id, item.quantity - 1)}
+            onClick={async () => {
+              if (item.quantity <= 1) return;
+              setLoading(true);
+              await updateQuantity(item.product._id, item.quantity - 1);
+              setLoading(false);
+            }}
             disabled={item.quantity <= 1}
           >
             -
           </Button>
           <span>{item.quantity}</span>
-          <Button onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>+</Button>
+          <Button
+            onClick={async () => {
+              setLoading(true);
+              await updateQuantity(item.product._id, item.quantity + 1);
+              setLoading(false);
+            }}
+          >
+            +
+          </Button>
         </div>
       ),
     },
     { title: "Price", render: (_, item) => `₹${item.product.price}` },
     { title: "Total", render: (_, item) => `₹${item.product.price * item.quantity}` },
   ];
+
+  // ✅ Show full-page loader
+  if (loading) return <LoadingScreen message="Processing cart…" />;
 
   return (
     <div className="cart-container">
@@ -75,7 +97,16 @@ export default function CartPage() {
         <p className="empty-cart">Your cart is empty</p>
       ) : (
         <>
-          <Button type="primary" danger className="clear-cart-btn" onClick={clearCart}>
+          <Button
+            type="primary"
+            danger
+            className="clear-cart-btn"
+            onClick={async () => {
+              setLoading(true);
+              await clearCart();
+              setLoading(false);
+            }}
+          >
             Clear Cart
           </Button>
 
@@ -90,21 +121,34 @@ export default function CartPage() {
                     <p>Total: ₹{item.product.price * item.quantity}</p>
                     <div className="qty-box">
                       <Button
-                        onClick={() =>
-                          item.quantity > 1 && updateQuantity(item.product._id, item.quantity - 1)
-                        }
+                        onClick={async () => {
+                          if (item.quantity <= 1) return;
+                          setLoading(true);
+                          await updateQuantity(item.product._id, item.quantity - 1);
+                          setLoading(false);
+                        }}
                         disabled={item.quantity <= 1}
                       >
                         -
                       </Button>
                       <span>{item.quantity}</span>
-                      <Button onClick={() => updateQuantity(item.product._id, item.quantity + 1)}>
+                      <Button
+                        onClick={async () => {
+                          setLoading(true);
+                          await updateQuantity(item.product._id, item.quantity + 1);
+                          setLoading(false);
+                        }}
+                      >
                         +
                       </Button>
                     </div>
                     <Popconfirm
                       title="Remove this item?"
-                      onConfirm={() => removeFromCart(item.product._id)}
+                      onConfirm={async () => {
+                        setLoading(true);
+                        await removeFromCart(item.product._id);
+                        setLoading(false);
+                      }}
                       okText="Yes"
                       cancelText="No"
                     >

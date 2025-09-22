@@ -1,5 +1,5 @@
 import { createContext, useContext, useEffect, useState } from "react";
-import api from "../../api"; // ✅ adjust path to your api.js
+import api from "../../api";
 
 const AuthContext = createContext();
 
@@ -7,21 +7,29 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
-  // 🔄 Fetch profile from backend if token exists
   const fetchProfile = async () => {
     try {
-      const token = localStorage.getItem("partnerToken") || localStorage.getItem("userToken");
-      if (!token) {
+      const partnerToken = localStorage.getItem("partnerToken");
+      const userToken = localStorage.getItem("userToken");
+
+      if (!partnerToken && !userToken) {
         setUser(null);
         setLoading(false);
         return;
       }
 
-      const { data } = await api.get("/api/partners/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      let res;
+      if (partnerToken) {
+        res = await api.get("/api/partners/profile", {
+          headers: { Authorization: `Bearer ${partnerToken}` },
+        });
+      } else {
+        res = await api.get("/api/users/profile", {
+          headers: { Authorization: `Bearer ${userToken}` },
+        });
+      }
 
-      setUser(data);
+      setUser(res.data);
     } catch (err) {
       console.error("❌ Auth profile fetch failed:", err);
       setUser(null);
@@ -30,18 +38,19 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  // 🔑 Run once on mount
   useEffect(() => {
     fetchProfile();
   }, []);
 
-  // 📥 Called after successful login
-  const login = (data, token) => {
-    localStorage.setItem("partnerToken", token);
+  const login = (data, token, type = "user") => {
+    if (type === "partner") {
+      localStorage.setItem("partnerToken", token);
+    } else {
+      localStorage.setItem("userToken", token);
+    }
     setUser(data);
   };
 
-  // 🚪 Logout
   const logout = () => {
     localStorage.removeItem("partnerToken");
     localStorage.removeItem("userToken");

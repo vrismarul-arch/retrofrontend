@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate, Link } from "react-router-dom";
-import { Skeleton, Breadcrumb } from "antd";
+import { Breadcrumb } from "antd";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
+import LoadingScreen from "../../components/loading/LoadingScreen"; // full-page loader
 import "./SubcategoryServices.css";
 
 export default function SubcategoryServices() {
@@ -47,6 +48,11 @@ export default function SubcategoryServices() {
     fetchData();
   }, [id]);
 
+  // Show full-page loader while fetching data
+  if (loading || !subCategory) {
+    return <LoadingScreen loading={loading} />;
+  }
+
   return (
     <div className="subcategory-services">
       {/* Breadcrumb */}
@@ -56,39 +62,32 @@ export default function SubcategoryServices() {
             <Link to="/">Home</Link>
           </Breadcrumb.Item>
           <Breadcrumb.Item>
-            {subCategory ? subCategory.name : "Subcategory"}
+            {subCategory.name || "Subcategory"}
           </Breadcrumb.Item>
         </Breadcrumb>
       </div>
 
-      {/* Loading Skeleton */}
-      {loading ? (
-        <Skeleton active className="subcategory-services__skeleton" />
-      ) : (
-        <>
-          {/* Brands */}
-          {brands.length > 0 && (
-            <div className="subcategory-services__grid">
-              {brands.map((brand) => (
-                <div
-                  key={brand._id}
-                  className="subcategory-services__brand-card"
-                  onClick={() => navigate(`/brands/${brand._id}`)}
-                >
-                  <img
-                    src={brand.logoUrl || "/placeholder.png"}
-                    alt={brand.name}
-                    className="subcategory-services__brand-image"
-                  />
-                  <p className="subcategory-services__brand-name">{brand.name}</p>
-                </div>
-              ))}
+      {/* Brands */}
+      {brands.length > 0 && (
+        <div className="subcategory-services__grid">
+          {brands.map((brand) => (
+            <div
+              key={brand._id}
+              className="subcategory-services__brand-card"
+              onClick={() => navigate(`/brands/${brand._id}`)}
+            >
+              <img
+                src={brand.logoUrl || "/placeholder.png"}
+                alt={brand.name}
+                className="subcategory-services__brand-image"
+              />
+              <p className="subcategory-services__brand-name">{brand.name}</p>
             </div>
-          )}
-
-        
-        </>
+          ))}
+        </div>
       )}
+
+      {/* Products can be rendered here if needed */}
     </div>
   );
 }

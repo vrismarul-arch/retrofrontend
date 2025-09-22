@@ -1,28 +1,36 @@
 // src/components/pages/CheckoutPage.jsx
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card, Spin } from "antd";
+import { Form, Input, Button, Card } from "antd";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
 import api from "../../../api";
+import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
 import "./CheckoutPage.css";
 
 export default function CheckoutPage() {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true); // ✅ start as true
   const [location, setLocation] = useState(null);
   const [products, setProducts] = useState([]);
+  const [btnLoading, setBtnLoading] = useState(false); // ✅ button loading
   const { cart } = useCart();
   const navigate = useNavigate();
 
   // Fetch products from backend safely
   useEffect(() => {
-    if (!cart || cart.length === 0) return;
+    if (!cart || cart.length === 0) {
+      setLoading(false); // nothing to load
+      return;
+    }
 
     const ids = cart
       .filter((item) => item?.product?._id)
       .map((item) => item.product._id);
-    if (ids.length === 0) return;
+    if (ids.length === 0) {
+      setLoading(false);
+      return;
+    }
 
     setLoading(true);
     api
@@ -53,11 +61,10 @@ export default function CheckoutPage() {
     );
   }, []);
 
-  // Handle checkout submission
   const handleSubmit = (values) => {
     if (!location) return toast.error("Location not available");
-    setLoading(true);
 
+    setBtnLoading(true); // ✅ button feedback
     const totalAmount = cart.reduce((sum, item) => {
       const prod = products.find((p) => p._id === item.product?._id);
       return sum + (prod?.price || item.product?.price || 0) * item.quantity;
@@ -73,8 +80,7 @@ export default function CheckoutPage() {
           name: prod?.name || item.product?.name || "Product",
           price: prod?.price || item.product?.price || 0,
           quantity: item.quantity,
-          imageUrl:
-            item.product?.image || prod?.imageUrl || "/placeholder.png",
+          imageUrl: item.product?.image || prod?.imageUrl || "/placeholder.png",
         };
       }),
       totalAmount,
@@ -84,7 +90,7 @@ export default function CheckoutPage() {
     toast.success("Booking details saved! Redirecting to payment…");
 
     setTimeout(() => {
-      setLoading(false);
+      setBtnLoading(false);
       navigate("/payment");
     }, 1000);
   };
@@ -101,12 +107,8 @@ export default function CheckoutPage() {
       </div>
     );
 
-  if (loading)
-    return (
-      <div className="loading-spinner">
-        <Spin size="large" />
-      </div>
-    );
+  // ✅ Full-page loader while fetching products
+  if (loading) return <LoadingScreen message="Loading Checkout..." />;
 
   return (
     <div className="checkout-wrapper">
@@ -116,9 +118,7 @@ export default function CheckoutPage() {
           layout="vertical"
           form={form}
           onFinish={handleSubmit}
-          onFinishFailed={() =>
-            toast.error("Please fill all required fields")
-          }
+          onFinishFailed={() => toast.error("Please fill all required fields")}
         >
           <Form.Item name="name" label="Name" rules={[{ required: true }]}>
             <Input placeholder="Enter your name" />
@@ -190,6 +190,7 @@ export default function CheckoutPage() {
           block
           shape="round"
           size="large"
+          loading={btnLoading} // ✅ button loader
           onClick={() => form.submit()}
         >
           Proceed to Payment
