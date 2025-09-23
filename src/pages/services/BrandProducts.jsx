@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Skeleton, Button, Tooltip } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, CopyOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
@@ -87,6 +87,30 @@ export default function BrandProducts() {
   const isInCart = (productId) =>
     cart.some((item) => item.product._id === productId);
 
+  // Share product link
+ const handleShareClick = (product) => {
+  const link = `${window.location.origin}/product/${product._id}`;
+  const shortDesc = product.description?.substring(0, 80) || "";
+  const shareText = `${product.name}\n${shortDesc}\nCheck it out: ${link}\n`;
+
+  if (navigator.share) {
+    navigator
+      .share({
+        title: product.name,
+        text: shortDesc,
+        url: link,
+      })
+      .then(() => toast.success("Product shared successfully"))
+      .catch((err) => console.error("Share failed:", err));
+  } else {
+    // fallback: copy formatted text to clipboard
+    const formatted = `${shareText}${product.image ? `Image: ${product.image}` : ""}`;
+    navigator.clipboard.writeText(formatted);
+    toast.success("Product details copied to clipboard!");
+  }
+};
+
+
   // ✅ Show full-page loader while data is fetching
   if (loading) {
     return <LoadingScreen loading={loading} />;
@@ -163,12 +187,22 @@ export default function BrandProducts() {
                       Add
                     </Button>
                   )}
+
                   <Tooltip title="View Details">
                     <Button
                       size="small"
                       shape="circle"
                       icon={<EyeOutlined />}
                       onClick={() => navigate(`/product/${product._id}`)}
+                    />
+                  </Tooltip>
+
+                  <Tooltip title="Share Product">
+                    <Button
+                      size="small"
+                      shape="circle"
+                      icon={<CopyOutlined />}
+                      onClick={() => handleShareClick(product)}
                     />
                   </Tooltip>
                 </div>

@@ -6,77 +6,84 @@ import {
   Popconfirm,
   Space,
   Drawer,
-  Descriptions,
-  Tabs,
-  Image,
   Form,
   Input,
   Upload,
   List,
   Card,
+  Image,
+  Descriptions,
+  Tabs,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
 import "./products.css";
 
-/* sddddd*/
-
 export default function AdminProductsPage() {
-  const [products, setProducts] = useState([]);
+  const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
+  const [selectedSubmission, setSelectedSubmission] = useState(null);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [filter, setFilter] = useState("all");
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
 
-  // Fetch all products
-  const fetchProducts = async () => {
+  // Fetch all submissions
+  const fetchSubmissions = async () => {
     try {
       setLoading(true);
       const { data } = await api.get("/api/vendor/products");
-      setProducts(Array.isArray(data) ? data : []);
+      setSubmissions(Array.isArray(data) ? data : []);
     } catch (err) {
-      toast.error("Failed to fetch products");
+      toast.error("Failed to fetch submissions");
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchProducts();
+    fetchSubmissions();
   }, []);
 
-  // Approve / Reject
-  const approveProduct = async (id) => {
+  // Approve / Reject individual product
+  const approveProduct = async (submissionId, productIndex) => {
     try {
-      await api.put(`/api/vendor/products/${id}/approve`);
+      const submission = submissions.find((s) => s._id === submissionId);
+      const productId = submission.products[productIndex]._id;
+
+      await api.put(`/api/vendor/products/${submissionId}/approve`);
       toast.success("Product approved");
-      fetchProducts();
+      fetchSubmissions();
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to approve product");
     }
   };
 
-  const rejectProduct = async (id) => {
+  const rejectProduct = async (submissionId, productIndex) => {
     try {
-      await api.put(`/api/vendor/products/${id}/reject`);
+      const submission = submissions.find((s) => s._id === submissionId);
+      const productId = submission.products[productIndex]._id;
+
+      await api.put(`/api/vendor/products/${submissionId}/reject`);
       toast.success("Product rejected");
-      fetchProducts();
+      fetchSubmissions();
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to reject product");
     }
   };
 
-  // Open drawer and populate form
-  const openDrawer = (product) => {
-    setSelectedProduct(product);
+  // Open drawer for editing individual product
+  const openDrawer = (submission, product, productIndex) => {
+    setSelectedSubmission(submission);
+    setSelectedProduct({ ...product, index: productIndex });
+
     form.setFieldsValue({
-      name: product.name,
-      phone: product.phone,
-      email: product.email,
-      city: product.city,
+      name: submission.name,
+      phone: submission.phone,
+      email: submission.email,
+      city: submission.city,
       productName: product.productName,
       dimension: product.dimension,
       productDetails: product.productDetails,
@@ -102,17 +109,38 @@ export default function AdminProductsPage() {
         if (file.originFileObj) formData.append("images", file.originFileObj);
       });
 
-      await api.put(`/api/vendor/products/${selectedProduct._id}`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
+      await api.put(
+        `/api/vendor/products/${selectedSubmission._id}`,
+        formData,
+        { headers: { "Content-Type": "multipart/form-data" } }
+      );
 
       toast.success("Product updated successfully");
-      fetchProducts();
+      fetchSubmissions();
       setDrawerOpen(false);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to update product");
     }
   };
+
+  // Flatten submissions into individual products for table view
+  const flattenedProducts = submissions.flatMap((submission) =>
+    submission.products.map((p, idx) => ({
+      ...p,
+      vendorName: submission.name,
+      phone: submission.phone,
+      email: submission.email,
+      city: submission.city,
+      submissionId: submission._id,
+      productIndex: idx,
+    }))
+  );
+
+  // Filtered products
+  const filteredProducts =
+    filter === "all"
+      ? flattenedProducts
+      : flattenedProducts.filter((p) => p.status === filter);
 
   // Table columns
   const columns = [
@@ -120,21 +148,18 @@ export default function AdminProductsPage() {
     { title: "Product Name", dataIndex: "productName", key: "productName" },
     { title: "City", dataIndex: "city", key: "city" },
     {
+      title: "Vendor",
+      render: (_, record) => `${record.vendorName} (${record.phone})`,
+    },
+    {
       title: "Image",
       dataIndex: "images",
-      key: "image",
-      render: (images, record) =>
+      render: (images) =>
         images?.length > 0 ? (
           <img
             src={images[0]}
-            alt={record.productName}
-            style={{
-              width: "60px",
-              height: "60px",
-              objectFit: "cover",
-              borderRadius: "6px",
-              border: "1px solid #eee",
-            }}
+            alt="product"
+            style={{ width: 60, height: 60, objectFit: "cover", borderRadius: 6 }}
           />
         ) : (
           "No Image"
@@ -151,16 +176,35 @@ export default function AdminProductsPage() {
     },
     {
       title: "Action",
-      key: "action",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => openDrawer(record)}>View / Edit</Button>
+          <Button
+            onClick={() =>
+              openDrawer(
+                submissions.find((s) => s._id === record.submissionId),
+                record,
+                record.productIndex
+              )
+            }
+          >
+            View / Edit
+          </Button>
           {record.status === "pending" && (
             <>
-              <Popconfirm title="Approve?" onConfirm={() => approveProduct(record._id)}>
+              <Popconfirm
+                title="Approve?"
+                onConfirm={() =>
+                  approveProduct(record.submissionId, record.productIndex)
+                }
+              >
                 <Button type="primary">Approve</Button>
               </Popconfirm>
-              <Popconfirm title="Reject?" onConfirm={() => rejectProduct(record._id)}>
+              <Popconfirm
+                title="Reject?"
+                onConfirm={() =>
+                  rejectProduct(record.submissionId, record.productIndex)
+                }
+              >
                 <Button danger>Reject</Button>
               </Popconfirm>
             </>
@@ -169,9 +213,6 @@ export default function AdminProductsPage() {
       ),
     },
   ];
-
-  const filteredProducts =
-    filter === "all" ? products : products.filter((p) => p.status === filter);
 
   return (
     <div style={{ padding: 20 }}>
@@ -193,7 +234,7 @@ export default function AdminProductsPage() {
       {/* Desktop Table */}
       <div className="desktop-table">
         <Table
-          rowKey="_id"
+          rowKey={(record) => `${record.submissionId}-${record.productIndex}`}
           loading={loading}
           columns={columns}
           dataSource={filteredProducts}
@@ -230,7 +271,7 @@ export default function AdminProductsPage() {
                         : "orange"
                     }
                   >
-                    {item.status.toUpperCase()}
+                    {item.status?.toUpperCase()}
                   </Tag>
                 }
               >
@@ -238,25 +279,20 @@ export default function AdminProductsPage() {
                   <b>City:</b> {item.city}
                 </p>
                 <p>
-                  <b>Vendor:</b> {item.name} ({item.phone})
+                  <b>Vendor:</b> {item.vendorName} ({item.phone})
                 </p>
-                <Button size="small" onClick={() => openDrawer(item)}>
+                <Button
+                  size="small"
+                  onClick={() =>
+                    openDrawer(
+                      submissions.find((s) => s._id === item.submissionId),
+                      item,
+                      item.productIndex
+                    )
+                  }
+                >
                   View / Edit
                 </Button>
-                {item.status === "pending" && (
-                  <Space style={{ marginLeft: 10 }}>
-                    <Popconfirm title="Approve?" onConfirm={() => approveProduct(item._id)}>
-                      <Button size="small" type="primary">
-                        Approve
-                      </Button>
-                    </Popconfirm>
-                    <Popconfirm title="Reject?" onConfirm={() => rejectProduct(item._id)}>
-                      <Button size="small" danger>
-                        Reject
-                      </Button>
-                    </Popconfirm>
-                  </Space>
-                )}
               </Card>
             </List.Item>
           )}
@@ -314,7 +350,6 @@ export default function AdminProductsPage() {
                 <Input.TextArea rows={3} />
               </Form.Item>
 
-              {/* Upload Images (limit to 3) */}
               <Form.Item label="Images">
                 <Upload
                   listType="picture"
@@ -327,9 +362,9 @@ export default function AdminProductsPage() {
                     setFileList([...fileList, file]);
                     return false;
                   }}
-                  onRemove={(file) => {
-                    setFileList(fileList.filter((f) => f.uid !== file.uid));
-                  }}
+                  onRemove={(file) =>
+                    setFileList(fileList.filter((f) => f.uid !== file.uid))
+                  }
                 >
                   {fileList.length < 3 && (
                     <Button icon={<UploadOutlined />}>Select Images</Button>
@@ -344,7 +379,6 @@ export default function AdminProductsPage() {
               </Form.Item>
             </Form>
 
-            {/* Preview Images */}
             <div
               style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 20 }}
             >
@@ -355,10 +389,17 @@ export default function AdminProductsPage() {
               })}
             </div>
 
-            {/* Product Info */}
             <Descriptions bordered column={1} size="small" title="Product Info">
               <Descriptions.Item label="Status">
-                <Tag>{selectedProduct.status.toUpperCase()}</Tag>
+                <Tag color={
+                  selectedProduct.status === "approved"
+                    ? "green"
+                    : selectedProduct.status === "rejected"
+                    ? "red"
+                    : "orange"
+                }>
+                  {selectedProduct.status?.toUpperCase()}
+                </Tag>
               </Descriptions.Item>
               <Descriptions.Item label="Created At">
                 {new Date(selectedProduct.createdAt).toLocaleString()}

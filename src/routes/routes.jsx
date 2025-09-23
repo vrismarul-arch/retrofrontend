@@ -7,6 +7,7 @@ import PartnerRoute from "./PartnerRoute";
 import Home from "../pages/home/Home";
 import CategoryServices from "../pages/services/CategoryServices";
 import Navbar from "../components/Navbar";
+import Logo from "../components/Logo";
 import NotFoundPage from "../pages/NotFoundPage";
 
 // User pages
@@ -51,6 +52,7 @@ import VendorProduct from "../pages/vendor/VendorProduct";
 import AdminProductsPage from "../pages/Admin/product/AdminProductsPage";
 import AdminDashboard from "../pages/Admin/dashboard/AdminDashboard";
 import VendorBookingDashboard from "../pages/Admin/dashboard/VendorBookingDashboard";
+import IntroScreen from "../pages/home/intro/IntroScreen";
 
 // Wrapper for pages with Navbar
 function WithNavbar({ children }) {
@@ -61,12 +63,24 @@ function WithNavbar({ children }) {
     </>
   );
 }
+// Wrapper for pages with Navbar
+function Header({ children }) {
+  return (
+    <>
+      <Logo />
+      {children}
+    </>
+  );
+}
 
 export default function AppRoutes() {
   return (
     <Routes>
-      {/* Public Routes */}
-      <Route path="/" element={<WithNavbar><Home /></WithNavbar>} />
+      {/* Public Routes */} 
+{/* Landing page / Intro screen with Header */}
+<Route path="/" element={<Header><IntroScreen /></Header>} />
+
+
       <Route path="/home" element={<WithNavbar><Home /></WithNavbar>} />
       <Route path="/subcategories/:id" element={<WithNavbar><SubcategoryServices /></WithNavbar>} />
       <Route path="/brands/:id" element={<WithNavbar><BrandProducts /></WithNavbar>} />

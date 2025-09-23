@@ -1,0 +1,89 @@
+.intro-container {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  min-height: 100vh;
+  padding: 40px;
+  gap: 40px;
+}
+
+/* Left side (text + buttons) */
+.intro-left {
+  flex: 1;
+}
+
+.intro-title {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #1a1a1a;
+  margin-bottom: 20px;
+}
+
+.intro-subtitle {
+  font-size: 1.2rem;
+  color: #555;
+  margin-bottom: 30px;
+}
+
+/* Buttons container */
+.intro-buttons {
+  display: flex;
+  gap: 15px;
+}
+
+/* Right side (image) */
+.intro-right {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.intro-image {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+}
+
+/* 📱 Mobile Responsive */
+@media (max-width: 768px) {
+  .intro-container {
+    gap: 20px;
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .intro-left {
+    order: 2;
+    width: 100%;
+  }
+
+  .intro-right {
+    order: 1;
+    margin-bottom: 20px;
+  }
+
+  .intro-title {
+    font-size: 2rem;
+  }
+
+  .intro-subtitle {
+    font-size: 1rem;
+  }
+
+  /* Buttons stay in row, left/right aligned, half width each */
+  .intro-buttons {
+    flex-direction: row;
+    justify-content: space-between;
+    width: 100%;
+    gap: 10px;
+  }
+
+  .intro-buttons .ant-btn {
+    width: 48%;
+  }
+
+  .intro-image {
+    max-width: 80%;
+  }
+}
