@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Skeleton, Button, Tooltip } from "antd";
-import { EyeOutlined, CopyOutlined } from "@ant-design/icons";
+import { EyeOutlined, CopyOutlined, LinkOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../api";
 import { useCart } from "../../context/CartContext";
@@ -87,28 +87,45 @@ export default function BrandProducts() {
   const isInCart = (productId) =>
     cart.some((item) => item.product._id === productId);
 
-  // Share product link
- const handleShareClick = (product) => {
-  const link = `${window.location.origin}/product/${product._id}`;
-  const shortDesc = product.description?.substring(0, 80) || "";
-  const shareText = `${product.name}\n${shortDesc}\nCheck it out: ${link}\n`;
 
+
+const handleShareClick = (product) => {
+  // Create a friendly URL like Amazon style
+  const slug = product.name
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/(^-|-$)/g, "");
+  const link = `${window.location.origin}/product/${slug}-${product._id}`;
+
+  // Short description
+  const shortDesc = product.description?.substring(0, 80) || "";
+
+  // Share template
+  const shareTemplate = `
+🛍️ ${product.name} 🛍️
+${shortDesc}
+
+View product here: ${link}
+Image: ${product.image || "/placeholder.png"}
+`;
+
+  // Use Web Share API if supported
   if (navigator.share) {
     navigator
       .share({
         title: product.name,
-        text: shortDesc,
+        text: `${product.name} - ${shortDesc}`,
         url: link,
       })
       .then(() => toast.success("Product shared successfully"))
       .catch((err) => console.error("Share failed:", err));
   } else {
-    // fallback: copy formatted text to clipboard
-    const formatted = `${shareText}${product.image ? `Image: ${product.image}` : ""}`;
-    navigator.clipboard.writeText(formatted);
+    // Fallback: copy formatted message
+    navigator.clipboard.writeText(shareTemplate);
     toast.success("Product details copied to clipboard!");
   }
 };
+
 
 
   // ✅ Show full-page loader while data is fetching
@@ -201,7 +218,7 @@ export default function BrandProducts() {
                     <Button
                       size="small"
                       shape="circle"
-                      icon={<CopyOutlined />}
+                      icon={<LinkOutlined  />}
                       onClick={() => handleShareClick(product)}
                     />
                   </Tooltip>
