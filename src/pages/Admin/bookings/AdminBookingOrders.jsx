@@ -15,27 +15,44 @@ import {
   Tabs,
   Card,
   Grid,
+  Modal,
+  Input,
+  Checkbox,
+  Space,
 } from "antd";
 import { EllipsisOutlined } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
 import BookingDetails from "./BookingDetails";
-import "./AdminBookingOrders.css"; // 👈 import CSS
+import "./AdminBookingOrders.css";
 
 const { Option } = Select;
 const { TabPane } = Tabs;
 const { useBreakpoint } = Grid;
+
+const cancelOptions = [
+  "Change of plans",
+  "Ordered by mistake",
+  "Found a better price",
+  "Delayed delivery",
+  "Product not needed",
+  "Other",
+];
 
 const AdminBookingOrders = () => {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
   const [selectedBookingId, setSelectedBookingId] = useState(null);
+
+  const [cancelModal, setCancelModal] = useState(false);
+  const [selectedReasons, setSelectedReasons] = useState([]);
+  const [customReason, setCustomReason] = useState("");
+  const [currentCancelBooking, setCurrentCancelBooking] = useState(null);
+
   const screens = useBreakpoint();
 
-  // =========================
   // Fetch all bookings
-  // =========================
   const fetchBookings = async () => {
     setLoading(true);
     try {
@@ -55,19 +72,14 @@ const AdminBookingOrders = () => {
     fetchBookings();
   }, []);
 
-  // =========================
   // Update delivery status
-  // =========================
   const handleDeliveryUpdate = async (id, value) => {
     try {
       await api.put(
         `/api/admin/bookings/${id}`,
         { deliveryStatus: value },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-
       toast.success("Delivery status updated ✅");
       fetchBookings();
     } catch (err) {
@@ -76,19 +88,14 @@ const AdminBookingOrders = () => {
     }
   };
 
-  // =========================
   // Update booking status
-  // =========================
   const handleStatusUpdate = async (id, value) => {
     try {
       await api.put(
         `/api/admin/bookings/${id}`,
         { status: value },
-        {
-          headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
-        }
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
       );
-
       toast.success("Booking status updated ✅");
       fetchBookings();
     } catch (err) {
@@ -97,21 +104,55 @@ const AdminBookingOrders = () => {
     }
   };
 
+  // Show booking details drawer
   const showDrawer = (bookingId) => {
     setSelectedBookingId(bookingId);
     setDrawerVisible(true);
   };
 
-  // =========================
-  // Table Columns
-  // =========================
+  // Show cancel modal
+  const showCancelModal = (booking) => {
+    setCurrentCancelBooking(booking);
+    setSelectedReasons([]);
+    setCustomReason("");
+    setCancelModal(true);
+  };
+
+  // Confirm cancellation
+  const handleCancelBooking = async () => {
+    if (selectedReasons.length === 0) {
+      toast.error("Please select at least one reason");
+      return;
+    }
+
+    let reasonText = selectedReasons.join(", ");
+    if (selectedReasons.includes("Other") && !customReason.trim()) {
+      toast.error("Please enter a custom reason");
+      return;
+    }
+    if (selectedReasons.includes("Other")) {
+      reasonText = reasonText.replace("Other", customReason.trim());
+    }
+
+    try {
+      await api.put(
+        `/api/admin/bookings/${currentCancelBooking._id}/cancel`,
+        { reason: reasonText },
+        { headers: { Authorization: `Bearer ${localStorage.getItem("token")}` } }
+      );
+      toast.success("Booking cancelled successfully ✅");
+      setCancelModal(false);
+      fetchBookings();
+    } catch (err) {
+      console.error(err);
+      toast.error(err.response?.data?.error || "Failed to cancel booking ❌");
+    }
+  };
+
+  // Table columns
   const columns = [
     { title: "#", render: (_, __, index) => index + 1, width: 50 },
-    {
-      title: "Booking ID",
-      dataIndex: "bookingId",
-      render: (id) => <strong>{id}</strong>,
-    },
+    { title: "Booking ID", dataIndex: "bookingId", render: (id) => <strong>{id}</strong> },
     {
       title: "Customer",
       key: "customer",
@@ -139,20 +180,11 @@ const AdminBookingOrders = () => {
               const img = product.image || product.images?.[0];
               return (
                 <Col key={p._id} span={24}>
-                  <Tag
-                    color="blue"
-                    style={{ display: "flex", alignItems: "center" }}
-                  >
+                  <Tag color="blue" style={{ display: "flex", alignItems: "center" }}>
                     {img && (
-                      <Avatar
-                        src={img}
-                        size={20}
-                        shape="square"
-                        style={{ marginRight: 4 }}
-                      />
+                      <Avatar src={img} size={20} shape="square" style={{ marginRight: 4 }} />
                     )}
-                    {product.name || "Product"} × {p.quantity || 1} ₹
-                    {product.price || 0}
+                    {product.name || "Product"} × {p.quantity || 1} ₹{product.price || 0}
                   </Tag>
                 </Col>
               );
@@ -166,30 +198,26 @@ const AdminBookingOrders = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status, record) => {
-        return (
-          <Popconfirm
-            title="Change booking status?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() =>
-              handleStatusUpdate(record._id, record.newStatus || status)
-            }
+      render: (status, record) => (
+        <Popconfirm
+          title="Change booking status?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() => handleStatusUpdate(record._id, record.newStatus || status)}
+        >
+          <Select
+            value={status}
+            style={{ width: 140 }}
+            onChange={(value) => {
+              record.newStatus = value;
+            }}
           >
-            <Select
-              value={status}
-              style={{ width: 140 }}
-              onChange={(value) => {
-                record.newStatus = value;
-              }}
-            >
-              <Option value="pending">Pending</Option>
-              <Option value="confirmed">Confirmed</Option>
-              <Option value="cancelled">Cancelled</Option>
-            </Select>
-          </Popconfirm>
-        );
-      },
+            <Option value="pending">Pending</Option>
+            <Option value="confirmed">Confirmed</Option>
+            <Option value="cancelled">Cancelled</Option>
+          </Select>
+        </Popconfirm>
+      ),
     },
     {
       title: "Delivery Status",
@@ -204,6 +232,7 @@ const AdminBookingOrders = () => {
           <Option value="pending">Pending</Option>
           <Option value="shipping">Shipping</Option>
           <Option value="delivered">Delivered</Option>
+          <Option value="cancelled">Cancelled</Option>
         </Select>
       ),
     },
@@ -218,16 +247,13 @@ const AdminBookingOrders = () => {
                 View
               </Button>
             </Menu.Item>
-            <Menu.Item key="cancel">
-              <Popconfirm
-                title="Are you sure?"
-                onConfirm={() => toast("Cancel booking not implemented")}
-              >
-                <Button type="text" danger>
+            {record.status !== "cancelled" && (
+              <Menu.Item key="cancel">
+                <Button type="text" danger onClick={() => showCancelModal(record)}>
                   Cancel
                 </Button>
-              </Popconfirm>
-            </Menu.Item>
+              </Menu.Item>
+            )}
           </Menu>
         );
         return (
@@ -239,9 +265,7 @@ const AdminBookingOrders = () => {
     },
   ];
 
-  // =========================
-  // Mobile card view (styled + functional)
-  // =========================
+  // Mobile cards
   const renderCards = (data) => (
     <Row gutter={[16, 16]}>
       {data.map((record, idx) => {
@@ -260,16 +284,13 @@ const AdminBookingOrders = () => {
                           View
                         </Button>
                       </Menu.Item>
-                      <Menu.Item key="cancel">
-                        <Popconfirm
-                          title="Are you sure?"
-                          onConfirm={() => toast("Cancel booking not implemented")}
-                        >
-                          <Button type="text" danger>
+                      {record.status !== "cancelled" && (
+                        <Menu.Item key="cancel">
+                          <Button type="text" danger onClick={() => showCancelModal(record)}>
                             Cancel
                           </Button>
-                        </Popconfirm>
-                      </Menu.Item>
+                        </Menu.Item>
+                      )}
                     </Menu>
                   }
                   trigger={["click"]}
@@ -278,7 +299,6 @@ const AdminBookingOrders = () => {
                 </Dropdown>
               }
             >
-              {/* Customer */}
               <p>
                 <strong>Customer:</strong> {user.name || record.name || "Unknown"}
                 <br />
@@ -287,7 +307,6 @@ const AdminBookingOrders = () => {
                 {user.phone || record.phone || "-"}
               </p>
 
-              {/* Products */}
               <div>
                 <strong>Products:</strong>
                 {record.products?.map((p) => {
@@ -300,37 +319,26 @@ const AdminBookingOrders = () => {
                       style={{ display: "flex", alignItems: "center", marginTop: 4 }}
                     >
                       {img && (
-                        <Avatar
-                          src={img}
-                          size={20}
-                          shape="square"
-                          style={{ marginRight: 4 }}
-                        />
+                        <Avatar src={img} size={20} shape="square" style={{ marginRight: 4 }} />
                       )}
-                      {product.name || "Product"} × {p.quantity || 1} ₹
-                      {product.price || 0}
+                      {product.name || "Product"} × {p.quantity || 1} ₹{product.price || 0}
                     </Tag>
                   );
                 })}
               </div>
 
-              {/* Status */}
               <div style={{ marginTop: 12 }}>
                 <strong>Status: </strong>
                 <Popconfirm
                   title="Change booking status?"
                   okText="Yes"
                   cancelText="No"
-                  onConfirm={() =>
-                    handleStatusUpdate(record._id, record.newStatus || record.status)
-                  }
+                  onConfirm={() => handleStatusUpdate(record._id, record.newStatus || record.status)}
                 >
                   <Select
                     value={record.status}
                     style={{ width: "100%" }}
-                    onChange={(value) => {
-                      record.newStatus = value;
-                    }}
+                    onChange={(value) => { record.newStatus = value; }}
                   >
                     <Option value="pending">Pending</Option>
                     <Option value="confirmed">Confirmed</Option>
@@ -339,7 +347,6 @@ const AdminBookingOrders = () => {
                 </Popconfirm>
               </div>
 
-              {/* Delivery */}
               <div style={{ marginTop: 12 }}>
                 <strong>Delivery: </strong>
                 <Select
@@ -359,71 +366,73 @@ const AdminBookingOrders = () => {
     </Row>
   );
 
-  // =========================
   // Tabs
-  // =========================
   const statusTabs = ["all", "pending", "confirmed", "cancelled"];
-
   const getColor = (status) => {
     switch (status) {
-      case "confirmed":
-        return "green";
-      case "pending":
-        return "gold";
-      case "cancelled":
-        return "red";
-      default:
-        return "blue";
+      case "confirmed": return "green";
+      case "pending": return "gold";
+      case "cancelled": return "red";
+      default: return "blue";
     }
   };
 
   return (
     <>
-      <Toaster
-        position="top-right"
-        toastOptions={{
-          success: { style: { background: "#4CAF50", color: "#fff" } },
-          error: { style: { background: "#F44336", color: "#fff" } },
-        }}
-      />
-
+      <Toaster position="top-right" />
       {loading ? (
         <Spin tip="Loading..." style={{ display: "block", margin: "2rem auto" }} />
       ) : (
         <Tabs defaultActiveKey="all">
           {statusTabs.map((status) => {
-            const filtered =
-              status === "all"
-                ? bookings
-                : bookings.filter((b) => b.status === status);
+            const filtered = status === "all" ? bookings : bookings.filter((b) => b.status === status);
             return (
               <TabPane
-                tab={
-                  <span>
-                    <Tag color={getColor(status)}>
-                      {status.toUpperCase()}
-                    </Tag>{" "}
-                    ({filtered.length})
-                  </span>
-                }
+                tab={<span><Tag color={getColor(status)}>{status.toUpperCase()}</Tag> ({filtered.length})</span>}
                 key={status}
               >
-                {screens.xs
-                  ? renderCards(filtered) // mobile → cards
-                  : (
-                    <Table
-                      dataSource={filtered}
-                      columns={columns}
-                      rowKey="_id"
-                      scroll={{ x: "max-content" }}
-                    />
-                  )}
+                {screens.xs ? renderCards(filtered) : (
+                  <Table
+                    dataSource={filtered}
+                    columns={columns}
+                    rowKey="_id"
+                    scroll={{ x: "max-content" }}
+                  />
+                )}
               </TabPane>
             );
           })}
         </Tabs>
       )}
 
+      {/* Cancel Modal */}
+      <Modal
+        title="Cancel Booking"
+        open={cancelModal}
+        onOk={handleCancelBooking}
+        onCancel={() => setCancelModal(false)}
+        okText="Submit"
+        cancelText="Close"
+      >
+        <p>Select reason(s) for cancellation:</p>
+        <Checkbox.Group
+          options={cancelOptions}
+          value={selectedReasons}
+          onChange={setSelectedReasons}
+          style={{ display: "flex", flexDirection: "column", gap: 8 }}
+        />
+        {selectedReasons.includes("Other") && (
+          <Input.TextArea
+            rows={3}
+            placeholder="Enter custom reason..."
+            value={customReason}
+            onChange={(e) => setCustomReason(e.target.value)}
+            style={{ marginTop: 8 }}
+          />
+        )}
+      </Modal>
+
+      {/* Booking Details Drawer */}
       <Drawer
         title="Booking Details"
         open={drawerVisible}
@@ -433,7 +442,7 @@ const AdminBookingOrders = () => {
         {selectedBookingId && (
           <BookingDetails
             bookingId={selectedBookingId}
-            onDeliveryChange={(id, value) => handleDeliveryUpdate(id, value)}
+            onDeliveryChange={handleDeliveryUpdate}
           />
         )}
       </Drawer>

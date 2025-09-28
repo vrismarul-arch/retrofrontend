@@ -10,6 +10,7 @@ const BookingDetails = ({ bookingId, onDeliveryChange }) => {
   const [loading, setLoading] = useState(false);
   const [updatingDelivery, setUpdatingDelivery] = useState(false);
 
+  // Fetch booking details
   const fetchBooking = async () => {
     if (!bookingId) return;
     setLoading(true);
@@ -27,36 +28,36 @@ const BookingDetails = ({ bookingId, onDeliveryChange }) => {
     }
   };
 
-  useEffect(() => { fetchBooking(); }, [bookingId]);
+  useEffect(() => {
+    fetchBooking();
+  }, [bookingId]);
 
- const handleDeliveryUpdate = async (newStatus) => {
-  if (!bookingId) return;
-  setUpdatingDelivery(true);
+  // Update delivery status
+  const handleDeliveryUpdate = async (newStatus) => {
+    if (!bookingId) return;
+    setUpdatingDelivery(true);
+    try {
+      const token = localStorage.getItem("token");
+      const res = await api.put(
+        `/api/admin/bookings/${bookingId}`,
+        { deliveryStatus: newStatus },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-  try {
-    const token = localStorage.getItem("token");
-    const res = await api.put(
-      `/api/admin/bookings/${bookingId}`,
-      { deliveryStatus: newStatus },
-      { headers: { Authorization: `Bearer ${token}` } }
-    );
+      setBooking(res.data.booking);
 
-    // ✅ Update local booking state with returned booking
-    setBooking(res.data.booking);
+      if (onDeliveryChange) {
+        onDeliveryChange(bookingId, res.data.booking.deliveryStatus);
+      }
 
-    // Notify parent table if needed
-    if (onDeliveryChange) {
-      onDeliveryChange(bookingId, res.data.booking.deliveryStatus);
+      message.success("Delivery status updated");
+    } catch (err) {
+      console.error(err);
+      message.error("Failed to update delivery status");
+    } finally {
+      setUpdatingDelivery(false);
     }
-
-    message.success("Delivery status updated");
-  } catch (err) {
-    console.error(err);
-    message.error("Failed to update delivery status");
-  } finally {
-    setUpdatingDelivery(false);
-  }
-};
+  };
 
   if (loading) return <Spin tip="Loading..." style={{ display: "block", margin: "2rem auto" }} />;
   if (!booking) return <p>No booking details available</p>;
@@ -97,16 +98,41 @@ const BookingDetails = ({ bookingId, onDeliveryChange }) => {
       </Descriptions.Item>
       <Descriptions.Item label="Delivery Status">
         <Row gutter={8} align="middle">
-        
           <Col>
-            <Tag color={booking.deliveryStatus === "delivered" ? "green" : booking.deliveryStatus === "shipping" ? "blue" : "gold"}>
-              {booking.deliveryStatus?.toUpperCase() || "PENDING"}
-            </Tag>
+            <Select
+              value={booking.deliveryStatus || "pending"}
+              style={{ width: 140 }}
+              onChange={handleDeliveryUpdate}
+              loading={updatingDelivery}
+            >
+              <Option value="pending">Pending</Option>
+              <Option value="shipping">Shipping</Option>
+              <Option value="delivered">Delivered</Option>
+              <Option value="cancelled">Cancelled</Option>
+            </Select>
           </Col>
         </Row>
+      </Descriptions.Item>
+      <Descriptions.Item label="Cancellation Reason">
+        {booking.status === "cancelled" && booking.cancelReason ? (
+          <>
+            {booking.cancelReason.reasons?.length > 0 ? (
+              <ul style={{ margin: 0, paddingLeft: "1.2rem" }}>
+                {booking.cancelReason.reasons.map((r, idx) => (
+                  <li key={idx}>{r === "Other" ? booking.cancelReason.custom : r}</li>
+                ))}
+              </ul>
+            ) : (
+              <span>{booking.cancelReason.custom || "N/A"}</span>
+            )}
+          </>
+        ) : (
+          <span>-</span>
+        )}
       </Descriptions.Item>
     </Descriptions>
   );
 };
 
 export default BookingDetails;
+  

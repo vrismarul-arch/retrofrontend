@@ -12,8 +12,6 @@ import {
   Empty,
 } from "antd";
 import {
-  CalendarOutlined,
-  ClockCircleOutlined,
   ShoppingCartOutlined,
 } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
@@ -43,29 +41,6 @@ export default function BookingHistoryPage() {
     fetchBookings();
   }, []);
 
-  const handleDeleteBooking = (bookingId) => {
-    Modal.confirm({
-      title: "Delete this booking?",
-      content: "This action cannot be undone.",
-      okText: "Yes, delete",
-      okType: "danger",
-      cancelText: "Cancel",
-      onOk: async () => {
-        try {
-          const token = localStorage.getItem("token");
-          const headers = { Authorization: `Bearer ${token}` };
-          await api.delete(`/api/bookings/${bookingId}`, { headers });
-
-          const updated = await api.get("/api/bookings/my", { headers });
-          setBookings(Array.isArray(updated.data) ? updated.data : []);
-          message.success("Booking deleted");
-        } catch {
-          message.error("Failed to delete booking");
-        }
-      },
-    });
-  };
-
   if (loading) {
     return (
       <div className="flex-center">
@@ -89,17 +64,6 @@ export default function BookingHistoryPage() {
         dataSource={bookings}
         rowKey={(it) => it._id}
         renderItem={(item) => {
-          const dateStr = item.selectedDate
-            ? new Date(item.selectedDate).toLocaleDateString()
-            : "-";
-          const timeStr = item.selectedTime
-            ? new Date(item.selectedTime).toLocaleTimeString([], {
-                hour: "2-digit",
-                minute: "2-digit",
-                hour12: true,
-              })
-            : "-";
-
           const firstProduct = item?.products?.[0] || {};
           const firstProductName =
             firstProduct?.productId?.name || firstProduct?.name || "Product";
@@ -109,7 +73,6 @@ export default function BookingHistoryPage() {
             firstProduct?.productId?.images?.[0] ||
             firstProduct?.imageUrl;
 
-          // ✅ Delivery status highlight
           const isDelivered = item.deliveryStatus === "delivered";
           const isOutForDelivery = item.deliveryStatus === "out-for-delivery";
 
@@ -165,7 +128,6 @@ export default function BookingHistoryPage() {
                       <ShoppingCartOutlined />{" "}
                       <b className="price">₹{item.totalAmount}</b>
                     </Text>
-                   
                   </div>
 
                   <div className="order-actions">
@@ -175,15 +137,6 @@ export default function BookingHistoryPage() {
                     >
                       View Details
                     </Button>
-                    {!isDelivered && (
-                      <Button
-                        type="link"
-                        danger
-                        onClick={() => handleDeleteBooking(item._id)}
-                      >
-                        Cancel Order
-                      </Button>
-                    )}
                   </div>
                 </div>
               </div>

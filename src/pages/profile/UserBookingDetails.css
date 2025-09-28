@@ -112,3 +112,47 @@
     text-align: left;
   }
 }
+.booking-details-wrapper {
+  padding: 20px;
+}
+
+.back-btn {
+  margin-bottom: 16px;
+  font-weight: bold;
+}
+
+.hero-card {
+  margin-bottom: 20px;
+  padding: 20px;
+}
+
+.status-tag {
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.total-price {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.progress-card {
+  margin-bottom: 20px;
+}
+
+.section-card {
+  margin-bottom: 16px;
+}
+
+.service-card {
+  margin-bottom: 12px;
+}
+
+.cancel-options-wrapper button {
+  transition: all 0.2s;
+}
+
+.cancel-options-wrapper button:hover {
+  transform: scale(1.05);
+  cursor: pointer;
+}

@@ -12,13 +12,16 @@ import {
   Steps,
   Row,
   Col,
+  Space,
+  Modal,
+  Input,
 } from "antd";
 import { useParams, useNavigate } from "react-router-dom";
 import {
   ArrowLeftOutlined,
   FilePdfOutlined,
   StopOutlined,
-  UserOutlined,
+  ShoppingOutlined,
 } from "@ant-design/icons";
 import api from "../../../api";
 import "./UserBookingDetails.css";
@@ -26,11 +29,27 @@ import "./UserBookingDetails.css";
 const { Title, Text } = Typography;
 const { Step } = Steps;
 
+const cancelOptions = [
+  "Change of plans",
+  "Ordered by mistake",
+  "Found a better price",
+  "Delayed delivery",
+  "Product not needed",
+  "Other",
+];
+
 export default function UserBookingDetails() {
   const { id } = useParams();
+  const navigate = useNavigate();
+
   const [booking, setBooking] = useState(null);
   const [loading, setLoading] = useState(true);
-  const navigate = useNavigate();
+
+  const [cancelModal, setCancelModal] = useState(false);
+  const [cancelSuccessModal, setCancelSuccessModal] = useState(false);
+  const [selectedReasons, setSelectedReasons] = useState([]);
+  const [customReason, setCustomReason] = useState("");
+  const [loadingCancel, setLoadingCancel] = useState(false);
 
   useEffect(() => {
     const fetchBooking = async () => {
@@ -64,25 +83,58 @@ export default function UserBookingDetails() {
 
   if (!booking) return <p>Booking not found</p>;
 
-  // Progress tracker mapping (status + deliveryStatus combined)
   const statusSteps = ["pending", "confirmed", "in-progress", "completed"];
-
   let stepKey = "pending";
-  if (booking.status === "confirmed") {
-    stepKey = "confirmed";
-  } else if (
-    booking.deliveryStatus === "out-for-delivery" ||
-    booking.status === "picked"
-  ) {
+  if (booking.status === "confirmed") stepKey = "confirmed";
+  else if (booking.deliveryStatus === "out-for-delivery" || booking.status === "picked")
     stepKey = "in-progress";
-  } else if (
-    booking.status === "completed" ||
-    booking.deliveryStatus === "delivered"
-  ) {
+  else if (booking.status === "completed" || booking.deliveryStatus === "delivered")
     stepKey = "completed";
-  }
 
   const currentStep = statusSteps.indexOf(stepKey);
+
+  // ==========================
+  // Cancel Booking
+  // ==========================
+  const handleCancelBooking = async () => {
+    if (selectedReasons.length === 0) {
+      message.warning("Please select at least one reason");
+      return;
+    }
+
+    let reasonText = selectedReasons.join(", ");
+    if (selectedReasons.includes("Other")) {
+      if (!customReason.trim()) {
+        message.warning("Please enter a custom reason");
+        return;
+      }
+      reasonText = reasonText.replace("Other", customReason.trim());
+    }
+
+    try {
+      setLoadingCancel(true);
+      const token = localStorage.getItem("token");
+      const headers = { Authorization: `Bearer ${token}` };
+
+      await api.put(`/api/bookings/${booking._id}/cancel`, { reason: reasonText }, { headers });
+
+      setCancelModal(false);
+      setCancelSuccessModal(true);
+      setBooking({
+        ...booking,
+        status: "cancelled",
+        deliveryStatus: "cancelled",
+        cancelReason: reasonText,
+      });
+      setSelectedReasons([]);
+      setCustomReason("");
+    } catch (err) {
+      console.error(err);
+      message.error(err.response?.data?.error || "Failed to cancel booking");
+    } finally {
+      setLoadingCancel(false);
+    }
+  };
 
   return (
     <div className="booking-details-wrapper">
@@ -97,38 +149,138 @@ export default function UserBookingDetails() {
       </Button>
 
       {/* Hero Section */}
-      <Card className="hero-card" variant="default">
-        <div className="hero-left">
-          <Title level={4}>Booking #{booking.bookingId || booking._id}</Title>
-          <Tag
-            className="status-tag"
-            color={
-              booking.status === "completed" || booking.deliveryStatus === "delivered"
-                ? "green"
-                : booking.status === "cancelled"
-                ? "red"
-                : booking.status === "confirmed"
-                ? "blue"
-                : "gold"
-            }
-          >
-            {(booking.deliveryStatus || booking.status || "pending").toUpperCase()}
-          </Tag>
-        </div>
-        <div className="hero-right">
-          <Text className="total-price">₹{booking.totalAmount}</Text>
-          <Text type="secondary">{booking.paymentMethod || "—"}</Text>
-          <div className="hero-actions">
-            <Button icon={<FilePdfOutlined />}>Download Invoice</Button>
-            <Button danger icon={<StopOutlined />}>
-              Cancel Booking
-            </Button>
-          </div>
-        </div>
+      <Card className="hero-card" bordered>
+        <Row justify="space-between" align="middle">
+          <Col>
+            <Space direction="vertical" size={0}>
+              <Title level={4}>Booking #{booking.bookingId || booking._id}</Title>
+              <Tag
+                className="status-tag"
+                color={
+                  booking.status === "completed" || booking.deliveryStatus === "delivered"
+                    ? "green"
+                    : booking.status === "cancelled"
+                    ? "red"
+                    : booking.status === "confirmed"
+                    ? "blue"
+                    : "gold"
+                }
+              >
+                {(booking.deliveryStatus || booking.status || "pending").toUpperCase()}
+              </Tag>
+              {booking.status === "cancelled" && booking.cancelReason && (
+                <Text type="secondary">Reason: {booking.cancelReason}</Text>
+              )}
+            </Space>
+          </Col>
+          <Col>
+            <Space direction="vertical" align="end" size={2}>
+              <Text className="total-price">₹{booking.totalAmount}</Text>
+              <Text type="secondary">{booking.paymentMethod || "—"}</Text>
+              <Space>
+                <Button type="default" icon={<FilePdfOutlined />}>
+                  Invoice
+                </Button>
+                {booking.status !== "cancelled" && booking.status !== "completed" && (
+                  <Button danger icon={<StopOutlined />} onClick={() => setCancelModal(true)}>
+                    Cancel
+                  </Button>
+                )}
+              </Space>
+            </Space>
+          </Col>
+        </Row>
       </Card>
 
+      {/* Cancel Modal */}
+      <Modal
+        title="Cancel Booking"
+        open={cancelModal}
+        onCancel={() => setCancelModal(false)}
+        footer={null}
+        centered
+        bodyStyle={{ padding: 24 }}
+      >
+        <Text>Please select reason(s) for cancellation:</Text>
+        <div className="cancel-options-wrapper" style={{ marginTop: 16 }}>
+          {cancelOptions.map((reason) => (
+            <Button
+              key={reason}
+              type={selectedReasons.includes(reason) ? "primary" : "default"}
+              onClick={() => {
+                if (selectedReasons.includes(reason)) {
+                  setSelectedReasons(selectedReasons.filter((r) => r !== reason));
+                } else {
+                  setSelectedReasons([...selectedReasons, reason]);
+                }
+              }}
+              style={{
+                margin: 4,
+                minWidth: 140,
+                textAlign: "center",
+                display: "inline-block",
+              }}
+            >
+              {reason}
+            </Button>
+          ))}
+        </div>
+
+        {selectedReasons.includes("Other") && (
+          <Input.TextArea
+            rows={3}
+            placeholder="Enter your custom reason..."
+            value={customReason}
+            onChange={(e) => setCustomReason(e.target.value)}
+            style={{ marginTop: 16 }}
+          />
+        )}
+
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "flex-end",
+            marginTop: 24,
+            gap: 8,
+          }}
+        >
+          <Button onClick={() => setCancelModal(false)}>Close</Button>
+          <Button
+            type="primary"
+            danger
+            loading={loadingCancel}
+            onClick={handleCancelBooking}
+          >
+            Submit Cancellation
+          </Button>
+        </div>
+      </Modal>
+
+      {/* Success Modal */}
+      <Modal
+        title="Cancellation Successful"
+        open={cancelSuccessModal}
+        onOk={() => setCancelSuccessModal(false)}
+        cancelButtonProps={{ style: { display: "none" } }}
+        centered
+        bodyStyle={{ textAlign: "center", padding: 32 }}
+      >
+        <StopOutlined style={{ fontSize: 48, color: "#f5222d", marginBottom: 16 }} />
+        <Title level={4}>Your booking has been cancelled</Title>
+        <Text>Your cancellation has been received successfully.</Text>
+        <br />
+        <Text>Our team will contact you soon.</Text>
+        <br />
+        <Text>Your payment will be refunded within 7 days.</Text>
+        <div style={{ marginTop: 24 }}>
+          <Button type="primary" onClick={() => setCancelSuccessModal(false)}>
+            OK
+          </Button>
+        </div>
+      </Modal>
+
       {/* Order Progress */}
-      <Card className="progress-card" variant="default">
+      <Card className="progress-card" bordered>
         <Steps size="small" current={currentStep >= 0 ? currentStep : 0} responsive>
           <Step title="Pending" />
           <Step title="Confirmed" />
@@ -137,61 +289,71 @@ export default function UserBookingDetails() {
         </Steps>
       </Card>
 
+      {/* Main Content */}
       <Row gutter={[16, 16]} className="content-row">
-        {/* Left: Products */}
-        <Col xs={24} md={16}>
-          <Card className="section-card" variant="default">
+        {/* Products */}
+        <Col xs={24} lg={16}>
+          <Card className="section-card" bordered>
             <Divider orientation="left">Products</Divider>
             <div className="services-list">
-              {booking.products?.map((p) => {
-                const product = p.productId || {};
-                const img = product.image || product.images?.[0] || "";
-                const name = product.name || "Product";
-                const price = product.price || 0;
-                const qty = p.quantity || 1;
+              {booking.products?.length > 0 ? (
+                booking.products.map((p) => {
+                  const product = p.productId || {};
+                  const img = product.image || product.images?.[0] || "";
+                  const name = product.name || "Product";
+                  const price = product.price || 0;
+                  const qty = p.quantity || 1;
 
-                return (
-                  <Card key={p._id} className="service-card" variant="outlined">
-                    <Avatar
-                      shape="square"
-                      size={80}
-                      src={img}
-                      icon={!img && <UserOutlined />}
-                    />
-                    <div className="service-info">
-                      <Text strong>{name}</Text>
-                      <Tag color="blue">Product</Tag>
-                      <Text type="secondary">Qty: {qty}</Text>
-                      <Text>₹{price}</Text>
-                    </div>
-                  </Card>
-                );
-              })}
+                  return (
+                    <Card key={p._id} className="service-card" size="small" bordered>
+                      <Row gutter={12} align="middle">
+                        <Col>
+                          <Avatar
+                            shape="square"
+                            size={80}
+                            src={img}
+                            icon={!img && <ShoppingOutlined />}
+                          />
+                        </Col>
+                        <Col flex="auto">
+                          <Space direction="vertical" size={0}>
+                            <Text strong>{name}</Text>
+                            <Tag color="blue">Product</Tag>
+                            <Text type="secondary">Qty: {qty}</Text>
+                            <Text>₹{price}</Text>
+                          </Space>
+                        </Col>
+                      </Row>
+                    </Card>
+                  );
+                })
+              ) : (
+                <Text type="secondary">No products found</Text>
+              )}
             </div>
           </Card>
         </Col>
 
-        {/* Right: Customer Info & Assigned Partner */}
-        <Col xs={24} md={8}>
-          <Card className="section-card" variant="default">
+        {/* Customer Info & Partner */}
+        <Col xs={24} lg={8}>
+          <Card className="section-card" bordered>
             <Divider orientation="left">Customer Info</Divider>
-            <Text strong>{booking.user?.name || booking.name}</Text>
-            <br />
-            <Text>{booking.user?.email || booking.email}</Text>
-            <br />
-            <Text>{booking.user?.phone || booking.phone}</Text>
-            <br />
-            <Text>{booking.address || "-"}</Text>
+            <Space direction="vertical" size={4}>
+              <Text strong>{booking.user?.name || booking.name}</Text>
+              <Text>{booking.user?.email || booking.email}</Text>
+              <Text>{booking.user?.phone || booking.phone}</Text>
+              <Text>{booking.address || "-"}</Text>
+            </Space>
           </Card>
 
           {booking.assignedTo && (
-            <Card className="section-card" variant="default">
+            <Card className="section-card" bordered>
               <Divider orientation="left">Assigned Partner</Divider>
-              <Text strong>{booking.assignedTo.name}</Text>
-              <br />
-              <Text>{booking.assignedTo.email}</Text>
-              <br />
-              <Text>{booking.assignedTo.phone}</Text>
+              <Space direction="vertical" size={4}>
+                <Text strong>{booking.assignedTo.name}</Text>
+                <Text>{booking.assignedTo.email}</Text>
+                <Text>{booking.assignedTo.phone}</Text>
+              </Space>
             </Card>
           )}
         </Col>
