@@ -7,7 +7,6 @@ import {
   InputNumber,
   Select,
   Upload,
-  message,
   Table,
   Dropdown,
   Menu,
@@ -22,6 +21,8 @@ import {
 } from "@ant-design/icons";
 import api from "../../../../api";
 import "./servicepage.css";
+import toast from "react-hot-toast";
+
 const { Panel } = Collapse;
 
 export default function ProductsPage() {
@@ -29,11 +30,14 @@ export default function ProductsPage() {
   const [categories, setCategories] = useState([]);
   const [subCategories, setSubCategories] = useState([]);
   const [brands, setBrands] = useState([]);
+  const [filteredSubCategories, setFilteredSubCategories] = useState([]);
+  const [filteredBrands, setFilteredBrands] = useState([]);
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
-  const [form] = Form.useForm();
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+
+  const [form] = Form.useForm();
 
   useEffect(() => {
     (async () => {
@@ -73,6 +77,33 @@ export default function ProductsPage() {
 
   const normalizeUpload = (e) => (Array.isArray(e) ? e : e?.fileList || []);
 
+  // ---------------------------
+  // Handle dropdown changes
+  // ---------------------------
+  const handleCategoryChange = (categoryId) => {
+    const filteredSC = subCategories.filter(
+      (sc) => sc.category?._id === categoryId || sc.category === categoryId
+    );
+    setFilteredSubCategories(filteredSC);
+    form.setFieldsValue({ subCategory: undefined, brand: undefined });
+    setFilteredBrands([]);
+  };
+
+  const handleSubCategoryChange = (subCategoryId) => {
+    const filteredB = brands.filter((b) =>
+      Array.isArray(b.subCategories)
+        ? b.subCategories.some(
+            (id) => id === subCategoryId || id?._id === subCategoryId
+          )
+        : false
+    );
+    setFilteredBrands(filteredB);
+    form.setFieldsValue({ brand: undefined });
+  };
+
+  // ---------------------------
+  // Save Product
+  // ---------------------------
   const handleSave = async () => {
     try {
       setSaving(true);
@@ -82,7 +113,10 @@ export default function ProductsPage() {
       Object.keys(values).forEach((key) => {
         if (["moreInformation"].includes(key)) {
           formData.append(key, JSON.stringify(values[key] || {}));
-        } else if (values[key] instanceof Array || typeof values[key] === "object") {
+        } else if (
+          values[key] instanceof Array ||
+          typeof values[key] === "object"
+        ) {
           if (key !== "images" && key !== "mainImage") {
             formData.append(key, JSON.stringify(values[key] || {}));
           }
@@ -102,33 +136,40 @@ export default function ProductsPage() {
         const existing = editingItem.images || [];
         formData.append("existingImages", JSON.stringify(existing));
         await api.put(`/api/admin/products/${editingItem._id}`, formData);
-        message.success("✅ Product updated successfully");
+        toast.success("✅ Product updated successfully");
       } else {
         await api.post("/api/admin/products", formData);
-        message.success("✅ Product added successfully");
+        toast.success("✅ Product added successfully");
       }
 
       setDrawerOpen(false);
       setEditingItem(null);
       form.resetFields();
+      setFilteredSubCategories([]);
+      setFilteredBrands([]);
       fetchProducts();
     } catch (err) {
       console.error(err);
-      message.error("❌ Error saving product");
+      toast.error("❌ Error saving product");
     } finally {
       setSaving(false);
     }
   };
 
+  // ---------------------------
+  // Delete Product
+  // ---------------------------
   const handleDelete = async (id) => {
     await api.delete(`/api/admin/products/${id}`);
-    message.success("🗑️ Product deleted!");
+    toast.success("🗑️ Product deleted!");
     fetchProducts();
   };
 
+  // ---------------------------
+  // Table columns
+  // ---------------------------
   const columns = [
     { title: "S.No", render: (_, __, index) => index + 1 },
-
     {
       title: "Images",
       render: (_, record) => {
@@ -146,28 +187,27 @@ export default function ProductsPage() {
             ) : (
               <span className="text-gray-400">No Main Image</span>
             )}
-            {allImages.length > 0 && (
-              <>
-                {allImages.map((img, idx) => (
-                  <img
-                    key={idx}
-                    src={img}
-                    alt={`img-${idx}`}
-                    className="product-image"
-                    onClick={() => window.open(img, "_blank")}
-                  />
-                ))}
-              </>
-            )}
+            {allImages.length > 0 &&
+              allImages.map((img, idx) => (
+                <img
+                  key={idx}
+                  src={img}
+                  alt={`img-${idx}`}
+                  className="product-image"
+                  onClick={() => window.open(img, "_blank")}
+                />
+              ))}
           </div>
         );
       },
     },
-
     { title: "Name", dataIndex: "name" },
     { title: "Price", dataIndex: "price" },
     { title: "Status", dataIndex: "status" },
     { title: "Stock", dataIndex: "stock" },
+    { title: "Category", render: (_, r) => r.category?.name || "—" },
+    { title: "SubCategory", render: (_, r) => r.subCategory?.name || "—" },
+    { title: "Brand", render: (_, r) => r.brand?.name || "—" },
     {
       title: "Actions",
       render: (_, record) => {
@@ -178,6 +218,26 @@ export default function ProductsPage() {
               icon={<EditOutlined />}
               onClick={() => {
                 setEditingItem(record);
+
+                // Filter subcategories & brands for existing product
+                const filteredSC = subCategories.filter(
+                  (sc) =>
+                    sc.category?._id === record.category?._id ||
+                    sc.category === record.category?._id
+                );
+                setFilteredSubCategories(filteredSC);
+
+                const filteredB = brands.filter((b) =>
+                  Array.isArray(b.subCategories)
+                    ? b.subCategories.some(
+                        (id) =>
+                          id === record.subCategory?._id ||
+                          id?._id === record.subCategory?._id
+                      )
+                    : false
+                );
+                setFilteredBrands(filteredB);
+
                 form.setFieldsValue({
                   ...record,
                   category: record.category?._id,
@@ -234,6 +294,8 @@ export default function ProductsPage() {
           onClick={() => {
             setEditingItem(null);
             form.resetFields();
+            setFilteredSubCategories([]);
+            setFilteredBrands([]);
             setDrawerOpen(true);
           }}
         >
@@ -272,21 +334,38 @@ export default function ProductsPage() {
       >
         <Form form={form} layout="vertical">
           <Collapse defaultActiveKey={["1"]} ghost>
+            {/* Basic Info */}
             <Panel header="Basic Info" key="1">
-              <Form.Item name="name" label="Product Name" rules={[{ required: true }]}>
+              <Form.Item
+                name="name"
+                label="Product Name"
+                rules={[{ required: true }]}
+              >
                 <Input />
               </Form.Item>
               <Form.Item name="description" label="Description">
                 <Input.TextArea rows={3} />
               </Form.Item>
-              <Form.Item name="price" label="Price" rules={[{ required: true }]}>
+              <Form.Item
+                name="price"
+                label="Price"
+                rules={[{ required: true }]}
+              >
                 <InputNumber style={{ width: "100%" }} />
               </Form.Item>
               <Form.Item name="discount" label="Discount (%)">
                 <InputNumber min={0} max={100} style={{ width: "100%" }} />
               </Form.Item>
-              <Form.Item name="category" label="Category" rules={[{ required: true }]}>
-                <Select placeholder="Select category">
+
+              <Form.Item
+                name="category"
+                label="Category"
+                rules={[{ required: true }]}
+              >
+                <Select
+                  placeholder="Select category"
+                  onChange={handleCategoryChange}
+                >
                   {categories.map((c) => (
                     <Select.Option key={c._id} value={c._id}>
                       {c.name}
@@ -294,18 +373,23 @@ export default function ProductsPage() {
                   ))}
                 </Select>
               </Form.Item>
+
               <Form.Item name="subCategory" label="SubCategory">
-                <Select placeholder="Select subcategory">
-                  {subCategories.map((sc) => (
+                <Select
+                  placeholder="Select subcategory"
+                  onChange={handleSubCategoryChange}
+                >
+                  {filteredSubCategories.map((sc) => (
                     <Select.Option key={sc._id} value={sc._id}>
                       {sc.name}
                     </Select.Option>
                   ))}
                 </Select>
               </Form.Item>
+
               <Form.Item name="brand" label="Brand">
                 <Select placeholder="Select brand">
-                  {brands.map((b) => (
+                  {filteredBrands.map((b) => (
                     <Select.Option key={b._id} value={b._id}>
                       {b.name}
                     </Select.Option>
@@ -314,6 +398,7 @@ export default function ProductsPage() {
               </Form.Item>
             </Panel>
 
+            {/* Images Panel */}
             <Panel header="Images" key="2">
               <Form.Item
                 name="mainImage"
@@ -321,7 +406,11 @@ export default function ProductsPage() {
                 valuePropName="fileList"
                 getValueFromEvent={normalizeUpload}
               >
-                <Upload listType="picture-card" beforeUpload={() => false} maxCount={1}>
+                <Upload
+                  listType="picture-card"
+                  beforeUpload={() => false}
+                  maxCount={1}
+                >
                   <Button icon={<UploadOutlined />}>Upload Main Image</Button>
                 </Upload>
               </Form.Item>
@@ -331,12 +420,18 @@ export default function ProductsPage() {
                 valuePropName="fileList"
                 getValueFromEvent={normalizeUpload}
               >
-                <Upload listType="picture" beforeUpload={() => false} multiple maxCount={12}>
+                <Upload
+                  listType="picture"
+                  beforeUpload={() => false}
+                  multiple
+                  maxCount={12}
+                >
                   <Button icon={<UploadOutlined />}>Upload Images</Button>
                 </Upload>
               </Form.Item>
             </Panel>
 
+            {/* More Info */}
             <Panel header="More Info" key="3">
               <Form.Item label="Dimensions">
                 <Form.Item name={["moreInformation", "dimensions"]} noStyle>
@@ -354,12 +449,16 @@ export default function ProductsPage() {
                 </Form.Item>
               </Form.Item>
               <Form.Item label="Assembly Details">
-                <Form.Item name={["moreInformation", "assemblyDetails"]} noStyle>
+                <Form.Item
+                  name={["moreInformation", "assemblyDetails"]}
+                  noStyle
+                >
                   <Input placeholder="Assembly Details" />
                 </Form.Item>
               </Form.Item>
             </Panel>
 
+            {/* Stock & SKU */}
             <Panel header="Stock & SKU" key="4">
               <Form.Item name="stock" label="Stock">
                 <InputNumber min={0} style={{ width: "100%" }} />
@@ -374,8 +473,12 @@ export default function ProductsPage() {
                 <Select>
                   <Select.Option value="Normal">Normal</Select.Option>
                   <Select.Option value="New Arrival">New Arrival</Select.Option>
-                  <Select.Option value="Best Selling">Best Selling</Select.Option>
-                  <Select.Option value="Out of Stock">Out of Stock</Select.Option>
+                  <Select.Option value="Best Selling">
+                    Best Selling
+                  </Select.Option>
+                  <Select.Option value="Out of Stock">
+                    Out of Stock
+                  </Select.Option>
                 </Select>
               </Form.Item>
             </Panel>

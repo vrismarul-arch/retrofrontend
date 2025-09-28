@@ -1,3 +1,4 @@
+// src/components/ResponsiveNavbar.jsx
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
@@ -29,39 +30,40 @@ const ResponsiveNavbar = () => {
   const [user, setUser] = useState(null);
   const [animateBadge, setAnimateBadge] = useState(false);
   const [drawerVisible, setDrawerVisible] = useState(false);
-
   const [hideMobileNav, setHideMobileNav] = useState(false);
   const [lastScrollY, setLastScrollY] = useState(0);
 
   const navigate = useNavigate();
   const { cart, fetchCart, lastUpdated } = useCart();
-
   const totalCartQuantity = cart.reduce((sum, item) => sum + (item.quantity || 0), 0);
 
-  // ------------------ HANDLE RESIZE ------------------
+  // HANDLE RESIZE
   useEffect(() => {
     const handleResize = () => setIsMobile(window.innerWidth <= 768);
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // ------------------ CART BADGE ANIMATION ------------------
+  // CART BADGE ANIMATION
   useEffect(() => {
     if (cart.length >= 0) {
       setAnimateBadge(true);
       const timer = setTimeout(() => setAnimateBadge(false), 600);
-      return () => clearTimeout(timer);
+      return () => clearTimeout(timer); // cleanup
     }
   }, [lastUpdated]);
 
-  // ------------------ FETCH CART ------------------
+  // FETCH CART
   useEffect(() => {
-    fetchCart();
+    async function fetchCartData() {
+      await fetchCart();
+    }
+    fetchCartData();
   }, []);
 
-  // ------------------ FETCH USER PROFILE ------------------
+  // FETCH USER PROFILE
   useEffect(() => {
-    const fetchUserProfile = async () => {
+    async function fetchUserProfile() {
       try {
         const userId = localStorage.getItem("userId");
         if (userId && localStorage.getItem("token")) {
@@ -78,11 +80,10 @@ const ResponsiveNavbar = () => {
         console.error("Failed to fetch user profile:", err);
         message.error("Could not load profile.");
       }
-    };
+    }
     fetchUserProfile();
   }, []);
 
-  // ------------------ LOGOUT ------------------
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("userId");
@@ -104,7 +105,7 @@ const ResponsiveNavbar = () => {
   const showDrawer = () => setDrawerVisible(true);
   const closeDrawer = () => setDrawerVisible(false);
 
-  // ------------------ HIDE MOBILE NAV ON SCROLL ------------------
+  // HIDE MOBILE NAV ON SCROLL
   useEffect(() => {
     const handleScroll = () => {
       if (window.scrollY > lastScrollY && window.scrollY > 50) {
@@ -118,7 +119,7 @@ const ResponsiveNavbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, [lastScrollY]);
 
-  // ------------------- MOBILE NAVBAR -------------------
+  // MOBILE NAVBAR
   if (isMobile) {
     return (
       <>
@@ -166,13 +167,13 @@ const ResponsiveNavbar = () => {
           visible={drawerVisible}
           bodyStyle={{ padding: 0 }}
         >
-          <MegaMenu mobile />
+          <MegaMenu mobile onLinkClick={closeDrawer} />
         </Drawer>
       </>
     );
   }
 
-  // ------------------- DESKTOP NAVBAR -------------------
+  // DESKTOP NAVBAR
   return (
     <>
       <div className="desktop-navbar">

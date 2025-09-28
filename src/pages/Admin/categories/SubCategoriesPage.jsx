@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   Upload,
-  message,
   Dropdown,
   Menu,
   Select,
@@ -20,6 +19,7 @@ import {
   DeleteOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast"; // ✅ import toast
 import api from "../../../../api";
 import "./categories.css";
 
@@ -39,13 +39,23 @@ export default function SubCategoriesPage() {
   }, []);
 
   const fetchCategories = async () => {
-    const res = await api.get("/api/admin/categories");
-    setCategories(res.data);
+    try {
+      const res = await api.get("/api/admin/categories");
+      setCategories(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch categories");
+    }
   };
 
   const fetchSubCategories = async () => {
-    const res = await api.get("/api/admin/subcategories");
-    setSubCategories(res.data);
+    try {
+      const res = await api.get("/api/admin/subcategories");
+      setSubCategories(res.data);
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to fetch subcategories");
+    }
   };
 
   const handleSave = async () => {
@@ -60,10 +70,10 @@ export default function SubCategoriesPage() {
 
       if (editingItem) {
         await api.put(`/api/admin/subcategories/${editingItem._id}`, formData);
-        message.success("SubCategory updated!");
+        toast.success("SubCategory updated successfully!"); // ✅ toast
       } else {
         await api.post("/api/admin/subcategories", formData);
-        message.success("SubCategory added!");
+        toast.success("SubCategory added successfully!"); // ✅ toast
       }
 
       setIsDrawerOpen(false);
@@ -72,14 +82,19 @@ export default function SubCategoriesPage() {
       fetchSubCategories();
     } catch (err) {
       console.error(err);
-      message.error("Something went wrong!");
+      toast.error("Something went wrong while saving!"); // ✅ toast
     }
   };
 
   const handleDelete = async (id) => {
-    await api.delete(`/api/admin/subcategories/${id}`);
-    fetchSubCategories();
-    message.success("SubCategory deleted!");
+    try {
+      await api.delete(`/api/admin/subcategories/${id}`);
+      fetchSubCategories();
+      toast.success("SubCategory deleted successfully!"); // ✅ toast
+    } catch (err) {
+      console.error(err);
+      toast.error("Failed to delete subcategory"); // ✅ toast
+    }
   };
 
   return (
@@ -88,19 +103,21 @@ export default function SubCategoriesPage() {
         <h2 className="text-2xl font-bold text-gray-800">
           <AppstoreOutlined className="mr-2 text-blue-500" /> SubCategories
         </h2>
-       
       </div>
- <Button
-          type="primary"
-          size="large"
-          onClick={() => {
-            setIsDrawerOpen(true);
-            setEditingItem(null);
-            form.resetFields();
-          }}
-        >
-          + Add SubCategory
-        </Button>
+
+      <Button
+        type="primary"
+        size="large"
+        onClick={() => {
+          setIsDrawerOpen(true);
+          setEditingItem(null);
+          form.resetFields();
+        }}
+        className="mb-4"
+      >
+        + Add SubCategory
+      </Button>
+
       {/* ✅ Desktop Table | Mobile Cards */}
       {screens.md ? (
         <Table

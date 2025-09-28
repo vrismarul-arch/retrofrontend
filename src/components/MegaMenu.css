@@ -1,128 +1,88 @@
-  /* ===================== NAVBAR + MEGAMENU CONTAINER ===================== */
-  .mega-menu-container {
-    position: sticky; /* Sticky positioning */
-    top: 0;           /* Stick to top */
-    z-index: 1000;    /* Above other content */
-    background: #078d89;
-    font-family: 'Inter', sans-serif;
-    width: 100%;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-  }
+/* Desktop Mega Menu */
+.desktop-menu {
+  background: #078d89;
+  border-bottom: 1px solid #ddd;
+  font-family: 'Arial', sans-serif;
+  position: relative;
+}
 
-  /* ===================== DESKTOP MENU ===================== */
-  .mega-menu {
-    display: flex;
-    list-style: none;
-    margin: 0;
-    padding: 0 20px;
-  }
+.mega-menu {
+  display: flex;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
 
-  .mega-menu-item {
-    position: relative;
-    padding: 15px 20px;
-    cursor: pointer;
-    font-weight: 600;
-    color: #ecf0f1;
-    transition: color 0.2s ease;
-  }
+.mega-menu-item {
+  position: relative;
+  padding: 16px 20px;
+}
 
-  .mega-menu-item:hover {
-    color: #bdd572;
-  }
 
-  /* Mega Dropdown panel */
-  .mega-dropdown {
-    display: flex;
-    position: absolute;
-    top: 100%; /* Right below the menu item */
-    left: 0;
-    background: #078d89;
-    padding: 20px;
-    gap: 30px;
-    box-shadow: 0 6px 20px rgba(0,0,0,0.4);
-    opacity: 0;
-    visibility: hidden;
-    transform: translateY(10px);
-    transition: all 0.25s ease;
-    min-width: 300px;
-    z-index: 999; /* Ensure dropdown appears above content */
-  }
+.mega-menu-item:hover .mega-dropdown {
+  display: flex;
+}
 
-  .mega-menu-item:hover .mega-dropdown {
-    opacity: 1;
-    visibility: visible;
-    transform: translateY(0);
-  }
+.category-name {
+  font-weight: bold;
+  font-size: 1rem;
+  cursor: pointer;
+  color: #ffffff; /* black text */
+  transition: background 0.3s, color 0.3s;
+}
 
-  /* Dropdown columns */
-  .mega-column h4 {
-    margin-bottom: 10px;
-    font-size: 14px;
-    color: #ecf0f1;
-  }
+.mega-menu-item:hover .category-name {
+  background-color: #f0f0f0; 
+  padding: 12px;
+  border-top-left-radius: 30%;/* light gray/white highlight */
+  border-top-right-radius: 30%;/* light gray/white highlight */
+  color: #000000; /* keep text black */
+}
 
-  .mega-column a {
-    display: block;
-    margin: 5px 0;
-    text-decoration: none;
-    color: #f7fafc;
-    transition: color 0.2s ease;
-  }
 
-  .mega-column a:hover {
-    color: #bdd572;
-  }
+.mega-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #078d89;
+  padding: 20px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  gap: 32px;
+  z-index: 100;
+  min-width: 900px; /* wider to fit all columns */
+}
 
-  .mega-column .disabled {
-    color: #bdc3c7;
-    font-style: italic;
-  }
+.mega-column {
+  display: flex;
+  flex-direction: column;
+  min-width: 180px;
+}
 
-  /* ===================== MOBILE STYLES ===================== */
-  @media (max-width: 768px) {
-    .mega-menu-container {
-      display: none; /* Hide desktop menu */
-    }
+.subcategory-title {
+  font-size: 0.95rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  border-bottom: 1px solid #eee;
+  padding-bottom: 4px;
+}
 
-    .mobile-categories .ant-collapse {
-      background-color: #ffffff;
-      border: none;
-    }
+.mega-column ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
 
-    .mobile-categories .ant-collapse-item {
-      border-bottom: 1px solid #e0e0e0;
-    }
+.mega-column li {
+  margin-bottom: 6px;
+}
 
-    .mobile-categories .ant-collapse-header {
-      background-color: #ffffff !important;
-      font-weight: bold;
-      color: #ffffff !important;
-      padding: 15px 16px;
-    }
+.mega-column li a {
+  color: #ffffff;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
 
-    .mobile-categories .ant-collapse-content {
-      background-color: #f7f7f7 !important;
-      border-top: 1px solid #e0e0e0 !important;
-      color: #333;
-    }
-
-    .mobile-categories .ant-collapse-content-box p {
-      color: #333;
-      margin: 5px 0;
-    }
-
-    .mobile-categories .ant-collapse-content-box a {
-      color: #078d89;
-      text-decoration: none;
-    }
-
-    .mobile-categories .ant-collapse-content-box a:hover {
-      color: #bdd572;
-    }
-  }
-
-  /* Smooth transition */
-  .mega-dropdown,
-  .mega-menu-item {
-    transition: all 0.25s ease;
-  }
+.mega-column li a:hover {
+  color: #ffffff;
+}

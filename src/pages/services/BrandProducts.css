@@ -1,70 +1,101 @@
-/* ====== Container ====== */
-.category-services {
-  /* max-width: 1200px; */
-  margin: 40px auto;
-  padding: 0 20px;
+/* =========================
+   Layout
+   ========================= */
+.brand-layout {
+  display: flex;
+  gap: 24px;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 20px;
+  align-items: flex-start;
+}
+.home-title-hr {
+  width: 60px;                 /* length of the line */
+  height: 3px;                 /* thickness */
+  background-color: #078d89;   /* line color */
+  border: none;                /* remove default border */
+  margin: 0 0 20px 0;          /* top 0, right 0, bottom 20px, left 0 */
+  border-radius: 2px;          /* optional: rounded ends */
+}
+/* Sidebar - sticky & full height */
+.sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  border-radius: 16px;
+  padding: 16px;
+  height: 100vh;          /* full viewport height */
+  position: sticky;       /* sticky on scroll */
+  top: 0;
+  overflow-y: auto;       /* scroll if sidebar content exceeds height */
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  background: #fff;
+  z-index: 10;
+}
+.porduct-count{
+  color: #838383;font-family:'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  font-size:22px;
+}
+/* Main content - scrollable naturally */
+.main-content {
+  flex: 1;
+  min-width: 0;
 }
 
-/* ====== Brand Header ====== */
+/* =========================
+   Brand Header
+   ========================= */
 .category-header {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  margin-bottom: 40px;
+  text-align: left;
 }
 
 .brand-header-img {
-  width: 150px;
-  height: 150px;
+  width: 120px;
+  height: 120px;
   object-fit: cover;
   border-radius: 50%;
-  padding: 8px;
-  margin-bottom: 20px;
   border: 2px solid #f0f0f0;
-  background: #fff;
+  margin-bottom: 16px;
 }
 
 .category-title {
-  font-size: 2.5rem;
+  font-size: 1.8rem;
   font-weight: 700;
   color: #222;
-  letter-spacing: -0.5px;
 }
 
-/* ====== Product Grid ====== */
+/* =========================
+   Product Grid
+   ========================= */
 .service-grid {
-  margin-top: 50px;
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 28px;
-  justify-content: center;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 20px;
 }
 
-/* ====== Card Base ====== */
+/* =========================
+   Cards
+   ========================= */
 .service-card.modern-card {
   background: #fff;
-  border-radius: 18px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  border-radius: 14px;
+  box-shadow: 0 6px 16px rgba(0,0,0,0.06);
   display: flex;
   flex-direction: column;
   transition: all 0.3s ease;
-  overflow: hidden;
   border: 1px solid #f5f5f5;
+  overflow: hidden;
 }
 
 .service-card.modern-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.12);
+  transform: translateY(-5px);
+  box-shadow: 0 10px 22px rgba(0,0,0,0.12);
 }
 
-/* ====== Card Image Section ====== */
 .card-image-wrapper {
   position: relative;
   width: 100%;
-  height: 200px;
+  height: 180px;
   overflow: hidden;
-  border-bottom: 1px solid #f0f0f0;
 }
 
 .service-card-img {
@@ -75,140 +106,182 @@
 }
 
 .service-card.modern-card:hover .service-card-img {
-  transform: scale(1.08);
+  transform: scale(1.06);
 }
 
-/* Discount Badge */
 .discount-tag {
   position: absolute;
-  top: 12px;
-  left: 12px;
+  top: 10px;
+  left: 10px;
   background: #ff4d4f;
   color: #fff;
-  padding: 4px 10px;
-  border-radius: 20px;
-  font-size: 0.8rem;
+  padding: 3px 8px;
+  border-radius: 16px;
+  font-size: 0.75rem;
   font-weight: bold;
-  box-shadow: 0 2px 6px rgba(0,0,0,0.2);
 }
 
-/* ====== Card Content ====== */
 .service-card-info {
+  padding: 14px;
   display: flex;
   flex-direction: column;
   flex-grow: 1;
 }
 
 .service-title {
-  font-size: 1.2rem;
+  font-size: 1rem;
   font-weight: 600;
+  margin-bottom: 4px;
   color: #333;
-  margin-bottom: 6px;
-  line-height: 1.3;
 }
 
 .product-description {
-  font-size: 0.9rem;
+  font-size: 0.85rem;
   color: #666;
-  margin-bottom: 12px;
-  line-height: 1.5;
+  margin-bottom: 10px;
+  line-height: 1.4;
 }
 
-/* ====== Price Section ====== */
 .price-section {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
   margin-top: auto;
 }
 
 .price {
   font-weight: 700;
-  font-size: 1.3rem;
+  font-size: 1.1rem;
   color: #1890ff;
 }
 
 .old-price {
   text-decoration: line-through;
   color: #999;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
 }
 
-/* ====== Action Buttons ====== */
 .action-buttons {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  justify-content: space-between;
+  gap: 8px;
+  margin-top: 12px;
 }
 
-.action-buttons .ant-btn {
-  font-weight: 500;
-}
-
-/* Eye Icon (View Details) */
-.action-buttons .ant-btn-circle {
-  border: 1px solid #d9d9d9;
-  background: #fafafa;
-  transition: all 0.2s;
-}
-
-.action-buttons .ant-btn-circle:hover {
-  background: #e6f7ff;
-  border-color: #1890ff;
-  color: #1890ff;
-}
-
-/* ====== Empty State ====== */
+/* No products message */
 .no-products-message {
   font-size: 1.2rem;
   color: #888;
   text-align: center;
   grid-column: 1 / -1;
-  margin-top: 30px;
+  margin-top: 20px;
 }
 
-/* ====== Skeleton Styles ====== */
-.service-card.skeleton-card {
-  padding: 0;
-  border: none;
-  box-shadow: none;
-  background: none;
+/* Loading screen */
+.loading-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 60vh;
 }
 
-.ant-skeleton-image.skeleton-image {
-  width: 100% !important;
-  height: 200px !important;
-  border-radius: 12px 12px 0 0;
-  margin-bottom: 0;
-}
-
-.skeleton-content {
-  padding: 18px;
-  width: 100%;
-}
-.retrowoods-img {
-  width: 100%;
-  height: auto;
-  max-height: 400px; /* Default for desktop */
-  object-fit: contain;
-  display: block;
-  margin: 0 auto;
-  border-radius: 12px; /* Optional */
-}
-
-/* Tablet adjustments */
+/* =========================
+   Responsive adjustments
+   ========================= */
 @media (max-width: 1024px) {
-  .retrowoods-img {
-    max-height: 300px;
+  .brand-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    position: relative;
+    height: auto;
+    max-height: none;
+    overflow-y: visible;
+    margin-bottom: 12px;
   }
 }
 
-/* Mobile adjustments */
-@media (max-width: 600px) {
-  .retrowoods-img {
-    max-height: 200px;  /* smaller height for mobiles */
-    border-radius: 8px; /* softer corners */
-    padding: 0 10px;    /* a little breathing space */
+@media (max-width: 768px) {
+  .service-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .service-card.modern-card {
+    border-radius: 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .category-header h1  {
+    font-size: 20px;
+  }
+  .category-header h1 span {
+    font-size: 15px;
+  }
+  .service-grid {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+  .brand-header-img {
+    width: 90px;
+    height: 90px;
+  }
+  .category-title {
+    font-size: 1.4rem;
+  }
+}
+/* Layout container */
+.brand-layout {
+  display: flex;
+  gap: 20px; /* spacing between sidebar and main content */
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+  align-items: flex-start;
+}
+
+/* Sticky sidebar */
+.sidebar {
+  width: 250px;
+  min-width: 250px;
+  position: sticky;
+  top: 20px; /* stays in view while scrolling */
+  height: fit-content;
+  padding: 16px;
+  border-radius: 16px;
+  background: #fff;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+  z-index: 10;
+  overflow-y: auto;
+}
+
+/* Main content scrollable */
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  min-width: 0;
+  max-height: calc(100vh - 40px); /* full height minus padding */
+  overflow-y: auto;
+}
+
+/* Responsive adjustments */
+@media (max-width: 1024px) {
+  .brand-layout {
+    flex-direction: column;
+  }
+  .sidebar {
+    width: 100%;
+    min-width: 100%;
+    position: relative;
+    top: 0;
+    margin-bottom: 12px;
+  }
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    max-height: none;
   }
 }

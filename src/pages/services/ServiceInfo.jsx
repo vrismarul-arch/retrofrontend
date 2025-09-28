@@ -1,28 +1,17 @@
-  import React from "react";
-  import "./ServiceInfo.css";
-  import { FaShippingFast, FaTools, FaShieldAlt, FaRedoAlt } from "react-icons/fa";
+import React from "react";
+import "./ServiceInfo.css";
+import { FaShippingFast, FaTools, FaShieldAlt, FaRedoAlt } from "react-icons/fa";
 
-  export default function ServiceInfo() {
-    const services = [
-      {
-        icon: <FaShippingFast size={36} color="#008b8b" />,
-        title: "Free Shipping",
-      },
-      {
-        icon: <FaTools size={36} color="#008b8b" />,
-        title: "Installation",
-      },
-      {
-        icon: <FaShieldAlt size={36} color="#008b8b" />,
-        title: "Secure Payment",
-      },
-      {
-        icon: <FaRedoAlt size={36} color="#008b8b" />,
-        title: "5-day Replacement",
-      },
-    ];
+export default function ServiceInfo() {
+  const services = [
+    { icon: <FaShippingFast />, title: "Free Shipping" },
+    { icon: <FaTools />, title: "Installation" },
+    { icon: <FaShieldAlt />, title: "Secure Payment" },
+    { icon: <FaRedoAlt />, title: "5-day Replacement" },
+  ];
 
-    return (
+  return (
+    <section className="service-info-section">
       <div className="service-info-container">
         {services.map((s, i) => (
           <div className="service-info-card" key={i}>
@@ -31,5 +20,6 @@
           </div>
         ))}
       </div>
-    );
-  }
+    </section>
+  );
+}

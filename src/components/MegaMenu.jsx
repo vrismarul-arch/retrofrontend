@@ -1,13 +1,41 @@
 import React, { useState, useEffect } from "react";
-import { Collapse } from "antd";
 import { Link } from "react-router-dom";
+import { Collapse, Spin } from "antd";
 import api from "../../api";
 import "./MegaMenu.css";
 
 const { Panel } = Collapse;
 
-const MegaMenu = ({ mobile = false }) => {
+// Reusable component for mobile subcategory + brands
+const MobileSubcategory = ({ sub, onLinkClick }) => {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <div className="mobile-subcategory">
+      <div
+        className="mobile-subcategory-header"
+        onClick={() => setOpen(!open)}
+      >
+        {sub.name} {sub.brands.length > 0 && <span>{open ? "▲" : "▼"}</span>}
+      </div>
+      {open && sub.brands.length > 0 && (
+        <ul className="mobile-brands">
+          {sub.brands.map((brand) => (
+            <li key={brand._id}>
+              <Link to={`/brands/${brand._id}`} onClick={onLinkClick}>
+                {brand.name}
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+};
+
+const MegaMenuFull = ({ mobile = false, onLinkClick }) => {
   const [menuData, setMenuData] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchMenuData = async () => {
@@ -22,10 +50,9 @@ const MegaMenu = ({ mobile = false }) => {
         const subcategories = subRes.data;
         const brands = brandRes.data;
 
-        // Build menu structure: subcategories with their brands
         const menu = categories.map((cat) => {
           const subs = subcategories
-            .filter((sub) => sub.category && sub.category._id === cat._id)
+            .filter((sub) => sub.category?._id === cat._id)
             .map((sub) => ({
               ...sub,
               brands: brands.filter((brand) =>
@@ -38,49 +65,59 @@ const MegaMenu = ({ mobile = false }) => {
         setMenuData(menu);
       } catch (err) {
         console.error("Failed to fetch menu data:", err);
+      } finally {
+        setLoading(false);
       }
     };
-
     fetchMenuData();
   }, []);
 
-  // -------- MOBILE MENU --------
+  const handleLinkClick = () => {
+    if (onLinkClick) onLinkClick();
+  };
+
+if (loading) 
+  return (
+    <div style={{ textAlign: "center", marginTop: "2rem", fontSize: "1.2rem" }}>
+      Loading...
+    </div>
+  );
+
+  // -------- MOBILE VIEW --------
   if (mobile) {
     return (
-      <div className="mobile-categories">
-        <Collapse accordion>
-          {menuData.length === 0 && <Panel header="No Categories" key="empty" />}
-          {menuData.map((cat) => (
+      <div className="mobile-menu">
+        {menuData.length === 0 && <p>No Categories</p>}
+        {menuData.map((cat) => (
+          <Collapse
+            key={cat._id}
+            bordered={false}
+            accordion
+            expandIconPosition="end"
+          >
             <Panel header={cat.name} key={cat._id}>
               {cat.subcategories.length === 0 ? (
                 <p>No subcategories</p>
               ) : (
                 cat.subcategories.map((sub) => (
-                  <Collapse key={sub._id} className="mobile-subcategory-collapse">
-                    <Panel header={sub.name}>
-                      <Link to={`/subcategories/${sub._id}`}>View Products</Link>
-                      {sub.brands.length > 0 &&
-                        sub.brands.map((brand) => (
-                          <p key={brand._id}>
-                            <Link to={`/brands/${brand._id}`}>{brand.name}</Link>
-                          </p>
-                        ))}
-                    </Panel>
-                  </Collapse>
+                  <MobileSubcategory
+                    key={sub._id}
+                    sub={sub}
+                    onLinkClick={handleLinkClick}
+                  />
                 ))
               )}
             </Panel>
-          ))}
-        </Collapse>
+          </Collapse>
+        ))}
       </div>
     );
   }
 
-  // -------- DESKTOP MENU --------
+  // -------- DESKTOP VIEW --------
   return (
-    <div className="mega-menu-container">
+     <div className="desktop-menu">
       <ul className="mega-menu">
-        {menuData.length === 0 && <li className="mega-menu-item">No Categories</li>}
         {menuData.map((cat) => (
           <li className="mega-menu-item" key={cat._id}>
             <span className="category-name">{cat.name}</span>
@@ -88,18 +125,24 @@ const MegaMenu = ({ mobile = false }) => {
               <div className="mega-dropdown">
                 {cat.subcategories.map((sub) => (
                   <div className="mega-column" key={sub._id}>
-                    <Link to={`/subcategories/${sub._id}`}>
-                      <h4>{sub.name}</h4>
-                    </Link>
-                    {sub.brands.length === 0 ? (
-                      <span className="disabled">No Brands</span>
-                    ) : (
-                      sub.brands.map((brand) => (
-                        <Link to={`/brands/${brand._id}`} key={brand._id}>
-                          {brand.name}
-                        </Link>
-                      ))
-                    )}
+                    <h4 className="subcategory-title">
+                      <Link to={`/subcategories/${sub._id}`}>
+                        {sub.name}
+                      </Link>
+                    </h4>
+                    <ul>
+                      {sub.brands.length === 0 ? (
+                        <li className="disabled">No Items</li>
+                      ) : (
+                        sub.brands.map((brand) => (
+                          <li key={brand._id}>
+                            <Link to={`/brands/${brand._id}`} onClick={handleLinkClick}>
+                              {brand.name}
+                            </Link>
+                          </li>
+                        ))
+                      )}
+                    </ul>
                   </div>
                 ))}
               </div>
@@ -111,4 +154,4 @@ const MegaMenu = ({ mobile = false }) => {
   );
 };
 
-export default MegaMenu;
+export default MegaMenuFull;

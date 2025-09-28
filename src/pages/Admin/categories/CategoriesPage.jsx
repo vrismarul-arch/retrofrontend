@@ -6,7 +6,6 @@ import {
   Form,
   Input,
   Upload,
-  message,
   Dropdown,
   Menu,
   Tabs,
@@ -22,6 +21,7 @@ import {
   AppstoreOutlined,
   TagsOutlined,
 } from "@ant-design/icons";
+import toast from "react-hot-toast"; // ✅ Import toast
 import api from "../../../../api";
 import "./categories.css";
 import SubCategoriesPage from "./SubCategoriesPage";
@@ -47,6 +47,7 @@ export default function CategoriesPage() {
       setCategories(res.data);
     } catch (err) {
       console.error(err);
+      toast.error("Failed to fetch categories");
     }
   };
 
@@ -62,10 +63,10 @@ export default function CategoriesPage() {
 
       if (editingItem) {
         await api.put(`/api/admin/categories/${editingItem._id}`, formData);
-        message.success("Category updated!");
+        toast.success("Category updated successfully!"); // ✅ toast
       } else {
         await api.post("/api/admin/categories", formData);
-        message.success("Category added!");
+        toast.success("Category added successfully!"); // ✅ toast
       }
 
       setIsDrawerOpen(false);
@@ -74,7 +75,7 @@ export default function CategoriesPage() {
       fetchCategories();
     } catch (err) {
       console.error(err);
-      message.error("Something went wrong!");
+      toast.error("Something went wrong!"); // ✅ toast
     }
   };
 
@@ -82,9 +83,9 @@ export default function CategoriesPage() {
     try {
       await api.delete(`/api/admin/categories/${id}`);
       fetchCategories();
-      message.success("Category deleted!");
+      toast.success("Category deleted successfully!"); // ✅ toast
     } catch (err) {
-      message.error("Delete failed!");
+      toast.error("Delete failed!"); // ✅ toast
     }
   };
 
@@ -100,26 +101,23 @@ export default function CategoriesPage() {
           }
           key="categories"
         >
-     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
-  <h2 className="text-2xl font-bold text-gray-800">
-    <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
-  </h2>
-  <Button
-    type="primary"
-    size="large"
-    onClick={() => {
-      setIsDrawerOpen(true);
-      setEditingItem(null);
-      form.resetFields();
-    }}
-  >
-    + Add Category
-  </Button>
-</div>
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-4 gap-2 sm:gap-0">
+            <h2 className="text-2xl font-bold text-gray-800">
+              <FolderOpenOutlined className="mr-2 text-yellow-500" /> Categories
+            </h2>
+            <Button
+              type="primary"
+              size="large"
+              onClick={() => {
+                setIsDrawerOpen(true);
+                setEditingItem(null);
+                form.resetFields();
+              }}
+            >
+              + Add Category
+            </Button>
+          </div>
 
-          
-
-          {/* ✅ Desktop Table | Mobile Cards */}
           {screens.md ? (
             <Table
               dataSource={categories}
