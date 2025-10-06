@@ -186,11 +186,16 @@ const ResponsiveNavbar = () => {
         </div>
 
         <div className="nav-right">
-          <Link to="/cart" className="nav-link">
-            <Badge count={totalCartQuantity} offset={[0, 0]} showZero={false} className={animateBadge ? "badge-pulse" : ""}>
-              <ShoppingCartOutlined className="nav-icon" />
-            </Badge>
-          </Link>
+         <Link to="/cart" className="nav-link">
+  <Badge
+    count={totalCartQuantity}
+    showZero={false}
+    className={`custom-badge ${animateBadge ? "badge-pulse" : ""}`}
+  >
+    <ShoppingCartOutlined className="nav-icon" />
+  </Badge>
+</Link>
+
 
           {!isLoggedIn ? (
             <Link to="/login" className="nav-link">

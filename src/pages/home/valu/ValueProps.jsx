@@ -1,35 +1,17 @@
 import React from "react";
 import "./ValueProps.css";
-import {
-  UsergroupAddOutlined,
-  GlobalOutlined,
-  DollarOutlined,
-  LockOutlined,
-  TagOutlined,
-} from "@ant-design/icons";
+
+import user from "./people.png";
+import customer from "./customer.png";
+import payment from "./payment.png";
+import furniture from "./furniture.png";
 
 export default function ValueProps() {
   const valuePropositions = [
-    {
-      id: 1,
-      icon: UsergroupAddOutlined,
-      text: "Trusted by Thousands",
-    },
-    {
-      id: 2,
-      icon: GlobalOutlined,
-      text: "Global Services",
-    },
-    {
-      id: 3,
-      icon: DollarOutlined,
-      text: "Affordable Second-Hand Deals",
-    },
-    {
-      id: 4,
-      icon: LockOutlined,
-      text: "100% Secure Payment",
-    }
+    { id: 1, icon: user, text: "5k Customers" },
+    { id: 2, icon: customer, text: "24/7 Support" },
+    { id: 3, icon: payment, text: "100% Secure Payment" },
+    { id: 4, icon: furniture, text: "Quality Furniture" },
   ];
 
   return (
@@ -38,7 +20,7 @@ export default function ValueProps() {
         {valuePropositions.map((item) => (
           <div key={item.id} className="value-props-item">
             <div className="icon-wrapper">
-              <item.icon className="ant-icon" />
+              <img src={item.icon} alt={item.text} className="icon-img" />
             </div>
             <p className="item-text">{item.text}</p>
           </div>

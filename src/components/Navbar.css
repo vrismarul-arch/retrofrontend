@@ -278,6 +278,23 @@
   align-items: center;
 }
 
+/* Shopping cart icon size */
+.nav-icon {
+  font-size: 22px; /* your custom size */
+  color: #000000;     /* optional */
+}
+
+/* Optional animation for badge */
+.badge-pulse .ant-badge-count {
+  animation: pulse 1s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.2); }
+  100% { transform: scale(1); }
+}
+
 /* Animate badge pulse */
 .badge-pulse {
   animation: pulse 0.6s ease-in-out;
