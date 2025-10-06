@@ -21,10 +21,7 @@ const Retrowoodsb2b = () => {
             <Title level={2} className="b2b-title">
               Partner With Us
             </Title>
-            <Text className="b2b-description">
-              Sell your second-hand products directly on our platform.  
-              Get bulk deals, better visibility, and collaborative growth.
-            </Text>
+           
             <Button
               type="primary"
               size="large"

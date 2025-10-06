@@ -25,6 +25,35 @@ body {
 /* =========================================================================
    Main Layout & Containers
    ========================================================================= */
+/* SingleProductPage.css */
+
+/* Alert container */
+.login-alert {
+  display: flex;
+  align-items: center;
+  background-color: #fff4e5; /* soft orange background */
+  border: 1px solid #ffa94d; /* orange border */
+  color: #663c00; /* dark text color */
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  gap: 8px;
+}
+
+/* Optional icon before text */
+.login-alert::before {
+  content: "⚠️"; /* warning icon */
+  font-size: 16px;
+}
+
+/* Sign in button style override (AntD Button) */
+.login-alert .ant-btn-link {
+  font-weight: 600;
+  padding: 0;
+  margin-left: 4px;
+}
 
 .single-product-page {
   max-width: 1200px;

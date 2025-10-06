@@ -1,60 +1,109 @@
+.value-props-container {
+  background-color: #078d89;
+  color: #fff;
+  padding: 40px 20px;
+  text-align: center;
+}
 
+.value-props-list {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  flex-wrap: wrap;
+  gap: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-  .value-props-container {
-    background-color: #078d89;
-    color: #fff;
-    padding: 40px 20px;
-    text-align: center;
-  }
+.value-props-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 180px;
+  text-align: center;
+}
 
+.icon-wrapper {
+  width: 80px;
+  height: 80px;
+  margin-bottom: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.ant-icon {
+  font-size: 50px;
+  color: #ffffff;
+}
+
+.item-text {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #faf8f8;
+}
+
+/* ------------------- MOBILE RESPONSIVE ------------------- */
+@media (max-width: 768px) {
   .value-props-list {
-    display: flex;
-    justify-content: center;
-    align-items: flex-start;
-    flex-wrap: wrap;
-    gap: 40px;
-    max-width: 1200px;
-    margin: 0 auto;
+    gap: 25px;
   }
 
   .value-props-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    width: 180px;
-    text-align: center;
+    width: 140px;
   }
 
   .icon-wrapper {
-    width: 80px;
-    height: 80px;
-    margin-bottom: 10px;
-    display: flex; /* Make it a flex container to center the icon */
-    justify-content: center;
-    align-items: center;
+    width: 60px;
+    height: 60px;
   }
 
-  /* Style for Ant Design icons */
   .ant-icon {
-    font-size: 50px; /* Adjust the icon size */
-    color: #ffffff; /* Golden color */
+    font-size: 40px;
   }
 
   .item-text {
-    font-size: 1rem;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .value-props-list {
+    flex-direction: row;
+    flex-wrap: nowrap;
+    align-items: center;
+    gap: 20px;
+  }
+
+  .value-props-item {
+    width: 100%;
+    max-width: 220px;
+    flex-direction: column; /* icon left, text right */
+    text-align: left;
+    padding: 10px 15px;
+    background-color: rgba(255, 255, 255, 0.05);
+    border-radius: 10px;
+    transition: background 0.3s;
+  }
+
+  .value-props-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+  }
+
+  .icon-wrapper {
+    width: 40px;
+    height: 40px;
+    margin-bottom: 0;
+    margin-right: 10px;
+  }
+
+  .ant-icon {
+    font-size: 30px;
+  }
+
+  .item-text {
+    font-size: 0.85rem;
     font-weight: 500;
-    color: #faf8f8;
+    color: #fff;
   }
-
-  @media (max-width: 768px) {
-    .value-props-list {
-      gap: 20px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .value-props-list {
-      flex-direction: column;
-      align-items: center;
-    }
-  }
+}

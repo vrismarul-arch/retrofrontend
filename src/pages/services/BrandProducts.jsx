@@ -105,7 +105,7 @@ export default function BrandProducts() {
           url: link,
         })
         .then(() => toast.success("Shared successfully"))
-        .catch(() => {});
+        .catch(() => { });
     } else {
       navigator.clipboard.writeText(`${product.name}\n${link}`);
       toast.success("Copied product link!");
@@ -131,13 +131,13 @@ export default function BrandProducts() {
       <main className="main-content">
         <ServiceInfo />
 
-       <div className="category-header">
-  <h1 className="category-title">
-    {brand?.name || "Brand"} <span className="porduct-count">Product Count : ({filteredProducts.length})</span> 
-  </h1>
-        <hr className="home-title-hr" />
+        <div className="category-header">
+          <h1 className="category-title">
+            {brand?.name || "Brand"} <span className="porduct-count">Product Count : ({filteredProducts.length})</span>
+          </h1>
+          <hr className="home-title-hr" />
 
-</div>
+        </div>
 
 
         <div className="service-grid">
@@ -148,7 +148,8 @@ export default function BrandProducts() {
                   <img
                     src={product.image || "/placeholder.png"}
                     alt={product.name}
-                    className="service-card-img"
+                    className="service-card-img"                        onClick={() => navigate(`/product/${product._id}`)}
+
                     onError={(e) => (e.target.src = "/placeholder.png")}
                   />
                   {product.discount > 0 && (

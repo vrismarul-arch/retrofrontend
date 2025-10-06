@@ -14,6 +14,9 @@ export default function BestSellers() {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  const [loadingAdd, setLoadingAdd] = useState({});
+  const [loadingRemove, setLoadingRemove] = useState({});
+
   const { cart, addToCart, removeFromCart } = useCart();
   const isLoggedIn = !!localStorage.getItem("token");
 
@@ -43,22 +46,30 @@ export default function BestSellers() {
       navigate("/login");
       return;
     }
+
+    setLoadingAdd((prev) => ({ ...prev, [product._id]: true }));
+
     try {
       await addToCart(product._id, 1, product);
       toast.success(`${product.name} added to cart`);
     } catch (err) {
       console.error("❌ Add to cart failed:", err);
       toast.error("Could not add to cart");
+    } finally {
+      setLoadingAdd((prev) => ({ ...prev, [product._id]: false }));
     }
   };
 
   const handleRemoveFromCartClick = async (productId) => {
+    setLoadingRemove((prev) => ({ ...prev, [productId]: true }));
     try {
       await removeFromCart(productId);
       toast.success("Removed from cart");
     } catch (err) {
       console.error("❌ Remove from cart failed:", err);
       toast.error("Could not remove from cart");
+    } finally {
+      setLoadingRemove((prev) => ({ ...prev, [productId]: false }));
     }
   };
 
@@ -80,14 +91,12 @@ export default function BestSellers() {
         const maxScroll = scrollWidth - clientWidth;
 
         if (scrollLeft >= maxScroll - 10) {
-          // Instantly jump back to start
           scrollRef.current.scrollTo({ left: 0, behavior: "auto" });
         } else {
-          // Keep sliding right
           scrollRef.current.scrollBy({ left: 350, behavior: "smooth" });
         }
       }
-    }, 4000); // slide every 4 sec
+    }, 4000);
 
     return () => clearInterval(interval);
   }, []);
@@ -167,7 +176,8 @@ export default function BestSellers() {
                 <Box sx={{ position: "relative" }}>
                   <img
                     src={product.image || "/placeholder.png"}
-                    alt={product.name}
+                    alt={product.name}                        onClick={() => navigate(`/product/${product._id}`)}
+
                     loading="lazy"
                     style={{
                       width: "100%",
@@ -256,6 +266,8 @@ export default function BestSellers() {
                   {isInCart(product._id) ? (
                     <Button
                       fullWidth
+                      loading={loadingRemove[product._id]}
+                      disabled={loadingRemove[product._id]}
                       startIcon={<MinusOutlined />}
                       onClick={() => handleRemoveFromCartClick(product._id)}
                       style={{
@@ -281,6 +293,8 @@ export default function BestSellers() {
                       variant="contained"
                       color="secondary"
                       fullWidth
+                      loading={loadingAdd[product._id]}
+                      disabled={loadingAdd[product._id]}
                       startIcon={<PlusOutlined />}
                       onClick={() => handleAddToCartClick(product)}
                       style={{
@@ -298,14 +312,14 @@ export default function BestSellers() {
                         cursor: "pointer",
                       }}
                     >
-                      <PlusOutlined /> ADD
+                      ADD
                     </Button>
                   )}
                 </Box>
               </Box>
             ))}
           </Box>
-        </Box>
+        </Box>  
       ) : (
         <Typography>No best-selling products found.</Typography>
       )}

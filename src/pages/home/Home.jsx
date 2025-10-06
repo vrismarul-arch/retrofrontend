@@ -13,6 +13,7 @@ import AboutContent from "../../components/about/AboutContent";
 
 import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
 import "./Home.css";
+import TestimonialCarousel from "../testimonial/TestimonialCarousel";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
@@ -69,6 +70,9 @@ export default function Home() {
       {/* B2B Section */}
       <section className="home-container">
         <Retrowoodsb2b />
+      </section>
+      <section className="home-container">
+        <TestimonialCarousel/>
       </section>
 
       <Divider />

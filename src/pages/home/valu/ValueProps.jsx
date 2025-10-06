@@ -1,6 +1,12 @@
 import React from "react";
 import "./ValueProps.css";
-import { UsergroupAddOutlined, GlobalOutlined, DollarOutlined, LockOutlined, TagOutlined } from "@ant-design/icons";
+import {
+  UsergroupAddOutlined,
+  GlobalOutlined,
+  DollarOutlined,
+  LockOutlined,
+  TagOutlined,
+} from "@ant-design/icons";
 
 export default function ValueProps() {
   const valuePropositions = [
@@ -8,6 +14,11 @@ export default function ValueProps() {
       id: 1,
       icon: UsergroupAddOutlined,
       text: "Trusted by Thousands",
+    },
+    {
+      id: 2,
+      icon: GlobalOutlined,
+      text: "Global Services",
     },
     {
       id: 3,
@@ -18,12 +29,7 @@ export default function ValueProps() {
       id: 4,
       icon: LockOutlined,
       text: "100% Secure Payment",
-    },
-    {
-      id: 5,
-      icon: TagOutlined,
-      text: "Verified & Trusted Services",
-    },
+    }
   ];
 
   return (
