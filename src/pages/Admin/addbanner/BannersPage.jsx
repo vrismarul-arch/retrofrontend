@@ -20,6 +20,7 @@ import {
   EditOutlined,
   DeleteOutlined,
 } from "@ant-design/icons";
+import dayjs from "dayjs";
 import api from "../../../../api";
 import "./banners.css";
 
@@ -96,11 +97,15 @@ export default function BannersPage() {
   const handleEdit = (record) => {
     setEditingItem(record);
     form.setFieldsValue({
-      title: record.title,
-      subtitle: record.subtitle,
-      btnText: record.btnText,
-      btnLink: record.btnLink,
+      title: record.title || "",
+      subtitle: record.subtitle !== "undefined" ? record.subtitle : "",
+      btnText: record.btnText !== "undefined" ? record.btnText : "",
+      btnLink: record.btnLink !== "undefined" ? record.btnLink : "",
       isActive: record.isActive,
+      schedule:
+        record.schedule?.startDate && record.schedule?.endDate
+          ? [dayjs(record.schedule.startDate), dayjs(record.schedule.endDate)]
+          : null,
       image: record.imageUrl
         ? [
             {
@@ -146,26 +151,33 @@ export default function BannersPage() {
               <Button icon={<MoreOutlined />} />
             </Dropdown>
           }
-        >{banner.imageUrl && (
+        >
+          {banner.imageUrl && (
             <img
               src={banner.imageUrl}
               alt="banner"
-              className="w-full h-40 object-cover rounded shadow border"
+              className="w-full h-40 object-cover rounded shadow border mb-2"
             />
           )}
-          <p><strong>Subtitle:</strong> {banner.subtitle || "-"}</p>
+          <p><strong>Subtitle:</strong> {banner.subtitle !== "undefined" ? banner.subtitle || "-" : "-"}</p>
           <p>
             <strong>Button:</strong>{" "}
-            {banner.btnLink ? (
+            {banner.btnLink && banner.btnLink !== "undefined" ? (
               <a href={banner.btnLink} target="_blank" rel="noreferrer" className="text-blue-500 underline">
-                {banner.btnText || banner.btnLink}
+                {banner.btnText !== "undefined" ? banner.btnText : banner.btnLink}
               </a>
             ) : (
               "-"
             )}
           </p>
           <p><strong>Active:</strong> {banner.isActive ? "Yes" : "No"}</p>
-          
+          {banner.schedule?.startDate && banner.schedule?.endDate && (
+            <p>
+              <strong>Schedule:</strong>{" "}
+              {dayjs(banner.schedule.startDate).format("DD MMM YYYY")} →{" "}
+              {dayjs(banner.schedule.endDate).format("DD MMM YYYY")}
+            </p>
+          )}
         </Card>
       ))}
     </div>
@@ -203,13 +215,21 @@ export default function BannersPage() {
               align: "center",
             },
             { title: "Title", dataIndex: "title" },
-            { title: "Subtitle", dataIndex: "subtitle" },
-            { title: "Button Text", dataIndex: "btnText" },
+            {
+              title: "Subtitle",
+              dataIndex: "subtitle",
+              render: (v) => (v !== "undefined" && v ? v : "-"),
+            },
+            {
+              title: "Button Text",
+              dataIndex: "btnText",
+              render: (v) => (v !== "undefined" && v ? v : "-"),
+            },
             {
               title: "Button Link",
               dataIndex: "btnLink",
               render: (link) =>
-                link ? (
+                link && link !== "undefined" ? (
                   <a href={link} target="_blank" rel="noreferrer" className="text-blue-500 underline">
                     {link}
                   </a>
@@ -220,13 +240,28 @@ export default function BannersPage() {
             {
               title: "Image",
               dataIndex: "imageUrl",
-              render: (url) => (
-                <img
-                  src={url}
-                  alt="banner"
-                  className="w-28 h-16 object-cover rounded shadow border serviceimage"
-                />
-              ),
+              render: (url) =>
+                url ? (
+                  <img
+                    src={url}
+                    alt="banner"
+                    className="w-28 h-16 object-cover rounded shadow border serviceimage"
+                  />
+                ) : (
+                  "-"
+                ),
+            },
+            {
+              title: "Schedule",
+              render: (_, record) =>
+                record.schedule?.startDate && record.schedule?.endDate ? (
+                  <>
+                    {dayjs(record.schedule.startDate).format("DD MMM YYYY")} →{" "}
+                    {dayjs(record.schedule.endDate).format("DD MMM YYYY")}
+                  </>
+                ) : (
+                  "-"
+                ),
             },
             {
               title: "Active",

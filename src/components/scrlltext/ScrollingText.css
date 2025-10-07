@@ -1,0 +1,56 @@
+:root {
+  --scroll-gap: 2rem;
+}
+
+.scrolling-container {
+  width: 100%;
+  overflow: hidden;
+  background: #078d89;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.05);
+  padding: 0.75rem 1rem;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+.scrolling-marquee {
+  display: flex;
+  align-items: center;
+}
+
+.scrolling-track {
+  display: flex;
+  gap: var(--scroll-gap);
+  white-space: nowrap;
+  animation: marquee 15s linear infinite;
+}
+
+.scrolling-text {
+ background: linear-gradient(to right, #000000, #000000, #078d89);
+  -webkit-background-clip: text;
+  -moz-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  font-weight: 400;
+  font-size: 34px;
+}
+
+.scrolling-text:hover {
+  transform: scale(1.1);
+}
+
+/* Keyframes for infinite scrolling */
+@keyframes marquee {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .scrolling-container {
+    max-width: 100%;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .scrolling-text {
+    font-size: 0.9rem;
+  }
+}

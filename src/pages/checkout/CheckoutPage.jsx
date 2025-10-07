@@ -1,26 +1,25 @@
-// src/components/pages/CheckoutPage.jsx
 import { useEffect, useState } from "react";
-import { Form, Input, Button, Card } from "antd";
+import { Form, Input, Button, Card, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
 import toast from "react-hot-toast";
 import { useCart } from "../../context/CartContext";
 import api from "../../../api";
-import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
+import LoadingScreen from "../../components/loading/LoadingScreen";
 import "./CheckoutPage.css";
 
 export default function CheckoutPage() {
   const [form] = Form.useForm();
-  const [loading, setLoading] = useState(true); // ✅ start as true
+  const [loading, setLoading] = useState(true);
   const [location, setLocation] = useState(null);
   const [products, setProducts] = useState([]);
-  const [btnLoading, setBtnLoading] = useState(false); // ✅ button loading
+  const [btnLoading, setBtnLoading] = useState(false);
+  const [confirmVisible, setConfirmVisible] = useState(false); // ✅ inline modal control
   const { cart } = useCart();
   const navigate = useNavigate();
 
-  // Fetch products from backend safely
   useEffect(() => {
     if (!cart || cart.length === 0) {
-      setLoading(false); // nothing to load
+      setLoading(false);
       return;
     }
 
@@ -40,7 +39,6 @@ export default function CheckoutPage() {
       .finally(() => setLoading(false));
   }, [cart]);
 
-  // Load profile if logged in
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) return;
@@ -51,20 +49,8 @@ export default function CheckoutPage() {
       .catch(() => toast("Could not fetch profile", { icon: "⚠️" }));
   }, [form]);
 
-  // Get user location
-  useEffect(() => {
-    if (!navigator.geolocation) return;
-    navigator.geolocation.getCurrentPosition(
-      (pos) =>
-        setLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
-      () => toast("Could not fetch location", { icon: "⚠️" })
-    );
-  }, []);
-
   const handleSubmit = (values) => {
-    if (!location) return toast.error("Location not available");
-
-    setBtnLoading(true); // ✅ button feedback
+    setBtnLoading(true);
     const totalAmount = cart.reduce((sum, item) => {
       const prod = products.find((p) => p._id === item.product?._id);
       return sum + (prod?.price || item.product?.price || 0) * item.quantity;
@@ -95,6 +81,19 @@ export default function CheckoutPage() {
     }, 1000);
   };
 
+  const handleConfirm = () => {
+    setConfirmVisible(true); // ✅ open inline popup
+  };
+
+  const handleOk = () => {
+    setConfirmVisible(false);
+    form.submit(); // ✅ proceed after confirm
+  };
+
+  const handleCancel = () => {
+    setConfirmVisible(false); // ✅ close popup
+  };
+
   if (!cart || cart.length === 0)
     return (
       <div className="empty-cart">
@@ -107,7 +106,6 @@ export default function CheckoutPage() {
       </div>
     );
 
-  // ✅ Full-page loader while fetching products
   if (loading) return <LoadingScreen message="Loading Checkout..." />;
 
   return (
@@ -140,12 +138,6 @@ export default function CheckoutPage() {
           >
             <Input.TextArea rows={2} placeholder="Enter your address" />
           </Form.Item>
-
-          {location && (
-            <p className="location-info">
-              📍 {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
-            </p>
-          )}
         </Form>
       </Card>
 
@@ -190,12 +182,25 @@ export default function CheckoutPage() {
           block
           shape="round"
           size="large"
-          loading={btnLoading} // ✅ button loader
-          onClick={() => form.submit()}
+          loading={btnLoading}
+          onClick={handleConfirm} // ✅ inline popup trigger
         >
           Proceed to Payment
         </Button>
       </div>
+
+      {/* ✅ Inline confirmation modal */}
+      <Modal
+        title="Confirm Checkout"
+        open={confirmVisible}
+        onOk={handleOk}
+        onCancel={handleCancel}
+        okText="Yes, Proceed"
+        cancelText="Cancel"
+        centered
+      >
+        <p>Are you sure you want to proceed to payment?</p>
+      </Modal>
     </div>
   );
 }

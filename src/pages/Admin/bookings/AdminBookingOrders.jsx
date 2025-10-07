@@ -20,7 +20,7 @@ import { EllipsisOutlined } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
 import api from "../../../../api";
 import BookingDetails from "./BookingDetails";
-import "./AdminBookingOrders.css"; // 👈 import CSS
+import "./AdminBookingOrders.css";
 
 const { Option } = Select;
 const { TabPane } = Tabs;
@@ -67,7 +67,6 @@ const AdminBookingOrders = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-
       toast.success("Delivery status updated ✅");
       fetchBookings();
     } catch (err) {
@@ -88,7 +87,6 @@ const AdminBookingOrders = () => {
           headers: { Authorization: `Bearer ${localStorage.getItem("token")}` },
         }
       );
-
       toast.success("Booking status updated ✅");
       fetchBookings();
     } catch (err) {
@@ -166,45 +164,55 @@ const AdminBookingOrders = () => {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      render: (status, record) => {
-        return (
-          <Popconfirm
-            title="Change booking status?"
-            okText="Yes"
-            cancelText="No"
-            onConfirm={() =>
-              handleStatusUpdate(record._id, record.newStatus || status)
-            }
+      render: (status, record) => (
+        <Popconfirm
+          title="Change booking status?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() =>
+            handleStatusUpdate(record._id, record.newStatus || status)
+          }
+        >
+          <Select
+            value={status}
+            style={{ width: 140 }}
+            onChange={(value) => {
+              record.newStatus = value;
+            }}
           >
-            <Select
-              value={status}
-              style={{ width: 140 }}
-              onChange={(value) => {
-                record.newStatus = value;
-              }}
-            >
-              <Option value="pending">Pending</Option>
-              <Option value="confirmed">Confirmed</Option>
-              <Option value="cancelled">Cancelled</Option>
-            </Select>
-          </Popconfirm>
-        );
-      },
+            <Option value="pending">Pending</Option>
+            <Option value="confirmed">Confirmed</Option>
+            <Option value="cancelled">Cancelled</Option>
+            <Option value="completed">Completed</Option>
+          </Select>
+        </Popconfirm>
+      ),
     },
     {
       title: "Delivery Status",
       dataIndex: "deliveryStatus",
       key: "deliveryStatus",
       render: (status, record) => (
-        <Select
-          value={status || "pending"}
-          style={{ width: 140 }}
-          onChange={(value) => handleDeliveryUpdate(record._id, value)}
+        <Popconfirm
+          title="Change delivery status?"
+          okText="Yes"
+          cancelText="No"
+          onConfirm={() =>
+            handleDeliveryUpdate(record._id, record.newDelivery || status)
+          }
         >
-          <Option value="pending">Pending</Option>
-          <Option value="shipping">Shipping</Option>
-          <Option value="delivered">Delivered</Option>
-        </Select>
+          <Select
+            value={status || "pending"}
+            style={{ width: 140 }}
+            onChange={(value) => {
+              record.newDelivery = value;
+            }}
+          >
+            <Option value="pending">Pending</Option>
+            <Option value="shipping">Shipping</Option>
+            <Option value="delivered">Delivered</Option>
+          </Select>
+        </Popconfirm>
       ),
     },
     {
@@ -240,7 +248,7 @@ const AdminBookingOrders = () => {
   ];
 
   // =========================
-  // Mobile card view (styled + functional)
+  // Mobile card view
   // =========================
   const renderCards = (data) => (
     <Row gutter={[16, 16]}>
@@ -256,7 +264,10 @@ const AdminBookingOrders = () => {
                   overlay={
                     <Menu>
                       <Menu.Item key="view">
-                        <Button type="text" onClick={() => showDrawer(record._id)}>
+                        <Button
+                          type="text"
+                          onClick={() => showDrawer(record._id)}
+                        >
                           View
                         </Button>
                       </Menu.Item>
@@ -278,7 +289,6 @@ const AdminBookingOrders = () => {
                 </Dropdown>
               }
             >
-              {/* Customer */}
               <p>
                 <strong>Customer:</strong> {user.name || record.name || "Unknown"}
                 <br />
@@ -287,7 +297,6 @@ const AdminBookingOrders = () => {
                 {user.phone || record.phone || "-"}
               </p>
 
-              {/* Products */}
               <div>
                 <strong>Products:</strong>
                 {record.products?.map((p) => {
@@ -314,9 +323,8 @@ const AdminBookingOrders = () => {
                 })}
               </div>
 
-              {/* Status */}
               <div style={{ marginTop: 12 }}>
-                <strong>Status: </strong>
+                <strong>Status:</strong>
                 <Popconfirm
                   title="Change booking status?"
                   okText="Yes"
@@ -328,29 +336,36 @@ const AdminBookingOrders = () => {
                   <Select
                     value={record.status}
                     style={{ width: "100%" }}
-                    onChange={(value) => {
-                      record.newStatus = value;
-                    }}
+                    onChange={(value) => (record.newStatus = value)}
                   >
                     <Option value="pending">Pending</Option>
                     <Option value="confirmed">Confirmed</Option>
                     <Option value="cancelled">Cancelled</Option>
+                    <Option value="completed">Completed</Option>
                   </Select>
                 </Popconfirm>
               </div>
 
-              {/* Delivery */}
               <div style={{ marginTop: 12 }}>
-                <strong>Delivery: </strong>
-                <Select
-                  value={record.deliveryStatus || "pending"}
-                  style={{ width: "100%" }}
-                  onChange={(value) => handleDeliveryUpdate(record._id, value)}
+                <strong>Delivery:</strong>
+                <Popconfirm
+                  title="Change delivery status?"
+                  okText="Yes"
+                  cancelText="No"
+                  onConfirm={() =>
+                    handleDeliveryUpdate(record._id, record.newDelivery || record.deliveryStatus)
+                  }
                 >
-                  <Option value="pending">Pending</Option>
-                  <Option value="shipping">Shipping</Option>
-                  <Option value="delivered">Delivered</Option>
-                </Select>
+                  <Select
+                    value={record.deliveryStatus || "pending"}
+                    style={{ width: "100%" }}
+                    onChange={(value) => (record.newDelivery = value)}
+                  >
+                    <Option value="pending">Pending</Option>
+                    <Option value="shipping">Shipping</Option>
+                    <Option value="delivered">Delivered</Option>
+                  </Select>
+                </Popconfirm>
               </div>
             </Card>
           </Col>
@@ -359,9 +374,6 @@ const AdminBookingOrders = () => {
     </Row>
   );
 
-  // =========================
-  // Tabs
-  // =========================
   const statusTabs = ["all", "pending", "confirmed", "cancelled"];
 
   const getColor = (status) => {
@@ -409,7 +421,7 @@ const AdminBookingOrders = () => {
                 key={status}
               >
                 {screens.xs
-                  ? renderCards(filtered) // mobile → cards
+                  ? renderCards(filtered)
                   : (
                     <Table
                       dataSource={filtered}

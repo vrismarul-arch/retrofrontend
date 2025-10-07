@@ -1,16 +1,16 @@
-// src/pages/cart/CartPage.jsx
 import { useState, useEffect } from "react";
-import { Table, Button, Popconfirm } from "antd";
+import { Button, Popconfirm, Row, Col, Card, Divider } from "antd";
 import { DeleteOutlined, ArrowLeftOutlined } from "@ant-design/icons";
 import { useNavigate } from "react-router-dom";
 import { useCart } from "../../context/CartContext";
-import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
+import LoadingScreen from "../../components/loading/LoadingScreen";
 import "./CartPage.css";
+import cartimg from '../../assets/retrowoods.png';
 
 export default function CartPage() {
   const { cart, updateQuantity, removeFromCart, clearCart } = useCart();
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
-  const [loading, setLoading] = useState(false); // ✅ loading state
+  const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,70 +23,10 @@ export default function CartPage() {
   const delivery = cart.length > 0 ? 5 : 0;
   const total = subtotal + delivery;
 
-  const columns = [
-    {
-      title: "Product",
-      render: (_, item) => (
-        <div className="cart-product">
-          <img src={item.product.image || "/placeholder.png"} alt={item.product.name} />
-          <div className="cart-product-info">
-            <h3>{item.product.name}</h3>
-            <p className="price">₹{item.product.price}</p>
-            <Popconfirm
-              title="Remove this item?"
-              onConfirm={async () => {
-                setLoading(true);
-                await removeFromCart(item.product._id);
-                setLoading(false);
-              }}
-              okText="Yes"
-              cancelText="No"
-            >
-              <Button type="text" danger icon={<DeleteOutlined />}>
-                Remove
-              </Button>
-            </Popconfirm>
-          </div>
-        </div>
-      ),
-    },
-    {
-      title: "Quantity",
-      render: (_, item) => (
-        <div className="qty-box">
-          <Button
-            onClick={async () => {
-              if (item.quantity <= 1) return;
-              setLoading(true);
-              await updateQuantity(item.product._id, item.quantity - 1);
-              setLoading(false);
-            }}
-            disabled={item.quantity <= 1}
-          >
-            -
-          </Button>
-          <span>{item.quantity}</span>
-          <Button
-            onClick={async () => {
-              setLoading(true);
-              await updateQuantity(item.product._id, item.quantity + 1);
-              setLoading(false);
-            }}
-          >
-            +
-          </Button>
-        </div>
-      ),
-    },
-    { title: "Price", render: (_, item) => `₹${item.product.price}` },
-    { title: "Total", render: (_, item) => `₹${item.product.price * item.quantity}` },
-  ];
-
-  // ✅ Show full-page loader
   if (loading) return <LoadingScreen message="Processing cart…" />;
 
   return (
-    <div className="cart-container">
+    <div className="cart-page-wrapper">
       <Button type="text" icon={<ArrowLeftOutlined />} onClick={() => navigate("/")}>
         Continue Shopping
       </Button>
@@ -110,68 +50,96 @@ export default function CartPage() {
             Clear Cart
           </Button>
 
-          {isMobile ? (
-            <div className="cart-cards">
-              {cart.map((item) => (
-                <div key={item.product._id} className="cart-card">
-                  <img src={item.product.image || "/placeholder.png"} alt={item.product.name} />
-                  <div className="cart-card-info">
-                    <h3>{item.product.name}</h3>
-                    <p>Price: ₹{item.product.price}</p>
-                    <p>Total: ₹{item.product.price * item.quantity}</p>
-                    <div className="qty-box">
-                      <Button
-                        onClick={async () => {
-                          if (item.quantity <= 1) return;
+          <Row gutter={[24, 24]}>
+            {/* LEFT SIDE — PRODUCT LIST */}
+            <Col xs={24} md={16}>
+              <Card className="cart-card">
+                {cart.map((item) => (
+                  <div key={item.product._id} className="cart-item">
+                    <img
+                      src={item.product.image || "/placeholder.png"}
+                      alt={item.product.name}
+                      className="cart-item-img"
+                    />
+                    <div className="cart-item-details">
+                      <h3>{item.product.name}</h3>
+                      <p>Price: ₹{item.product.price}</p>
+                      <p>Total: ₹{item.product.price * item.quantity}</p>
+                      <div className="qty-box">
+                        <Button
+                          onClick={async () => {
+                            if (item.quantity <= 1) return;
+                            setLoading(true);
+                            await updateQuantity(item.product._id, item.quantity - 1);
+                            setLoading(false);
+                          }}
+                          disabled={item.quantity <= 1}
+                        >
+                          -
+                        </Button>
+                        <span>{item.quantity}</span>
+                        <Button
+                          onClick={async () => {
+                            setLoading(true);
+                            await updateQuantity(item.product._id, item.quantity + 1);
+                            setLoading(false);
+                          }}
+                        >
+                          +
+                        </Button>
+                      </div>
+                      <Popconfirm
+                        title="Remove this item?"
+                        onConfirm={async () => {
                           setLoading(true);
-                          await updateQuantity(item.product._id, item.quantity - 1);
+                          await removeFromCart(item.product._id);
                           setLoading(false);
                         }}
-                        disabled={item.quantity <= 1}
+                        okText="Yes"
+                        cancelText="No"
                       >
-                        -
-                      </Button>
-                      <span>{item.quantity}</span>
-                      <Button
-                        onClick={async () => {
-                          setLoading(true);
-                          await updateQuantity(item.product._id, item.quantity + 1);
-                          setLoading(false);
-                        }}
-                      >
-                        +
-                      </Button>
+                        <Button type="text" danger icon={<DeleteOutlined />}>
+                          Remove
+                        </Button>
+                      </Popconfirm>
                     </div>
-                    <Popconfirm
-                      title="Remove this item?"
-                      onConfirm={async () => {
-                        setLoading(true);
-                        await removeFromCart(item.product._id);
-                        setLoading(false);
-                      }}
-                      okText="Yes"
-                      cancelText="No"
-                    >
-                      <Button type="text" danger icon={<DeleteOutlined />}>
-                        Remove
-                      </Button>
-                    </Popconfirm>
                   </div>
-                </div>
-              ))}
-            </div>
-          ) : (
-            <Table dataSource={cart} columns={columns} rowKey={(item) => item.product._id} pagination={false} />
-          )}
+                ))}
+              </Card>
 
-          <div className="cart-summary">
-            <div className="summary-row"><span>Sub Total</span><span>₹{subtotal}</span></div>
-            <div className="summary-row"><span>Delivery Fee</span><span>₹{delivery}</span></div>
-            <div className="summary-row total"><span>Total</span><span>₹{total}</span></div>
-            <Button type="primary" className="checkout-btn" onClick={() => navigate("/checkout")}>
-              Checkout
-            </Button>
-          </div>
+              <Card className="cart-image-card">
+                <img src={cartimg} alt="Need Help?" className="cart-image" />
+              </Card>
+            </Col>
+
+            {/* RIGHT SIDE — SUMMARY */}
+            <Col xs={24} md={8}>
+              <Card className="cart-summary-card">
+                <h3>Order Summary</h3>
+                <Divider />
+                <div className="summary-row">
+                  <span>Sub Total</span>
+                  <span>₹{subtotal}</span>
+                </div>
+                <div className="summary-row">
+                  <span>Delivery Fee</span>
+                  <span>₹{delivery}</span>
+                </div>
+                <div className="summary-row total">
+                  <span>Total</span>
+                  <span>₹{total}</span>
+                </div>
+                <Button
+                  type="primary"
+                  block
+                  className="checkout-btn"
+                  onClick={() => navigate("/checkout")}
+                >
+                  Proceed to Checkout
+                </Button>
+              </Card>
+            </Col>
+          </Row>
         </>
       )}
     </div>

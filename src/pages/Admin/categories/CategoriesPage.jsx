@@ -21,7 +21,7 @@ import {
   AppstoreOutlined,
   TagsOutlined,
 } from "@ant-design/icons";
-import toast from "react-hot-toast"; // ✅ Import toast
+import toast from "react-hot-toast";
 import api from "../../../../api";
 import "./categories.css";
 import SubCategoriesPage from "./SubCategoriesPage";
@@ -33,9 +33,10 @@ const { useBreakpoint } = Grid;
 export default function CategoriesPage() {
   const [categories, setCategories] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [saving, setSaving] = useState(false); // ✅ loading state
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
-  const screens = useBreakpoint(); // detect screen size
+  const screens = useBreakpoint();
 
   useEffect(() => {
     fetchCategories();
@@ -53,6 +54,7 @@ export default function CategoriesPage() {
 
   const handleSave = async () => {
     try {
+      setSaving(true); // ✅ start loading
       const values = await form.validateFields();
       const formData = new FormData();
       Object.keys(values).forEach((key) => formData.append(key, values[key]));
@@ -63,10 +65,10 @@ export default function CategoriesPage() {
 
       if (editingItem) {
         await api.put(`/api/admin/categories/${editingItem._id}`, formData);
-        toast.success("Category updated successfully!"); // ✅ toast
+        toast.success("Category updated successfully!");
       } else {
         await api.post("/api/admin/categories", formData);
-        toast.success("Category added successfully!"); // ✅ toast
+        toast.success("Category added successfully!");
       }
 
       setIsDrawerOpen(false);
@@ -75,7 +77,9 @@ export default function CategoriesPage() {
       fetchCategories();
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong!"); // ✅ toast
+      toast.error("Something went wrong!");
+    } finally {
+      setSaving(false); // ✅ stop loading
     }
   };
 
@@ -83,9 +87,9 @@ export default function CategoriesPage() {
     try {
       await api.delete(`/api/admin/categories/${id}`);
       fetchCategories();
-      toast.success("Category deleted successfully!"); // ✅ toast
+      toast.success("Category deleted successfully!");
     } catch (err) {
-      toast.error("Delete failed!"); // ✅ toast
+      toast.error("Delete failed!");
     }
   };
 
@@ -118,6 +122,7 @@ export default function CategoriesPage() {
             </Button>
           </div>
 
+          {/* Table or Cards */}
           {screens.md ? (
             <Table
               dataSource={categories}
@@ -265,7 +270,7 @@ export default function CategoriesPage() {
             </div>
           )}
 
-          {/* Drawer for Add/Edit */}
+          {/* Drawer */}
           <Drawer
             title={`${editingItem ? "Edit" : "Add"} Category`}
             open={isDrawerOpen}
@@ -274,7 +279,7 @@ export default function CategoriesPage() {
             extra={
               <div className="flex gap-2">
                 <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
-                <Button type="primary" onClick={handleSave}>
+                <Button type="primary" onClick={handleSave} loading={saving}>
                   Save
                 </Button>
               </div>

@@ -57,21 +57,6 @@ export default function FiltersBar({ onApplyFilters, products = [] }) {
           <Button type="default" onClick={handleReset}>Reset</Button>
         </div>
         <Divider />
-
-        <h4>Filter Status (New Arrival, Bestselling...)</h4>
-        <Checkbox.Group
-          options={statusOptions}
-          value={status}
-          onChange={setStatus}
-        />
-
-        <h4>Filter Condition (Used, New...)</h4>
-        <Checkbox.Group
-          options={conditionOptions}
-          value={condition}
-          onChange={setCondition}
-        />
-
         <div className="filters-bar-price">
           <p>Price: ₹{priceRange[0]} – ₹{priceRange[1]}</p>
           <Slider
@@ -83,6 +68,28 @@ export default function FiltersBar({ onApplyFilters, products = [] }) {
             onChange={setPriceRange}
           />
         </div>
+        <Divider />
+
+        <h4>Filter Status</h4>
+        <div className="checkbox-row">
+          <Checkbox.Group
+            options={statusOptions}
+            value={status}
+            onChange={setStatus}
+          />
+        </div>
+        <Divider />
+
+        <h4>Filter Condition</h4>
+        <div className="checkbox-row">
+          <Checkbox.Group
+            options={conditionOptions}
+            value={condition}
+            onChange={setCondition}
+          />
+        </div>
+
+
 
       </div>
     );

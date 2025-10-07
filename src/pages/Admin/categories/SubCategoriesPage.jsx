@@ -19,7 +19,7 @@ import {
   DeleteOutlined,
   AppstoreOutlined,
 } from "@ant-design/icons";
-import toast from "react-hot-toast"; // ✅ import toast
+import toast from "react-hot-toast";
 import api from "../../../../api";
 import "./categories.css";
 
@@ -29,6 +29,7 @@ export default function SubCategoriesPage() {
   const [subCategories, setSubCategories] = useState([]);
   const [categories, setCategories] = useState([]);
   const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+  const [saving, setSaving] = useState(false); // ✅ loading state
   const [form] = Form.useForm();
   const [editingItem, setEditingItem] = useState(null);
   const screens = useBreakpoint();
@@ -60,6 +61,7 @@ export default function SubCategoriesPage() {
 
   const handleSave = async () => {
     try {
+      setSaving(true); // ✅ start loading
       const values = await form.validateFields();
       const formData = new FormData();
       Object.keys(values).forEach((key) => formData.append(key, values[key]));
@@ -70,10 +72,10 @@ export default function SubCategoriesPage() {
 
       if (editingItem) {
         await api.put(`/api/admin/subcategories/${editingItem._id}`, formData);
-        toast.success("SubCategory updated successfully!"); // ✅ toast
+        toast.success("SubCategory updated successfully!");
       } else {
         await api.post("/api/admin/subcategories", formData);
-        toast.success("SubCategory added successfully!"); // ✅ toast
+        toast.success("SubCategory added successfully!");
       }
 
       setIsDrawerOpen(false);
@@ -82,7 +84,9 @@ export default function SubCategoriesPage() {
       fetchSubCategories();
     } catch (err) {
       console.error(err);
-      toast.error("Something went wrong while saving!"); // ✅ toast
+      toast.error("Something went wrong while saving!");
+    } finally {
+      setSaving(false); // ✅ stop loading
     }
   };
 
@@ -90,10 +94,10 @@ export default function SubCategoriesPage() {
     try {
       await api.delete(`/api/admin/subcategories/${id}`);
       fetchSubCategories();
-      toast.success("SubCategory deleted successfully!"); // ✅ toast
+      toast.success("SubCategory deleted successfully!");
     } catch (err) {
       console.error(err);
-      toast.error("Failed to delete subcategory"); // ✅ toast
+      toast.error("Failed to delete subcategory");
     }
   };
 
@@ -118,7 +122,6 @@ export default function SubCategoriesPage() {
         + Add SubCategory
       </Button>
 
-      {/* ✅ Desktop Table | Mobile Cards */}
       {screens.md ? (
         <Table
           dataSource={subCategories}
@@ -236,7 +239,7 @@ export default function SubCategoriesPage() {
         extra={
           <div className="flex gap-2">
             <Button onClick={() => setIsDrawerOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleSave}>
+            <Button type="primary" onClick={handleSave} loading={saving}>
               Save
             </Button>
           </div>

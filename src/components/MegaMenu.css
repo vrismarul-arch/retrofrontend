@@ -1,88 +1,247 @@
-/* Desktop Mega Menu */
+/* ==================================== */
+/* 1. Desktop Mega Menu (Original) */
+/* ==================================== */
+
 .desktop-menu {
-  background: #078d89;
-  border-bottom: 1px solid #ddd;
-  font-family: 'Arial', sans-serif;
-  position: relative;
+    background: #078d89;
+    border-bottom: 1px solid #ddd;
+    font-family: 'Arial', sans-serif;
+    position: relative;
 }
 
 .mega-menu {
-  display: flex;
-  list-style: none;
-  margin: 0;
-  padding: 0;
+    display: flex;
+    list-style: none;
+    margin: 0;
+    padding: 0;
 }
 
 .mega-menu-item {
-  position: relative;
-  padding: 16px 20px;
+    position: relative;
+    padding: 16px 20px;
 }
 
-
 .mega-menu-item:hover .mega-dropdown {
-  display: flex;
+    display: flex;
 }
 
 .category-name {
-  font-weight: bold;
-  font-size: 1rem;
-  cursor: pointer;
-  color: #ffffff; /* black text */
-  transition: background 0.3s, color 0.3s;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #ffffff;
+    /* white text on default background */
+    transition: background 0.3s, color 0.3s;
 }
 
 .mega-menu-item:hover .category-name {
-  background-color: #f0f0f0; 
-  padding: 12px;
-  border-top-left-radius: 30%;/* light gray/white highlight */
-  border-top-right-radius: 30%;/* light gray/white highlight */
-  color: #000000; /* keep text black */
+    background-color: #f0f0f0;
+    padding: 12px;
+    border-top-left-radius: 30%;
+    border-top-right-radius: 30%;
+    color: #000000;
+    /* black text on hover background */
 }
 
-
 .mega-dropdown {
-  display: none;
-  position: absolute;
-  top: 100%;
-  left: 0;
-  background: #078d89;
-  padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-  gap: 32px;
-  z-index: 100;
-  min-width: 900px; /* wider to fit all columns */
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: #078d89;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    gap: 32px;
+    z-index: 100;
+    min-width: 900px;
 }
 
 .mega-column {
-  display: flex;
-  flex-direction: column;
-  min-width: 180px;
+    display: flex;
+    flex-direction: column;
+    min-width: 180px;
 }
 
 .subcategory-title {
-  font-size: 0.95rem;
-  font-weight: 600;
-  margin-bottom: 8px;
-  border-bottom: 1px solid #eee;
-  padding-bottom: 4px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 4px;
 }
 
 .mega-column ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
+    list-style: none;
+    padding: 0;
+    margin: 0;
 }
 
 .mega-column li {
-  margin-bottom: 6px;
+    margin-bottom: 6px;
 }
 
 .mega-column li a {
-  color: #ffffff;
-  text-decoration: none;
-  font-size: 0.9rem;
+    color: #ffffff;
+    text-decoration: none;
+    font-size: 0.9rem;
 }
 
 .mega-column li a:hover {
-  color: #ffffff;
+    color: #ffffff;
+}
+
+/* ==================================== */
+/* 2. Mobile Menu Styles (New Custom UI) */
+/* ==================================== */
+
+/* Hide the desktop menu on mobile and show the mobile menu */
+@media (max-width: 768px) {
+    .desktop-menu {
+        display: none;
+    }
+
+    /* Ensure mobile menu is visible */
+    .mobile-menu {
+        width: 100%;
+    }
+}
+
+.mobile-menu-new {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    width: 100%;
+}
+
+.mobile-category-item {
+    border-bottom: 1px solid #ddd;
+}
+
+.mobile-category-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    font-size: 1.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    background-color: #f0f0f0;
+    /* Light grey background for main category */
+    color: #333;
+}
+
+.mobile-category-header:hover {
+    background-color: #e0e0e0;
+}
+
+/* Subcategories List (The collapsible content) */
+.mobile-subcategories-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+    background-color: #ffffff;
+}
+
+.mobile-subcategories-container.open {
+    max-height: 1000px;
+    /* Arbitrarily large number for smooth transition */
+    transition: max-height 0.5s ease-in;
+}
+
+.mobile-subcategories {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+/* Subcategory Item */
+.mobile-subcategory-item {
+    padding: 10px 20px;
+    border-bottom: 1px solid #eee;
+}
+
+.subcategory-link {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    color: #078d89;
+    /* Accent color for subcategory link */
+    text-decoration: none;
+    margin-bottom: 5px;
+}
+
+.subcategory-link:hover {
+    color: #056a67;
+}
+
+.mobile-subcategory-name {
+    font-weight: 500;
+}
+
+/* Brands List */
+.mobile-brands-container {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease-out;
+}
+
+.mobile-brands-container.open {
+    max-height: 500px;
+    /* Arbitrarily large number for smooth transition */
+    transition: max-height 0.5s ease-in;
+}
+
+
+.mobile-brands {
+    list-style: none;
+    padding: 5px 0 5px 15px;
+    /* Indent for brands */
+    margin: 0;
+}
+
+.mobile-brands li {
+    margin-bottom: 4px;
+}
+
+.mobile-brands li a {
+    color: #777;
+    font-size: 0.9rem;
+    text-decoration: none;
+    display: block;
+    padding: 2px 0;
+}
+
+.mobile-brands li a:hover {
+    color: #078d89;
+}
+
+.toggle-icon {
+    font-size: 0.7rem;
+    margin-left: 10px;
+    color: #666;
+}
+
+/* Messages for empty lists */
+.no-brands-msg-small {
+    padding: 5px 0 0 0;
+    color: #999;
+    font-style: italic;
+    font-size: 0.8rem;
+    padding-left: 15px;
+}
+
+.no-subs-msg {
+    padding: 10px 20px;
+    color: #999;
+    font-style: italic;
+    font-size: 0.9rem;
+}
+
+.no-categories-msg {
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-style: italic;
+    font-size: 1rem;
 }

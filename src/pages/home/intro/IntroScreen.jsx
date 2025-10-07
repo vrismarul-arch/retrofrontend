@@ -1,32 +1,30 @@
 import React, { useState } from "react";
 import { Button, Modal } from "antd";
 import { useNavigate } from "react-router-dom";
-import VendorProduct from "../../vendor/VendorProduct"; // import your form
+import VendorProduct from "../../vendor/VendorProduct";
 import "./IntroScreen.css";
-import intro from "./retro.gif";
+import intro from "./retro.png";
 
 const IntroScreen = () => {
   const navigate = useNavigate();
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const goToHome = () => navigate("/home");
+  // ✅ Get current year dynamically
+  const currentYear = new Date().getFullYear();
 
+  const goToHome = () => navigate("/home");
   const openModal = () => setIsModalVisible(true);
   const closeModal = () => setIsModalVisible(false);
 
   const handleSubmitSuccess = () => {
-    closeModal();     // close the modal
-    navigate("/home"); // redirect to home
+    closeModal();
+    navigate("/home");
   };
 
   return (
     <div className="intro-container">
       {/* Left side - Text + Buttons */}
       <div className="intro-left">
-        <h1 className="intro-title">Welcome to Retro Woods</h1>
-        <p className="intro-subtitle">
-          Discover your perfect stay with comfort and style.
-        </p>
         <div className="intro-buttons">
           <Button type="primary" size="large" onClick={goToHome}>
             Buy Products
@@ -37,8 +35,8 @@ const IntroScreen = () => {
         </div>
       </div>
 
-      {/* Right side - Image */}
-      <div className="intro-right">
+      {/* Center Image */}
+      <div className="intro-center">
         <img src={intro} alt="Intro" className="intro-image" />
       </div>
 
@@ -52,6 +50,11 @@ const IntroScreen = () => {
       >
         <VendorProduct onSuccess={handleSubmitSuccess} />
       </Modal>
+
+      {/* ✅ Footer Section */}
+      <footer className="intro-footer">
+        © {currentYear} Retro Woods.
+      </footer>
     </div>
   );
 };

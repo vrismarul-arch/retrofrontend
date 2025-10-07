@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { Button, Tooltip, Spin } from "antd";
+import { Button, Tooltip, Spin, Tag } from "antd";
 import { EyeOutlined, LinkOutlined } from "@ant-design/icons";
 import toast from "react-hot-toast";
 import api from "../../../api";
@@ -50,9 +50,7 @@ export default function BrandProducts() {
     const filtered = products.filter((p) => {
       const price = p.finalPrice || p.price;
 
-      const statusMatch =
-        status.includes("all") || status.includes(p.status);
-
+      const statusMatch = status.includes("all") || status.includes(p.status);
       const conditionMatch =
         condition.includes("all") || condition.includes(p.condition);
 
@@ -105,7 +103,7 @@ export default function BrandProducts() {
           url: link,
         })
         .then(() => toast.success("Shared successfully"))
-        .catch(() => { });
+        .catch(() => {});
     } else {
       navigator.clipboard.writeText(`${product.name}\n${link}`);
       toast.success("Copied product link!");
@@ -133,12 +131,13 @@ export default function BrandProducts() {
 
         <div className="category-header">
           <h1 className="category-title">
-            {brand?.name || "Brand"} <span className="porduct-count">Product Count : ({filteredProducts.length})</span>
+            {brand?.name || "Brand"}{" "}
+            <span className="porduct-count">
+              Product Count : ({filteredProducts.length})
+            </span>
           </h1>
           <hr className="home-title-hr" />
-
         </div>
-
 
         <div className="service-grid">
           {filteredProducts.length > 0 ? (
@@ -148,12 +147,27 @@ export default function BrandProducts() {
                   <img
                     src={product.image || "/placeholder.png"}
                     alt={product.name}
-                    className="service-card-img"                        onClick={() => navigate(`/product/${product._id}`)}
-
+                    className="service-card-img"
+                    onClick={() => navigate(`/product/${product._id}`)}
                     onError={(e) => (e.target.src = "/placeholder.png")}
                   />
+
+                  {/* ✅ Discount Badge */}
                   {product.discount > 0 && (
                     <span className="discount-tag">{product.discount}% OFF</span>
+                  )}
+
+                  {/* ✅ Status Badge */}
+                  {product.status && (
+                    <span
+                      className={`status-badge ${
+                        product.status
+                          .toLowerCase()
+                          .replace(/\s+/g, "-")
+                      }`}
+                    >
+                      {product.status}
+                    </span>
                   )}
                 </div>
 
@@ -164,7 +178,9 @@ export default function BrandProducts() {
                   </p>
 
                   <div className="price-section">
-                    <span className="price">₹{roundPrice(product.price)}</span>
+                    <span className="price">
+                      ₹{roundPrice(product.finalPrice || product.price)}
+                    </span>
                     {product.originalPrice &&
                       product.originalPrice > product.price && (
                         <span className="old-price">

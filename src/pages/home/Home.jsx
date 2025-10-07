@@ -10,23 +10,20 @@ import ValueProps from "./valu/ValueProps";
 import Retrowoodsb2b from "./b2b/Retrowoodsb2b";
 import Footer from "../../components/footer/Footer";
 import AboutContent from "../../components/about/AboutContent";
+import ScrollingText from "../../components/scrlltext/ScrollingText";
 
 import LoadingScreen from "../../components/loading/LoadingScreen"; // ✅ full-page loader
 import "./Home.css";
 import TestimonialCarousel from "../testimonial/TestimonialCarousel";
+import FAQAccordion from "./faq/FAQAccordion";
 
 export default function Home() {
   const [loading, setLoading] = useState(true);
 
-  // Simulate data loading for all sections
   useEffect(() => {
     const loadData = async () => {
       try {
-        // Here you can fetch data for sections if needed
-        // await fetchCategories();
-        // await fetchTrending();
-        // await fetchBrandProducts();
-        // etc.
+      
         await new Promise((resolve) => setTimeout(resolve, 1000)); // simulate delay
       } catch (err) {
         console.error("❌ Failed to load Home data:", err);
@@ -46,7 +43,7 @@ export default function Home() {
     <div className="home-page">
       {/* Top Banner */}
       <Adsbanner />
-
+<ScrollingText />
       {/* Categories Section */}
       <section className="home-section">
         <Categories toast={toast} />
@@ -76,10 +73,13 @@ export default function Home() {
       </section>
 
       <Divider />
-
+<ScrollingText />
       {/* About Content Section */}
       <section className="home-section">
         <AboutContent />
+      </section>
+      <section className="home-section">
+        <FAQAccordion />
       </section>
 
       {/* Footer */}

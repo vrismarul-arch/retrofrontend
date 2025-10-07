@@ -14,6 +14,7 @@ import {
   Image,
   Descriptions,
   Tabs,
+  InputNumber,
 } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import toast, { Toaster } from "react-hot-toast";
@@ -30,7 +31,7 @@ export default function AdminProductsPage() {
   const [fileList, setFileList] = useState([]);
   const [form] = Form.useForm();
 
-  // Fetch all submissions
+  // ✅ Fetch all submissions
   const fetchSubmissions = async () => {
     try {
       setLoading(true);
@@ -47,12 +48,9 @@ export default function AdminProductsPage() {
     fetchSubmissions();
   }, []);
 
-  // Approve / Reject individual product
+  // ✅ Approve Product
   const approveProduct = async (submissionId, productIndex) => {
     try {
-      const submission = submissions.find((s) => s._id === submissionId);
-      const productId = submission.products[productIndex]._id;
-
       await api.put(`/api/vendor/products/${submissionId}/approve`);
       toast.success("Product approved");
       fetchSubmissions();
@@ -61,11 +59,9 @@ export default function AdminProductsPage() {
     }
   };
 
+  // ✅ Reject Product
   const rejectProduct = async (submissionId, productIndex) => {
     try {
-      const submission = submissions.find((s) => s._id === submissionId);
-      const productId = submission.products[productIndex]._id;
-
       await api.put(`/api/vendor/products/${submissionId}/reject`);
       toast.success("Product rejected");
       fetchSubmissions();
@@ -74,7 +70,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Open drawer for editing individual product
+  // ✅ Open Drawer
   const openDrawer = (submission, product, productIndex) => {
     setSelectedSubmission(submission);
     setSelectedProduct({ ...product, index: productIndex });
@@ -88,6 +84,7 @@ export default function AdminProductsPage() {
       dimension: product.dimension,
       productDetails: product.productDetails,
       description: product.description,
+      stock: product.stock || 0,
     });
 
     const files = product.images?.map((url, idx) => ({
@@ -100,7 +97,7 @@ export default function AdminProductsPage() {
     setDrawerOpen(true);
   };
 
-  // Update product
+  // ✅ Update Product (includes stock)
   const updateProduct = async (values) => {
     try {
       const formData = new FormData();
@@ -115,7 +112,7 @@ export default function AdminProductsPage() {
         { headers: { "Content-Type": "multipart/form-data" } }
       );
 
-      toast.success("Product updated successfully");
+      toast.success("Product updated successfully (stock updated too)");
       fetchSubmissions();
       setDrawerOpen(false);
     } catch (err) {
@@ -123,7 +120,7 @@ export default function AdminProductsPage() {
     }
   };
 
-  // Flatten submissions into individual products for table view
+  // ✅ Flatten submissions into individual products
   const flattenedProducts = submissions.flatMap((submission) =>
     submission.products.map((p, idx) => ({
       ...p,
@@ -136,13 +133,13 @@ export default function AdminProductsPage() {
     }))
   );
 
-  // Filtered products
+  // ✅ Filtered products
   const filteredProducts =
     filter === "all"
       ? flattenedProducts
       : flattenedProducts.filter((p) => p.status === filter);
 
-  // Table columns
+  // ✅ Table Columns
   const columns = [
     { title: "S.No", render: (_, __, index) => index + 1, width: 70 },
     { title: "Product Name", dataIndex: "productName", key: "productName" },
@@ -164,6 +161,12 @@ export default function AdminProductsPage() {
         ) : (
           "No Image"
         ),
+    },
+    {
+      title: "Stock",
+      dataIndex: "stock",
+      key: "stock",
+      render: (stock) => <b>{stock ?? 0}</b>,
     },
     {
       title: "Status",
@@ -281,6 +284,9 @@ export default function AdminProductsPage() {
                 <p>
                   <b>Vendor:</b> {item.vendorName} ({item.phone})
                 </p>
+                <p>
+                  <b>Stock:</b> {item.stock ?? 0}
+                </p>
                 <Button
                   size="small"
                   onClick={() =>
@@ -350,6 +356,15 @@ export default function AdminProductsPage() {
                 <Input.TextArea rows={3} />
               </Form.Item>
 
+              {/* ✅ New Stock Field */}
+              <Form.Item
+                label="Stock Quantity"
+                name="stock"
+                rules={[{ required: true, message: "Please enter stock quantity" }]}
+              >
+                <InputNumber min={0} style={{ width: "100%" }} />
+              </Form.Item>
+
               <Form.Item label="Images">
                 <Upload
                   listType="picture"
@@ -391,13 +406,15 @@ export default function AdminProductsPage() {
 
             <Descriptions bordered column={1} size="small" title="Product Info">
               <Descriptions.Item label="Status">
-                <Tag color={
-                  selectedProduct.status === "approved"
-                    ? "green"
-                    : selectedProduct.status === "rejected"
-                    ? "red"
-                    : "orange"
-                }>
+                <Tag
+                  color={
+                    selectedProduct.status === "approved"
+                      ? "green"
+                      : selectedProduct.status === "rejected"
+                      ? "red"
+                      : "orange"
+                  }
+                >
                   {selectedProduct.status?.toUpperCase()}
                 </Tag>
               </Descriptions.Item>

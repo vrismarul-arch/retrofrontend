@@ -1,5 +1,15 @@
 import React, { useEffect, useState } from "react";
-import { Card, Row, Col, Table, Tag, Spin, message } from "antd";
+import {
+  Card,
+  Row,
+  Col,
+  Table,
+  Tag,
+  Spin,
+  message,
+  Collapse,
+  Descriptions,
+} from "antd";
 import {
   PieChart,
   Pie,
@@ -16,7 +26,9 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import api from "../../../../api";
-import "./admindashboard.css"; // exact match// ✅ Import CSS
+import "./admindashboard.css"; // exact match
+
+const { Panel } = Collapse;
 
 const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444"];
 const cardStyle = {
@@ -103,7 +115,12 @@ export default function AdminDashboard() {
     }
   }, [products]);
 
-  const productColumns = [
+  const productColumns = [ {
+              title: "S.No.",
+              render: (_, __, index) => index + 1,
+              width: 40,
+              align: "center",
+            },
     { title: "Name", dataIndex: "name", key: "name" },
     {
       title: "Category",
@@ -119,11 +136,8 @@ export default function AdminDashboard() {
       render: (status) => (
         <Tag
           color={
-            {
-              approved: "green",
-              rejected: "red",
-              pending: "orange",
-            }[status] || "gray"
+            { approved: "green", rejected: "red", pending: "orange" }[status] ||
+            "gray"
           }
         >
           {status?.toUpperCase()}
@@ -180,32 +194,12 @@ export default function AdminDashboard() {
               <AreaChart
                 width={150}
                 height={50}
-                data={[
-                  { uv: 20 },
-                  { uv: 40 },
-                  { uv: 25 },
-                  { uv: 50 },
-                  { uv: 35 },
-                ]}
+                data={[{ uv: 20 }, { uv: 40 }, { uv: 25 }, { uv: 50 }, { uv: 35 }]}
               >
                 <defs>
-                  <linearGradient
-                    id={`colorUv${i}`}
-                    x1="0"
-                    y1="0"
-                    x2="0"
-                    y2="1"
-                  >
-                    <stop
-                      offset="5%"
-                      stopColor={COLORS[i]}
-                      stopOpacity={0.8}
-                    />
-                    <stop
-                      offset="95%"
-                      stopColor={COLORS[i]}
-                      stopOpacity={0}
-                    />
+                  <linearGradient id={`colorUv${i}`} x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="5%" stopColor={COLORS[i]} stopOpacity={0.8} />
+                    <stop offset="95%" stopColor={COLORS[i]} stopOpacity={0} />
                   </linearGradient>
                 </defs>
                 <Area
@@ -224,9 +218,7 @@ export default function AdminDashboard() {
       {/* Charts */}
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} md={12}>
-          <MotionCard
-            title={<span style={{ fontWeight: 600 }}>Catalog Overview</span>}
-          >
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Catalog Overview</span>}>
             <ResponsiveContainer width="100%" height={280}>
               <PieChart>
                 <Pie
@@ -255,9 +247,7 @@ export default function AdminDashboard() {
           </MotionCard>
         </Col>
         <Col xs={24} md={12}>
-          <MotionCard
-            title={<span style={{ fontWeight: 600 }}>Products by Category</span>}
-          >
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Products by Category</span>}>
             <ResponsiveContainer width="100%" height={280}>
               <BarChart data={categoryChartData}>
                 <XAxis dataKey="category" />
@@ -270,20 +260,65 @@ export default function AdminDashboard() {
         </Col>
       </Row>
 
-      {/* Products Table */}
-      <MotionCard
-        title={<span style={{ fontWeight: 600 }}>Products Table</span>}
-        bodyStyle={{ padding: "1rem" }}
-      >
-        <Table
-          rowKey="_id"
-          columns={productColumns}
-          dataSource={products}
-          pagination={{ pageSize: 6 }}
-          rowClassName={() => "hover-row"}
-          scroll={{ x: "max-content" }} // ✅ fixes unnecessary scrollbar
-        />
-      </MotionCard>
+      {/* Table + Accordion */}
+      <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
+        <Col xs={24} md={12}>
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Products Table</span>} bodyStyle={{ padding: "1rem" }}>
+            <Table
+              rowKey="_id"
+              columns={productColumns}
+              dataSource={products}
+              pagination={{ pageSize: 6 }}
+              rowClassName={() => "hover-row"}
+              scroll={{ x: "max-content" }}
+            />
+          </MotionCard>
+        </Col>
+
+        <Col xs={24} md={12}>
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Products List </span>} bodyStyle={{ padding: "1rem" }}>
+            <Collapse accordion>
+              {products.map((product) => (
+                <Panel
+                  key={product._id}
+                  header={`${product.name} (${typeof product.category === "object" ? product.category.name : product.category})`}
+                  extra={
+                    <Tag
+                      color={{
+                        approved: "green",
+                        rejected: "red",
+                        pending: "orange",
+                      }[product.status] || "gray"}
+                    >
+                      {product.status?.toUpperCase()}
+                    </Tag>
+                  }
+                >
+                  <Descriptions bordered column={1} size="small">
+                    <Descriptions.Item label="Name">{product.name}</Descriptions.Item>
+                    <Descriptions.Item label="Category">{typeof product.category === "object" ? product.category.name : product.category}</Descriptions.Item>
+                    <Descriptions.Item label="Stock">{product.stock ?? 0}</Descriptions.Item>
+                    <Descriptions.Item label="Status">{product.status}</Descriptions.Item>
+                    <Descriptions.Item label="Description">{product.description || "N/A"}</Descriptions.Item>
+                    <Descriptions.Item label="Created At">{new Date(product.createdAt).toLocaleString()}</Descriptions.Item>
+                    {product.images && product.images.length > 0 && (
+                      <Descriptions.Item label="Images">
+                        <Row gutter={[8, 8]}>
+                          {product.images.map((img, idx) => (
+                            <Col key={idx}>
+                              <img src={img} alt={product.name} width={80} style={{ borderRadius: 6 }} />
+                            </Col>
+                          ))}
+                        </Row>
+                      </Descriptions.Item>
+                    )}
+                  </Descriptions>
+                </Panel>
+              ))}
+            </Collapse>
+          </MotionCard>
+        </Col>
+      </Row>
     </motion.div>
   );
 }

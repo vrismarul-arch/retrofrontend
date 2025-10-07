@@ -1,45 +1,52 @@
 import React, { useState, useEffect, useRef } from "react";
-import { ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight, Star } from "lucide-react";
+import { motion } from "framer-motion";
 import "./TestimonialCarousel.css";
+
+import review1 from "./Padmaraj-Mahadevan.png";
+import review2 from "./subashri-venkatesan.png";
+import review3 from "./saraswathi-hema.png";
+import review4 from "./Carolin-Sangeetha.png";
+import review5 from "./bharathi.png";
+import review6 from "./Santhosh.png";
 
 const cards = [
   {
-    image: "https://images.unsplash.com/photo-1598300059231-0e06dcfa8d7f?auto=format&fit=crop&w=900&q=80",
-    title: "Leather Recliner",
-    text: "Beautiful leather recliner. Perfectly wide and easy to set up. Probably the best on the market!",
-    name: "Arjun",
+    image: review1,
+    title: "Padmaraj Mahadevan",
+    text: "Bought a bookshelf from Retrowood Adambakkam. Cheyizhan was helpful, and it was a good experience overall—nice pieces to choose from, delivered to our house on time. Found it to be good value for money.",
   },
   {
-    image: "https://images.unsplash.com/photo-1588854337112-269f2a2fdd6c?auto=format&fit=crop&w=900&q=80",
-    title: "Office Desk",
-    text: "Purchased an office desk for my home setup. Great quality and smooth delivery experience!",
-    name: "Rajkiran",
+    image: review2,
+    title: "Subashri Venkatesan",
+    text: "We bought a two-seater wooden sofa in good condition at a reasonable price. Polishing was done quickly and delivery was on time. Very happy with the purchase!",
   },
   {
-    image: "https://images.unsplash.com/photo-1616627892439-3db41d6c8c4e?auto=format&fit=crop&w=900&q=80",
-    title: "Recliner Chair",
-    text: "Very comfortable & spacious recliner! Worth the money. Delivery was fast and hassle-free.",
-    name: "Madhusudan",
+    image: review3,
+    title: "Saraswathi Hema",
+    text: "Worth buying! Extremely satisfied with the recent sofa purchase – great quality and price. Thanks to Retrowoods!",
   },
   {
-    image: "https://images.unsplash.com/photo-1616627893578-6c5eb5c6e6f8?auto=format&fit=crop&w=900&q=80",
-    title: "Sofa Set",
-    text: "We saw this in the showroom and knew it was perfect for our home. Soft and cozy finish!",
-    name: "Vinay",
+    image: review4,
+    title: "Carolin Sangeetha",
+    text: "The quality of the furniture is top-notch. I'm extremely happy with my purchase and service!",
   },
   {
-    image: "https://images.unsplash.com/photo-1616627893621-2fc8e8f7b1d0?auto=format&fit=crop&w=900&q=80",
-    title: "Dining Table",
-    text: "Elegant design and solid wood quality. Fits beautifully in our dining area.",
-    name: "Ravi",
+    image: review5,
+    title: "Bharathi Bharathi",
+    text: "Thank you for delivering that amazing sofa! Great quality and unbeatable price. Excellent service!",
+  },
+  {
+    image: review6,
+    title: "Santhosh Balaji",
+    text: "Good and transparent service. Transport arranged within hours. Smooth and trustworthy experience overall!",
   },
 ];
 
-const TestimonialCarousel = () => {
+export default function TestimonialCarousel() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [cardsToShow, setCardsToShow] = useState(4);
   const timeoutRef = useRef(null);
-
   const total = cards.length;
 
   const updateCardsToShow = () => {
@@ -56,61 +63,72 @@ const TestimonialCarousel = () => {
   }, []);
 
   const nextSlide = () => {
-    setCurrentIndex((prev) =>
-      prev + 1 >= total ? 0 : prev + 1
-    );
+    const maxIndex = total - cardsToShow;
+    setCurrentIndex((prev) => (prev + 1 > maxIndex ? 0 : prev + 1));
   };
 
   const prevSlide = () => {
-    setCurrentIndex((prev) =>
-      prev - 1 < 0 ? total - 1 : prev - 1
-    );
+    const maxIndex = total - cardsToShow;
+    setCurrentIndex((prev) => (prev - 1 < 0 ? maxIndex : prev - 1));
   };
 
   useEffect(() => {
-    timeoutRef.current = setTimeout(nextSlide, 3000);
+    if (timeoutRef.current) clearTimeout(timeoutRef.current);
+    timeoutRef.current = setTimeout(nextSlide, 4000);
     return () => clearTimeout(timeoutRef.current);
-  }, [currentIndex]);
+  }, [currentIndex, cardsToShow]);
 
   const slideWidth = 100 / cardsToShow;
+  const trackWidth = (total / cardsToShow) * 100;
+  const translationValue = currentIndex * slideWidth;
 
   return (
-    <section className="card-slider-section">
-      <div className="card-slider-container">
-        <div className="slider-header">
-          <h2 className="slider-heading">What Our Customers Say</h2>
-          <div className="slider-controls">
-            <button className="arrow-btn left" onClick={prevSlide}>
-              <ChevronLeft size={28} />
+    <section className="testimonial-section">
+      <div className="testimonial-container">
+        <div className="testimonial-header">
+          <h2 className="testimonial-title">What Our Customers Say</h2>
+          <div className="testimonial-controls">
+            <button onClick={prevSlide} className="arrow-btn left" aria-label="Previous">
+              <ChevronLeft size={24} />
             </button>
-            <button className="arrow-btn right" onClick={nextSlide}>
-              <ChevronRight size={28} />
+            <button onClick={nextSlide} className="arrow-btn right" aria-label="Next">
+              <ChevronRight size={24} />
             </button>
           </div>
         </div>
 
-        <div className="slider-track" style={{ transform: `translateX(-${currentIndex * slideWidth}%)` }}>
+        <motion.div
+          className="testimonial-track"
+          animate={{ x: `-${translationValue}%` }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
+          style={{ width: `${trackWidth}%` }}
+        >
           {cards.map((card, index) => (
-            <div key={index} className="slide-item" style={{ minWidth: `${slideWidth}%` }}>
-              <div className="card">
-                <div className="card-img">
+            <motion.div
+              key={index}
+              className="testimonial-item"
+              style={{ minWidth: `${slideWidth}%` }}
+              whileHover={{ scale: 1.04 }}
+              transition={{ type: "spring", stiffness: 200 }}
+            >
+              <div className="testimonial-card">
+                <div className="testimonial-avatar">
                   <img src={card.image} alt={card.title} />
                 </div>
-                <div className="card-body">
-                  <h3 className="card-title">{card.title}</h3>
-                  <p className="card-text">{card.text}</p>
-                  <div className="card-footer">
-                    <div className="stars">⭐⭐⭐⭐⭐</div>
-                    <p className="card-name">{card.name}</p>
+                <div className="testimonial-content">
+                  <h3>{card.title}</h3>
+                  <p>{card.text}</p>
+                  <div className="testimonial-stars">
+                    {[...Array(5)].map((_, i) => (
+                      <Star key={i} size={16} fill="#f5a623" stroke="#f5a623" />
+                    ))}
                   </div>
                 </div>
               </div>
-            </div>
+            </motion.div>
           ))}
-        </div>
+        </motion.div>
       </div>
     </section>
   );
-};
-
-export default TestimonialCarousel;
+}

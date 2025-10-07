@@ -1,42 +1,108 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Collapse, Spin } from "antd";
 import api from "../../api";
-import "./MegaMenu.css";
+import "./MegaMenu.css"; // Assuming you have the styles in this file
 
-const { Panel } = Collapse;
-
-// Reusable component for mobile subcategory + brands
+// ===================================
+// Reusable Component: MobileSubcategory
+// - Toggles brands list visibility
+// ===================================
 const MobileSubcategory = ({ sub, onLinkClick }) => {
   const [open, setOpen] = useState(false);
+  const hasBrands = sub.brands.length > 0;
+
+  const handleSubHeaderClick = (e) => {
+    // Prevent navigating to subcategory link if there are brands to expand
+    if (hasBrands) {
+      e.preventDefault();
+      setOpen(!open);
+    } else {
+      // If no brands, allow navigation to the subcategory link
+      if (onLinkClick) onLinkClick();
+    }
+  };
 
   return (
-    <div className="mobile-subcategory">
-      <div
-        className="mobile-subcategory-header"
-        onClick={() => setOpen(!open)}
+    <li className="mobile-subcategory-item">
+      <Link
+        to={`/subcategories/${sub._id}`}
+        className="subcategory-link"
+        onClick={handleSubHeaderClick}
       >
-        {sub.name} {sub.brands.length > 0 && <span>{open ? "▲" : "▼"}</span>}
+        <span className="mobile-subcategory-name">{sub.name}</span>
+        {hasBrands && (
+          <span className="toggle-icon">{open ? "▲" : "▼"}</span>
+        )}
+      </Link>
+      
+      {/* Brands List (Collapsible Content) */}
+      <div className={`mobile-brands-container ${open ? "open" : ""}`}>
+        {hasBrands ? (
+          <ul className="mobile-brands">
+            {sub.brands.map((brand) => (
+              <li key={brand._id}>
+                <Link to={`/brands/${brand._id}`} onClick={onLinkClick}>
+                  {brand.name}
+                </Link>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="no-brands-msg-small">No brands available</p>
+        )}
       </div>
-      {open && sub.brands.length > 0 && (
-        <ul className="mobile-brands">
-          {sub.brands.map((brand) => (
-            <li key={brand._id}>
-              <Link to={`/brands/${brand._id}`} onClick={onLinkClick}>
-                {brand.name}
-              </Link>
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
+    </li>
   );
 };
 
+// ===================================
+// Reusable Component: MobileCategory
+// - Toggles subcategories list visibility
+// ===================================
+const MobileCategory = ({ cat, onLinkClick }) => {
+  const [open, setOpen] = useState(false);
+  const hasSubcategories = cat.subcategories.length > 0;
+
+  const toggleOpen = () => {
+    setOpen(!open);
+  };
+
+  return (
+    <li className="mobile-category-item">
+      <div className="mobile-category-header" onClick={toggleOpen}>
+        {cat.name}
+        <span className="toggle-icon">{open ? "▲" : "▼"}</span>
+      </div>
+      
+      {/* Subcategories List (Collapsible Content) */}
+      <div className={`mobile-subcategories-container ${open ? "open" : ""}`}>
+        {hasSubcategories ? (
+          <ul className="mobile-subcategories">
+            {cat.subcategories.map((sub) => (
+              <MobileSubcategory
+                key={sub._id}
+                sub={sub}
+                onLinkClick={onLinkClick}
+              />
+            ))}
+          </ul>
+        ) : (
+          <p className="no-subs-msg">No subcategories available</p>
+        )}
+      </div>
+    </li>
+  );
+};
+
+
+// ===================================
+// Main Component: MegaMenuFull
+// ===================================
 const MegaMenuFull = ({ mobile = false, onLinkClick }) => {
   const [menuData, setMenuData] = useState([]);
   const [loading, setLoading] = useState(true);
 
+  // Fetch data and structure the menu hierarchy
   useEffect(() => {
     const fetchMenuData = async () => {
       try {
@@ -50,6 +116,7 @@ const MegaMenuFull = ({ mobile = false, onLinkClick }) => {
         const subcategories = subRes.data;
         const brands = brandRes.data;
 
+        // Structure the data: Category -> Subcategory -> Brands
         const menu = categories.map((cat) => {
           const subs = subcategories
             .filter((sub) => sub.category?._id === cat._id)
@@ -65,6 +132,8 @@ const MegaMenuFull = ({ mobile = false, onLinkClick }) => {
         setMenuData(menu);
       } catch (err) {
         console.error("Failed to fetch menu data:", err);
+        // Optionally set menuData to empty array on error
+        setMenuData([]); 
       } finally {
         setLoading(false);
       }
@@ -76,47 +145,43 @@ const MegaMenuFull = ({ mobile = false, onLinkClick }) => {
     if (onLinkClick) onLinkClick();
   };
 
-if (loading) 
-  return (
-    <div style={{ textAlign: "center", marginTop: "2rem", fontSize: "1.2rem" }}>
-      Loading...
-    </div>
-  );
+  if (loading) 
+    return (
+      <div style={{ textAlign: "center", marginTop: "2rem", fontSize: "1.2rem" }}>
+        {/* Using a simple text-based spinner for consistency, 
+            but you could use an Ant Design Spin component here */}
+        Loading...
+      </div>
+    );
 
-  // -------- MOBILE VIEW --------
+  // ----------------------------------------
+  // 1. MOBILE VIEW (Custom UI)
+  // ----------------------------------------
   if (mobile) {
     return (
       <div className="mobile-menu">
-        {menuData.length === 0 && <p>No Categories</p>}
-        {menuData.map((cat) => (
-          <Collapse
-            key={cat._id}
-            bordered={false}
-            accordion
-            expandIconPosition="end"
-          >
-            <Panel header={cat.name} key={cat._id}>
-              {cat.subcategories.length === 0 ? (
-                <p>No subcategories</p>
-              ) : (
-                cat.subcategories.map((sub) => (
-                  <MobileSubcategory
-                    key={sub._id}
-                    sub={sub}
-                    onLinkClick={handleLinkClick}
-                  />
-                ))
-              )}
-            </Panel>
-          </Collapse>
-        ))}
+        {menuData.length === 0 ? (
+          <p className="no-categories-msg">No Categories available</p>
+        ) : (
+          <ul className="mobile-menu-new">
+            {menuData.map((cat) => (
+              <MobileCategory
+                key={cat._id}
+                cat={cat}
+                onLinkClick={handleLinkClick}
+              />
+            ))}
+          </ul>
+        )}
       </div>
     );
   }
 
-  // -------- DESKTOP VIEW --------
+  // ----------------------------------------
+  // 2. DESKTOP VIEW (Original UI)
+  // ----------------------------------------
   return (
-     <div className="desktop-menu">
+    <div className="desktop-menu">
       <ul className="mega-menu">
         {menuData.map((cat) => (
           <li className="mega-menu-item" key={cat._id}>
@@ -126,7 +191,7 @@ if (loading)
                 {cat.subcategories.map((sub) => (
                   <div className="mega-column" key={sub._id}>
                     <h4 className="subcategory-title">
-                      <Link to={`/subcategories/${sub._id}`}>
+                      <Link to={`/subcategories/${sub._id}`} onClick={handleLinkClick}>
                         {sub.name}
                       </Link>
                     </h4>

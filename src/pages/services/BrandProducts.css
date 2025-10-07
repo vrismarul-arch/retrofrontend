@@ -285,3 +285,38 @@
     max-height: none;
   }
 }
+/* ----- Status Badge Styling ----- */
+.status-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #007bff;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+  padding: 4px 8px;
+  border-radius: 6px;
+  text-transform: capitalize;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+/* Variants based on status text */
+.status-badge.new-arrival {
+  background: #28a745;
+}
+
+.status-badge.limited-stock {
+  background: #ff9800;
+}
+
+.status-badge.clearance {
+  background: #f44336;
+}
+
+.status-badge.featured {
+  background: #9c27b0;
+}
+
+.status-badge.best-seller {
+  background: #ffc107;
+}
