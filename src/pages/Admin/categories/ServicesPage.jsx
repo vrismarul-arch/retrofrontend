@@ -56,8 +56,13 @@ export default function ProductsPage() {
   }, []);
 
   const fetchProducts = async () => {
-    const res = await api.get("/api/admin/products");
-    setProducts(res.data || []);
+    try {
+        const res = await api.get("/api/admin/products");
+        setProducts(res.data || []);
+    } catch(error) {
+        toast.error("Failed to fetch products.");
+        setProducts([]);
+    }
   };
 
   const fetchCategories = async () => {
@@ -75,21 +80,30 @@ export default function ProductsPage() {
     setBrands(res.data || []);
   };
 
-  const normalizeUpload = (e) => (Array.isArray(e) ? e : e?.fileList || []);
+  // Utility function for Antd Upload component
+  const normalizeUpload = (e) => {
+    // If the event target is just the file array (from initial value), return it
+    if (Array.isArray(e)) return e; 
+    // Otherwise, it's the Upload event object
+    return e?.fileList || [];
+  };
 
   // ---------------------------
   // Handle dropdown changes
   // ---------------------------
   const handleCategoryChange = (categoryId) => {
+    // Filter subcategories that belong to the selected category
     const filteredSC = subCategories.filter(
       (sc) => sc.category?._id === categoryId || sc.category === categoryId
     );
     setFilteredSubCategories(filteredSC);
+    // Reset dependent fields
     form.setFieldsValue({ subCategory: undefined, brand: undefined });
     setFilteredBrands([]);
   };
 
   const handleSubCategoryChange = (subCategoryId) => {
+    // Filter brands that are associated with the selected subcategory
     const filteredB = brands.filter((b) =>
       Array.isArray(b.subCategories)
         ? b.subCategories.some(
@@ -98,48 +112,71 @@ export default function ProductsPage() {
         : false
     );
     setFilteredBrands(filteredB);
+    // Reset dependent field
     form.setFieldsValue({ brand: undefined });
   };
 
   // ---------------------------
-  // Save Product
+  // ✅ Corrected Save Product logic (now triggered by Form onFinish)
   // ---------------------------
-  const handleSave = async () => {
+  const handleSave = async (values) => {
+    const toastId = toast.loading(editingItem ? "Updating product..." : "Adding product...");
     try {
       setSaving(true);
-      const values = await form.validateFields();
+      
+      // ✅ Now that validation passed, we proceed to API call
       const formData = new FormData();
 
+      // 1. Append simple fields
       Object.keys(values).forEach((key) => {
-        if (["moreInformation"].includes(key)) {
-          formData.append(key, JSON.stringify(values[key] || {}));
-        } else if (
-          values[key] instanceof Array ||
-          typeof values[key] === "object"
-        ) {
-          if (key !== "images" && key !== "mainImage") {
+        if (key === "moreInformation") {
+            // Handle nested object structure (More Info) by stringifying
             formData.append(key, JSON.stringify(values[key] || {}));
-          }
-        } else if (values[key] !== undefined && values[key] !== null) {
-          formData.append(key, values[key]);
+        } else if (values[key] !== undefined && values[key] !== null && 
+                   key !== "images" && key !== "mainImage") {
+            // Append all other simple fields
+            formData.append(key, values[key]);
+        }
+      });
+      
+      // 2. Handle Main Image Upload
+      const mainImageFile = values.mainImage?.[0]?.originFileObj;
+      if (mainImageFile) {
+          formData.append("mainImage", mainImageFile);
+      } else if (values.mainImage?.[0]?.url) {
+          // Send existing main image URL for update
+          formData.append("existingMainImageUrl", values.mainImage[0].url);
+      }
+      
+      // 3. Handle Additional Images
+      const newImagesToUpload = [];
+      const existingImageUrls = [];
+
+      (values.images || []).forEach((file) => {
+        if (file.originFileObj) {
+          newImagesToUpload.push(file.originFileObj);
+        } else if (file.url) {
+          existingImageUrls.push(file.url);
         }
       });
 
-      const mainImage = values.mainImage?.[0]?.originFileObj;
-      if (mainImage) formData.append("mainImage", mainImage);
+      // Append new files
+      newImagesToUpload.forEach(file => formData.append("images", file));
 
-      (values.images || []).forEach((file) => {
-        if (file.originFileObj) formData.append("images", file.originFileObj);
-      });
+      // Append existing URLs to keep them (backend must handle this)
+      formData.append("existingImages", JSON.stringify(existingImageUrls));
 
+      // 4. API Call
       if (editingItem) {
-        const existing = editingItem.images || [];
-        formData.append("existingImages", JSON.stringify(existing));
-        await api.put(`/api/admin/products/${editingItem._id}`, formData);
-        toast.success("✅ Product updated successfully");
+        await api.put(`/api/admin/products/${editingItem._id}`, formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("✅ Product updated successfully", { id: toastId });
       } else {
-        await api.post("/api/admin/products", formData);
-        toast.success("✅ Product added successfully");
+        await api.post("/api/admin/products", formData, {
+            headers: { "Content-Type": "multipart/form-data" },
+        });
+        toast.success("✅ Product added successfully", { id: toastId });
       }
 
       setDrawerOpen(false);
@@ -149,8 +186,9 @@ export default function ProductsPage() {
       setFilteredBrands([]);
       fetchProducts();
     } catch (err) {
-      console.error(err);
-      toast.error("❌ Error saving product");
+        // This catches API errors (400, 500 etc.)
+        console.error(err);
+        toast.error(err.response?.data?.error || "❌ Error saving product. Check server logs.", { id: toastId });
     } finally {
       setSaving(false);
     }
@@ -160,9 +198,13 @@ export default function ProductsPage() {
   // Delete Product
   // ---------------------------
   const handleDelete = async (id) => {
-    await api.delete(`/api/admin/products/${id}`);
-    toast.success("🗑️ Product deleted!");
-    fetchProducts();
+    try {
+        await api.delete(`/api/admin/products/${id}`);
+        toast.success("🗑️ Product deleted!");
+        fetchProducts();
+    } catch(err) {
+        toast.error(err.response?.data?.error || "❌ Failed to delete product.");
+    }
   };
 
   // ---------------------------
@@ -173,30 +215,22 @@ export default function ProductsPage() {
     {
       title: "Images",
       render: (_, record) => {
-        const mainImage = record.image;
-        const allImages = record.images || [];
+        // Use record.image for main image if it exists, otherwise use the first in images array
+        const mainImage = record.image || record.images?.[0]; 
+        
         return (
           <div className="product-image-container">
             {mainImage ? (
               <img
                 src={mainImage}
-                alt="Main"
+                alt="Product"
                 className="product-image"
+                style={{ width: 60, height: 60, objectFit: 'cover' }}
                 onClick={() => window.open(mainImage, "_blank")}
               />
             ) : (
-              <span className="text-gray-400">No Main Image</span>
+              <span className="text-gray-400">No Image</span>
             )}
-            {allImages.length > 0 &&
-              allImages.map((img, idx) => (
-                <img
-                  key={idx}
-                  src={img}
-                  alt={`img-${idx}`}
-                  className="product-image"
-                  onClick={() => window.open(img, "_blank")}
-                />
-              ))}
           </div>
         );
       },
@@ -219,7 +253,8 @@ export default function ProductsPage() {
               onClick={() => {
                 setEditingItem(record);
 
-                // Filter subcategories & brands for existing product
+                // --- Filtering Logic for Edit ---
+                // 1. Set SubCategories
                 const filteredSC = subCategories.filter(
                   (sc) =>
                     sc.category?._id === record.category?._id ||
@@ -227,6 +262,7 @@ export default function ProductsPage() {
                 );
                 setFilteredSubCategories(filteredSC);
 
+                // 2. Set Brands
                 const filteredB = brands.filter((b) =>
                   Array.isArray(b.subCategories)
                     ? b.subCategories.some(
@@ -238,29 +274,40 @@ export default function ProductsPage() {
                 );
                 setFilteredBrands(filteredB);
 
+                // --- Form Field Initialization ---
+                // Setup existing main image file list for Antd Upload component
+                const mainImageFileList = record.image
+                  ? [
+                      {
+                        uid: record.image, // Use URL as UID
+                        name: "main.png",
+                        status: "done",
+                        url: record.image,
+                      },
+                    ]
+                  : [];
+                
+                // Setup existing additional images file list
+                const additionalImagesFileList = record.images?.map((img, index) => ({
+                    uid: img,
+                    name: `img-${index}.png`,
+                    status: "done",
+                    url: img,
+                })) || [];
+
+
                 form.setFieldsValue({
                   ...record,
                   category: record.category?._id,
                   subCategory: record.subCategory?._id,
                   brand: record.brand?._id,
-                  mainImage: record.image
-                    ? [
-                        {
-                          uid: "-1",
-                          name: "main.png",
-                          status: "done",
-                          url: record.image,
-                        },
-                      ]
-                    : [],
-                  images: record.images?.map((img, index) => ({
-                    uid: index,
-                    name: `img-${index}.png`,
-                    status: "done",
-                    url: img,
-                  })),
-                  moreInformation: record.moreInformation || {},
+                  // Set image fields with file list structure
+                  mainImage: mainImageFileList, 
+                  images: additionalImagesFileList,
+                  // Ensure moreInformation is an object for nested fields
+                  moreInformation: record.moreInformation || {}, 
                 });
+                
                 setDrawerOpen(true);
               }}
             >
@@ -287,6 +334,7 @@ export default function ProductsPage() {
 
   return (
     <div className="p-6 bg-gray-100 min-h-screen">
+      {/* Toast Container for all messages */}
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-3xl font-bold">Products</h2>
         <Button
@@ -317,6 +365,7 @@ export default function ProductsPage() {
         />
       )}
 
+      {/* Product Drawer */}
       <Drawer
         title={editingItem ? "Edit Product" : "Add Product"}
         open={drawerOpen}
@@ -326,20 +375,34 @@ export default function ProductsPage() {
         extra={
           <div className="flex gap-2">
             <Button onClick={() => setDrawerOpen(false)}>Cancel</Button>
-            <Button type="primary" onClick={handleSave} loading={saving}>
+            {/* 💡 Use form.submit() to trigger validation before calling handleSave */}
+            <Button 
+              type="primary" 
+              onClick={() => form.submit()} 
+              loading={saving}
+            >
               Save
             </Button>
           </div>
         }
       >
-        <Form form={form} layout="vertical">
+        <Form 
+          form={form} 
+          layout="vertical"
+          // ✅ THIS IS THE KEY FIX: Call handleSave ONLY if validation succeeds
+          onFinish={handleSave} 
+          // ✅ Optional: Show a toast if validation fails (errors are already shown on fields)
+          onFinishFailed={() => {
+            toast.error("Please fill in all required fields and correct errors.");
+          }}
+        >
           <Collapse defaultActiveKey={["1"]} ghost>
             {/* Basic Info */}
             <Panel header="Basic Info" key="1">
               <Form.Item
                 name="name"
                 label="Product Name"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: "Product name is required" }]}
               >
                 <Input />
               </Form.Item>
@@ -349,9 +412,9 @@ export default function ProductsPage() {
               <Form.Item
                 name="price"
                 label="Price"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: "Price is required" }]}
               >
-                <InputNumber style={{ width: "100%" }} />
+                <InputNumber min={0} style={{ width: "100%" }} precision={2} />
               </Form.Item>
               <Form.Item name="discount" label="Discount (%)">
                 <InputNumber min={0} max={100} style={{ width: "100%" }} />
@@ -360,7 +423,7 @@ export default function ProductsPage() {
               <Form.Item
                 name="category"
                 label="Category"
-                rules={[{ required: true }]}
+                rules={[{ required: true, message: "Category is required" }]}
               >
                 <Select
                   placeholder="Select category"
@@ -378,6 +441,8 @@ export default function ProductsPage() {
                 <Select
                   placeholder="Select subcategory"
                   onChange={handleSubCategoryChange}
+                  // Disable if no categories are selected
+                  disabled={!form.getFieldValue('category')}
                 >
                   {filteredSubCategories.map((sc) => (
                     <Select.Option key={sc._id} value={sc._id}>
@@ -388,7 +453,11 @@ export default function ProductsPage() {
               </Form.Item>
 
               <Form.Item name="brand" label="Brand">
-                <Select placeholder="Select brand">
+                <Select 
+                    placeholder="Select brand"
+                    // Disable if no subcategory is selected
+                    disabled={!form.getFieldValue('subCategory')}
+                >
                   {filteredBrands.map((b) => (
                     <Select.Option key={b._id} value={b._id}>
                       {b.name}
@@ -405,13 +474,14 @@ export default function ProductsPage() {
                 label="Main Image"
                 valuePropName="fileList"
                 getValueFromEvent={normalizeUpload}
+                rules={[{ required: true, message: "Main image is required" }]}
               >
                 <Upload
                   listType="picture-card"
                   beforeUpload={() => false}
                   maxCount={1}
                 >
-                  <Button icon={<UploadOutlined />}>Upload Main Image</Button>
+                  {form.getFieldValue('mainImage')?.length === 1 ? null : <Button icon={<UploadOutlined />}>Upload Main Image</Button>}
                 </Upload>
               </Form.Item>
               <Form.Item
