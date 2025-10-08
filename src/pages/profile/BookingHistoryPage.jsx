@@ -175,7 +175,7 @@ export default function BookingHistoryPage() {
                     >
                       View Details
                     </Button>
-                    {!isDelivered && (
+                    {/* {!isDelivered && (
                       <Button
                         type="link"
                         danger
@@ -183,7 +183,7 @@ export default function BookingHistoryPage() {
                       >
                         Cancel Order
                       </Button>
-                    )}
+                    )} */}
                   </div>
                 </div>
               </div>

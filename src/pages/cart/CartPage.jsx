@@ -21,7 +21,7 @@ export default function CartPage() {
 
   const subtotal = cart.reduce((sum, item) => sum + item.product.price * item.quantity, 0);
   const delivery = cart.length > 0 ? 5 : 0;
-  const total = subtotal + delivery;
+  const total = subtotal ;
 
   if (loading) return <LoadingScreen message="Processing cart…" />;
 
@@ -121,10 +121,10 @@ export default function CartPage() {
                   <span>Sub Total</span>
                   <span>₹{subtotal}</span>
                 </div>
-                <div className="summary-row">
+                {/* <div className="summary-row">
                   <span>Delivery Fee</span>
                   <span>₹{delivery}</span>
-                </div>
+                </div> */}
                 <div className="summary-row total">
                   <span>Total</span>
                   <span>₹{total}</span>

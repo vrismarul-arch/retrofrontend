@@ -87,7 +87,6 @@ body {
   flex: 1;
   display: flex;
   gap: 15px;
-  padding: 20px;
 }
 
 .thumbnail-list {
@@ -110,10 +109,7 @@ body {
   border-color: var(--primary-color);
 }
 
-.thumbnail.active {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
+
 
 .main-image {
   flex: 1;
@@ -139,7 +135,7 @@ body {
 }
 
 .product-title {
-
+font-size: 25px;
   font-weight: 600;
   color: var(--heading-color);
   margin-bottom: 10px;
@@ -340,7 +336,7 @@ body {
     padding: 20px;
   }
   .product-title {
-    font-size: 2em;
+    font-size: 22px;
   }
   .current-price {
     font-size: 1.8em;

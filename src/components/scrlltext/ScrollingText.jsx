@@ -4,10 +4,9 @@ import "./ScrollingText.css";
 export default function ScrollingText() {
   const messages = [
     "Get in touch with Retrowoods",
-    "Retrowoods - Your Furniture, Your Style",
-    "Shop the best furniture at Retrowoods",
-    "Fast & Reliable Service by Retrowoods",
-    "Retrowoods - Quality Furniture for Every Home",
+    "Retrowoods ",
+    "Retrowoods ",
+    "Retrowoods",
   ];
 
   return (

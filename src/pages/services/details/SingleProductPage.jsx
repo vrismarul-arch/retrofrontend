@@ -19,6 +19,8 @@ import {
   HeartFilled,
 } from "@ant-design/icons";
 import toast from "react-hot-toast";
+import Zoom from "react-medium-image-zoom";
+import "react-medium-image-zoom/dist/styles.css";
 import api from "../../../../api";
 import { useCart } from "../../../context/CartContext";
 import LoadingScreen from "../../../components/loading/LoadingScreen";
@@ -70,7 +72,7 @@ export default function SingleProductPage() {
       try {
         const res = await api.get(`/api/products/${id}/reviews`);
         setReviews(res.data);
-      } catch (err) {
+      } catch {
         console.log("No reviews found");
       }
     };
@@ -138,7 +140,7 @@ export default function SingleProductPage() {
         { headers: { Authorization: `Bearer ${token}` } }
       );
       toast.success("Review added successfully!");
-      setReviews(res.data.reviews); // update from server
+      setReviews(res.data.reviews);
     } catch (err) {
       toast.error(err.response?.data?.error || "Failed to add review");
     } finally {
@@ -179,8 +181,20 @@ export default function SingleProductPage() {
               />
             ))}
           </div>
+
+          {/* ✅ MAIN IMAGE WITH MODERN ZOOM */}
           <div className="main-image">
-            <img src={selectedImage} alt="Product" />
+            <Zoom>
+              <img
+                src={selectedImage}
+                alt={product.name}
+                style={{
+                  width: "100%",
+                  borderRadius: "10px",
+                  objectFit: "contain",
+                }}
+              />
+            </Zoom>
           </div>
         </div>
 
@@ -194,15 +208,21 @@ export default function SingleProductPage() {
           </div>
 
           <div className="product-price-details">
-            <span className="current-price">₹{roundPrice(product.finalPrice)}</span>
+            <span className="current-price">
+              ₹{roundPrice(product.finalPrice)}
+            </span>
             {product.discount > 0 && (
-              <span className="original-price">₹{roundPrice(product.price)}</span>
+              <span className="original-price">
+                ₹{roundPrice(product.price)}
+              </span>
             )}
           </div>
 
           {product.colors?.length > 0 && (
             <div className="color-selector-section">
-              <p><strong>Colors:</strong></p>
+              <p>
+                <strong>Colors:</strong>
+              </p>
               <Radio.Group
                 onChange={(e) => setSelectedColor(e.target.value)}
                 value={selectedColor}
@@ -222,7 +242,9 @@ export default function SingleProductPage() {
           )}
 
           <div className="quantity-selector-section">
-            <p><strong>Quantity:</strong></p>
+            <p>
+              <strong>Quantity:</strong>
+            </p>
             <InputNumber
               min={1}
               max={product.stock}
@@ -258,13 +280,21 @@ export default function SingleProductPage() {
                 </Button>
               </>
             ) : (
-              <Button size="large" shape="round" disabled>OUT OF STOCK</Button>
+              <Button size="large" shape="round" disabled>
+                OUT OF STOCK
+              </Button>
             )}
 
             <Button
               size="large"
               shape="circle"
-              icon={isWishlisted ? <HeartFilled style={{ color: "red" }} /> : <HeartOutlined />}
+              icon={
+                isWishlisted ? (
+                  <HeartFilled style={{ color: "red" }} />
+                ) : (
+                  <HeartOutlined />
+                )
+              }
               onClick={() => setIsWishlisted(!isWishlisted)}
               className="wishlist-button"
             />
@@ -274,13 +304,17 @@ export default function SingleProductPage() {
 
       {/* ---------- TABS ---------- */}
       <div className="product-details-tabs">
-        <Tabs defaultActiveKey="1" centered size="large" className="modern-tabs" tabBarGutter={40}>
-          {/* Description */}
+        <Tabs
+          defaultActiveKey="1"
+          centered
+          size="large"
+          className="modern-tabs"
+          tabBarGutter={40}
+        >
           <Tabs.TabPane tab="Description" key="1">
             <p className="product-description">{product.description}</p>
           </Tabs.TabPane>
 
-          {/* Specifications */}
           <Tabs.TabPane tab="Specifications" key="2">
             <dl className="product-specs">
               {product.moreInformation?.dimensions && (
@@ -304,7 +338,6 @@ export default function SingleProductPage() {
             </dl>
           </Tabs.TabPane>
 
-          {/* Reviews */}
           <Tabs.TabPane tab="Reviews & Ratings" key="3">
             <div className="reviews-section">
               {reviews.length > 0 ? (
@@ -319,7 +352,6 @@ export default function SingleProductPage() {
                 <Empty description="No reviews yet" />
               )}
 
-              {/* ---------- REVIEW FORM ---------- */}
               {!isLoggedIn ? (
                 <div className="login-alert">
                   Only registered users can write reviews. Please{" "}
@@ -329,7 +361,11 @@ export default function SingleProductPage() {
                   .
                 </div>
               ) : (
-                <Form layout="vertical" onFinish={handleReviewSubmit} className="review-form">
+                <Form
+                  layout="vertical"
+                  onFinish={handleReviewSubmit}
+                  className="review-form"
+                >
                   <Form.Item
                     name="rating"
                     label="Rating"
@@ -359,9 +395,13 @@ export default function SingleProductPage() {
             </div>
           </Tabs.TabPane>
 
-          {/* FAQs */}
           <Tabs.TabPane tab="FAQs" key="4">
-            <Collapse accordion bordered={false} expandIconPosition="end" className="modern-accordion">
+            <Collapse
+              accordion
+              bordered={false}
+              expandIconPosition="end"
+              className="modern-accordion"
+            >
               <Panel header="What is the return policy?" key="1">
                 <p>We offer a 7-day return policy with a full refund.</p>
               </Panel>
@@ -369,7 +409,11 @@ export default function SingleProductPage() {
                 <p>Yes, minimal assembly is required. Tools are included.</p>
               </Panel>
               <Panel header="Do you provide warranty?" key="3">
-                <p>Yes, {product.moreInformation?.warranty || "N/A"} year(s) of manufacturer warranty.</p>
+                <p>
+                  Yes,{" "}
+                  {product.moreInformation?.warranty || "N/A"} year(s) of
+                  manufacturer warranty.
+                </p>
               </Panel>
             </Collapse>
           </Tabs.TabPane>

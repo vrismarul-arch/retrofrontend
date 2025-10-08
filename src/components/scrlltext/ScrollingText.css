@@ -20,7 +20,7 @@
   display: flex;
   gap: var(--scroll-gap);
   white-space: nowrap;
-  animation: marquee 15s linear infinite;
+  animation: marquee 25s linear infinite;
 }
 
 .scrolling-text {
@@ -28,7 +28,7 @@
   -webkit-background-clip: text;
   -moz-background-clip: text;
   background-clip: text;
-  color: transparent;
+  color: white;
   font-weight: 400;
   font-size: 34px;
 }

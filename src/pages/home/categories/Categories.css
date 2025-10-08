@@ -57,7 +57,7 @@
   position: static;           
   color: #078d89;            
   font-weight: 700;
-  font-size: 28px;
+  font-size: 18px;
   margin-top: 8px;           
   width: 100%;
   text-align: center;
@@ -100,7 +100,7 @@
   }
 
   .card-title {
-    font-size:22px;
+    font-size:18px;
   }
 }
 
@@ -111,7 +111,7 @@
   }
 
   .card-title {
-    font-size: 22px;
+    font-size: 12px;
   }
 }
 
