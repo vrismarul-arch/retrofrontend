@@ -26,10 +26,9 @@ import {
 } from "recharts";
 import { motion } from "framer-motion";
 import api from "../../../../api";
-import "./admindashboard.css"; // exact match
+import "./admindashboard.css";
 
 const { Panel } = Collapse;
-
 const COLORS = ["#3b82f6", "#22c55e", "#f59e0b", "#ef4444"];
 const cardStyle = {
   borderRadius: 20,
@@ -42,7 +41,7 @@ const MotionCard = ({ children, delay = 0, ...props }) => (
     animate={{ opacity: 1, scale: 1 }}
     transition={{ delay }}
   >
-    <Card style={cardStyle} {...props}>
+    <Card style={cardStyle} {...props} styles={{ body: { padding: "1rem" } }}>
       {children}
     </Card>
   </motion.div>
@@ -101,8 +100,8 @@ export default function AdminDashboard() {
   useEffect(() => {
     if (products.length) {
       const counts = products.reduce((acc, p) => {
-        const name =
-          typeof p.category === "object" ? p.category.name : p.category;
+        // Safe access to category name
+        const name = p.category?.name || p.category || "N/A";
         acc[name] = (acc[name] || 0) + 1;
         return acc;
       }, {});
@@ -115,19 +114,19 @@ export default function AdminDashboard() {
     }
   }, [products]);
 
-  const productColumns = [ {
-              title: "S.No.",
-              render: (_, __, index) => index + 1,
-              width: 40,
-              align: "center",
-            },
+  const productColumns = [
+    {
+      title: "S.No.",
+      render: (_, __, index) => index + 1,
+      width: 40,
+      align: "center",
+    },
     { title: "Name", dataIndex: "name", key: "name" },
     {
       title: "Category",
       dataIndex: "category",
       key: "category",
-      render: (cat) =>
-        typeof cat === "object" ? cat?.name || "N/A" : cat || "N/A",
+      render: (cat) => (cat?.name ? cat.name : cat || "N/A"),
     },
     {
       title: "Status",
@@ -135,10 +134,7 @@ export default function AdminDashboard() {
       key: "status",
       render: (status) => (
         <Tag
-          color={
-            { approved: "green", rejected: "red", pending: "orange" }[status] ||
-            "gray"
-          }
+          color={{ approved: "green", rejected: "red", pending: "orange" }[status] || "gray"}
         >
           {status?.toUpperCase()}
         </Tag>
@@ -152,13 +148,53 @@ export default function AdminDashboard() {
     },
   ];
 
-  return loading ? (
-    <Spin
-      tip="Loading..."
-      style={{ display: "block", margin: "2rem auto" }}
-      size="large"
-    />
-  ) : (
+  // Collapse items for new AntD API
+  const collapseItems = products.map((product) => ({
+    key: product._id,
+    label: (
+      <>
+        {product.name} ({product.category?.name || product.category || "N/A"})
+        <Tag
+          color={{ approved: "green", rejected: "red", pending: "orange" }[product.status] || "gray"}
+          style={{ marginLeft: 8 }}
+        >
+          {product.status?.toUpperCase()}
+        </Tag>
+      </>
+    ),
+    children: (
+      <Descriptions bordered column={1} size="small">
+        <Descriptions.Item label="Name">{product.name}</Descriptions.Item>
+        <Descriptions.Item label="Category">{product.category?.name || product.category || "N/A"}</Descriptions.Item>
+        <Descriptions.Item label="Stock">{product.stock ?? 0}</Descriptions.Item>
+        <Descriptions.Item label="Status">{product.status}</Descriptions.Item>
+        <Descriptions.Item label="Description">{product.description || "N/A"}</Descriptions.Item>
+        <Descriptions.Item label="Created At">{new Date(product.createdAt).toLocaleString()}</Descriptions.Item>
+        {product.images && product.images.length > 0 && (
+          <Descriptions.Item label="Images">
+            <Row gutter={[8, 8]}>
+              {product.images.map((img, idx) => (
+                <Col key={idx}>
+                  <img src={img} alt={product.name} width={80} style={{ borderRadius: 6 }} />
+                </Col>
+              ))}
+            </Row>
+          </Descriptions.Item>
+        )}
+      </Descriptions>
+    ),
+  }));
+
+  if (loading) {
+    return (
+      <Spin
+        size="large"
+        style={{ display: "block", margin: "2rem auto" }}
+      />
+    );
+  }
+
+  return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
@@ -168,27 +204,11 @@ export default function AdminDashboard() {
       <Row gutter={[16, 16]} style={{ marginBottom: 24 }}>
         {Object.keys(summary).map((key, i) => (
           <Col xs={24} sm={12} md={6} key={key}>
-            <MotionCard
-              delay={i * 0.1}
-              bodyStyle={{ textAlign: "center", padding: "1.5rem" }}
-              hoverable
-            >
-              <h3
-                style={{
-                  fontSize: "1rem",
-                  marginBottom: 8,
-                  color: "#6b7280",
-                }}
-              >
+            <MotionCard delay={i * 0.1}>
+              <h3 style={{ fontSize: "1rem", marginBottom: 8, color: "#6b7280" }}>
                 {key[0].toUpperCase() + key.slice(1)}
               </h3>
-              <h2
-                style={{
-                  fontSize: "1.8rem",
-                  fontWeight: 700,
-                  color: "#111827",
-                }}
-              >
+              <h2 style={{ fontSize: "1.8rem", fontWeight: 700, color: "#111827" }}>
                 {summary[key]}
               </h2>
               <AreaChart
@@ -263,7 +283,7 @@ export default function AdminDashboard() {
       {/* Table + Accordion */}
       <Row gutter={[24, 24]} style={{ marginBottom: 24 }}>
         <Col xs={24} md={12}>
-          <MotionCard title={<span style={{ fontWeight: 600 }}>Products Table</span>} bodyStyle={{ padding: "1rem" }}>
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Products Table</span>}>
             <Table
               rowKey="_id"
               columns={productColumns}
@@ -274,48 +294,9 @@ export default function AdminDashboard() {
             />
           </MotionCard>
         </Col>
-
         <Col xs={24} md={12}>
-          <MotionCard title={<span style={{ fontWeight: 600 }}>Products List </span>} bodyStyle={{ padding: "1rem" }}>
-            <Collapse accordion>
-              {products.map((product) => (
-                <Panel
-                  key={product._id}
-                  header={`${product.name} (${typeof product.category === "object" ? product.category.name : product.category})`}
-                  extra={
-                    <Tag
-                      color={{
-                        approved: "green",
-                        rejected: "red",
-                        pending: "orange",
-                      }[product.status] || "gray"}
-                    >
-                      {product.status?.toUpperCase()}
-                    </Tag>
-                  }
-                >
-                  <Descriptions bordered column={1} size="small">
-                    <Descriptions.Item label="Name">{product.name}</Descriptions.Item>
-                    <Descriptions.Item label="Category">{typeof product.category === "object" ? product.category.name : product.category}</Descriptions.Item>
-                    <Descriptions.Item label="Stock">{product.stock ?? 0}</Descriptions.Item>
-                    <Descriptions.Item label="Status">{product.status}</Descriptions.Item>
-                    <Descriptions.Item label="Description">{product.description || "N/A"}</Descriptions.Item>
-                    <Descriptions.Item label="Created At">{new Date(product.createdAt).toLocaleString()}</Descriptions.Item>
-                    {product.images && product.images.length > 0 && (
-                      <Descriptions.Item label="Images">
-                        <Row gutter={[8, 8]}>
-                          {product.images.map((img, idx) => (
-                            <Col key={idx}>
-                              <img src={img} alt={product.name} width={80} style={{ borderRadius: 6 }} />
-                            </Col>
-                          ))}
-                        </Row>
-                      </Descriptions.Item>
-                    )}
-                  </Descriptions>
-                </Panel>
-              ))}
-            </Collapse>
+          <MotionCard title={<span style={{ fontWeight: 600 }}>Products List</span>}>
+            <Collapse accordion items={collapseItems} />
           </MotionCard>
         </Col>
       </Row>
