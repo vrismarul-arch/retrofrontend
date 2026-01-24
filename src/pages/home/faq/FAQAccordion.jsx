@@ -1,78 +1,66 @@
 import React, { useState } from 'react';
-import './FAQAccordion.css'; // Import the new CSS file
+import { motion, AnimatePresence } from 'framer-motion';
+import { ChevronDown, HelpCircle } from 'lucide-react'; // Icons sethuruken
+import './FAQAccordion.css';
 
-// Array of FAQ data
 const faqData = [
-  {
-    id: 1,
-    question: "why can't I sign in?",
-    answer: "Lorem ipsum, dolor sit amet consectetur adipisicing elit. Quis, consectetur tempore fugit quaerat, reprehenderit voluptatem laborum dolor error architecto nulla nihil quam culpa exercitationem earum."
-  },
-  {
-    id: 2,
-    question: "how do I get a reference?",
-    answer: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Perspiciatis nobis reprehenderit, pariatur incidunt, a vero quis eius corrupti, unde aliquid saepe! Eaque?"
-  },
-  {
-    id: 3,
-    question: "how do I apply?",
-    answer: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Dolor at alias dolorum, quaerat corporis exercitationem? Placeat sed quas iure assumenda!"
-  },
-  {
-    id: 4,
-    question: "what are entry requirements?",
-    answer: "Lorem ipsum dolor sit amet consectetur adipisicing elit. Molestiae ut nemo eum modi explicabo ea non, rerum beatae, perspiciatis necessitatibus quasi ratione similique. Quod architecto impedit odio inventore eum. Error, quidem necessitatibus mollitia rerum quis repellat aspernatur culpa magnam veniam!"
-  },
+  { id: 1, question: "Why can't I sign in?", answer: "Check your email and password. If you forgot your password, use the 'Forgot Password' link to reset it via your registered email." },
+  { id: 2, question: "How do I get a reference?", answer: "Once your order is completed, you can find the order reference number in your account dashboard under 'My Orders'." },
+  { id: 3, question: "How do I apply?", answer: "Browse our categories, add items to your cart, and proceed to checkout. Fill in your delivery details and complete the payment." },
+  { id: 4, question: "What are entry requirements?", answer: "For wholesale accounts, we require a valid GST number and shop registration details. Personal accounts only need a phone number." },
 ];
 
 const FAQAccordion = () => {
-  // State to track which item is open. Using a single ID for accordion mode.
-  // Set to null to start with all closed.
   const [openId, setOpenId] = useState(null);
 
   const toggleQuestion = (id) => {
-    // If the clicked item is already open, close it (set to null).
-    // Otherwise, open the clicked item (set to the new id).
     setOpenId(openId === id ? null : id);
   };
 
   return (
-    <section className="faq">
-      {/* Google Fonts and Font Awesome are usually linked in public/index.html or the main entry file,
-          but I've kept the styles based on your request. */}
-      {/* The links below are for demonstration; you typically don't put <link> tags in a React component's return */}
-      <link rel="preconnect" href="https://fonts.googleapis.com" />
-      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="true" />
-      <link href="https://fonts.googleapis.com/css2?family=Rubik:wght@300;400;500&display=swap" rel="stylesheet" />
-      <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" integrity="sha512-Fo3rlrZj/k7ujTnHg4CGR2D7kSs0v4LLanw2qksYuRlEzO+tcaEPQogQ0KaoGN26/zrn20ImR1DfuLWnOo7aBA==" crossOrigin="anonymous" referrerPolicy="no-referrer" />
-
-      <div className="headings">
-        <h2 className="section-heading">frequently asked questions</h2>
-        <p className="sub-heading">
-          Here are some of our FAQs. If you have any other questions you’d like answered please feel free to email us.
-        </p>
+    <section className="faq-section">
+      <div className="faq-headings">
+        <div className="faq-badge"><HelpCircle size={16} /> FAQ Support</div>
+        <h2 className="faq-title">Frequently Asked Questions</h2>
+        <div className="faq-title-underline"></div>
+        <p className="faq-subtitle">Everything you need to know about our service.</p>
       </div>
       
-      <div className="que-container">
+      <div className="faq-container">
         {faqData.map((item) => {
           const isOpen = item.id === openId;
           
           return (
-            <div className="question" key={item.id}>
+            <div className={`faq-item ${isOpen ? 'active' : ''}`} key={item.id}>
               <button
-                // Use className based on state
-                className={isOpen ? "show" : ""}
+                className="faq-question-btn"
                 onClick={() => toggleQuestion(item.id)}
+                aria-expanded={isOpen}
               >
-                <span>{item.question}</span>
-                {/* Font Awesome icon */}
-                <i className="fas fa-chevron-down"></i>
+                <span className="q-text">{item.question}</span>
+                <motion.div
+                  animate={{ rotate: isOpen ? 180 : 0 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  <ChevronDown className={`faq-icon ${isOpen ? 'icon-active' : ''}`} />
+                </motion.div>
               </button>
               
-              {/* The answer paragraph is conditionally rendered and styled */}
-              <p style={{ height: isOpen ? 'auto' : 0, paddingBottom: isOpen ? '25px' : 0 }}>
-                {item.answer}
-              </p>
+              <AnimatePresence>
+                {isOpen && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: "auto", opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    transition={{ duration: 0.3, ease: "easeInOut" }}
+                    className="faq-answer-wrapper"
+                  >
+                    <div className="faq-answer-content">
+                      <p>{item.answer}</p>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
             </div>
           );
         })}

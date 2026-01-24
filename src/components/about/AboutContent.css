@@ -1,30 +1,78 @@
-/* Container for the whole About page */
-.about-container {
-  max-width: 1000px;
-  margin: 0 auto;
-  padding: 20px;
+.about-page-bg {
+  background-color: #f4f7f7; /* Outer page background */
+  padding: 80px 20px;
+  min-height: 100vh;
 }
 
-/* Centered header section */
+.main-card-wrapper {
+  max-width: 1200px;
+  margin: 0 auto;
+  background: #ffffff; /* Inner Card Background */
+  padding: 60px 40px;
+  border-radius: 30px; /* Rounded corners */
+  /* Darker Shadow effect */
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.15); 
+  border: 1px solid rgba(0, 128, 128, 0.05);
+}
+
 .about-header {
   text-align: center;
-  margin-bottom: 50px;
+  margin-bottom: 60px;
+  background: linear-gradient(180deg, #f0f9f9 0%, #ffffff 100%);
+  padding: 40px;
+  border-radius: 20px;
 }
 
-/* Sections with spacing between them */
-.about-section {
-  margin-bottom: 50px;
+.main-title {
+  color: #008080 !important;
+  letter-spacing: 2px;
+  margin-bottom: 0px !important;
+  font-weight: 800 !important;
 }
 
-/* Paragraph styling */
-.about-paragraph {
-  color: #555;
-  line-height: 1.7;
-  margin-bottom: 16px;
+.sub-title {
+  color: #333;
+  font-weight: 400 !important;
+  margin-top: 10px !important;
 }
 
-/* Divider styling (optional) */
-.about-divider {
-  margin: 40px 0;
-  border-top: 1px solid #e8e8e8;
+.features-title {
+  text-align: center;
+  margin-bottom: 40px;
+  color: #222;
+}
+
+/* Feature Cards inside the main box */
+.feature-card {
+  text-align: center;
+  border: 1px solid #f0f0f0 !important;
+  background: #ffffff !important;
+  transition: all 0.3s ease !important;
+  height: 100%;
+  border-radius: 15px !important;
+  /* Chinna shadow for inner cards */
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03) !important;
+}
+
+.feature-card:hover {
+  transform: translateY(-8px);
+  /* Darker shadow on hover */
+  box-shadow: 0 15px 35px rgba(0, 128, 128, 0.2) !important;
+  border-color: #008080 !important;
+}
+
+.feature-icon {
+  font-size: 44px;
+  color: #008080;
+  margin-bottom: 20px;
+}
+
+/* Mobile responsive adjustments */
+@media (max-width: 768px) {
+  .about-page-bg {
+    padding: 40px 15px;
+  }
+  .main-card-wrapper {
+    padding: 40px 20px;
+  }
 }

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../../../api";
 import toast from "react-hot-toast";
-import LoadingScreen from "../../../components/loading/LoadingScreen"; // full-page loader
+import LoadingScreen from "../../../components/loading/LoadingScreen";
 import "./Categories.css";
 
 export default function Categories() {
@@ -14,7 +14,7 @@ export default function Categories() {
     const fetchCategories = async () => {
       setLoading(true);
       try {
-        const res = await api.get("/api/admin/categories"); // nested data with subCategories & brands
+        const res = await api.get("/api/admin/categories");
         setCategories(res.data);
       } catch (err) {
         console.error("Error fetching categories:", err);
@@ -27,41 +27,41 @@ export default function Categories() {
   }, []);
 
   const handleCategoryClick = (category) => {
-    // Pass entire category object via state
+    // Navigating to category details page
     navigate(`/category/${category._id}`, { state: category });
   };
 
-  // Show full-page loader while loading
   if (loading) {
     return <LoadingScreen message="Loading Categories..." />;
   }
 
   return (
-    <div className="categories-section">
+    <section className="categories-section">
       <div className="section-title-container">
         <h2 className="section-title">Explore Our Categories</h2>
         <hr className="section-title-hr" />
       </div>
 
-      <div className="grid">
+      <div className="category-grid">
         {categories.map((cat) => (
           <div
             key={cat._id}
-            className="card"
+            className="category-card"
             onClick={() => handleCategoryClick(cat)}
           >
-            <div className="card-img-wrapper">
+            <div className="category-img-wrapper">
               <img
                 src={cat.imageUrl || "/placeholder.png"}
                 alt={cat.name}
-                className="card-img"
+                className="category-img"
+                loading="lazy"
                 onError={(e) => (e.target.src = "/placeholder.png")}
               />
             </div>
-            <p className="card-title">{cat.name}</p>
+            <p className="category-card-title">{cat.name}</p>
           </div>
         ))}
       </div>
-    </div>
+    </section>
   );
 }

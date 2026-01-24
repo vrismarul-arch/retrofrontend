@@ -10,7 +10,7 @@
 }
 
 /* Optional: add subtle separation between sections */
-.home-section:not(:last-child) {
+/* .home-section:not(:last-child) {
   border-bottom: 1px solid #f0f0f0;
   padding-bottom: 2rem;
-}
+} */
